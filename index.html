@@ -361,8 +361,8 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
   <div class="nav-section">Publication</div>
   <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard"><span class="nav-icon">◈</span>Tableau de bord</div>
   <div class="nav-item" onclick="nav('create')" id="nav-create"><span class="nav-icon">✦</span>Créer un post</div>
-  <div class="nav-item" onclick="nav('myposts')" id="nav-myposts"><span class="nav-icon">📋</span>Mes posts<span class="nav-badge" id="myposts-badge" style="display:none">0</span></div>
-  <div class="nav-item" onclick="nav('automation')" id="nav-automation"><span class="nav-icon">⚙</span>Automatisation</div>
+  <div class="nav-item" onclick="nav('myposts')" id="nav-myposts"><span class="nav-icon">📋</span>Posts programmés<span class="nav-badge" id="myposts-badge" style="display:none">0</span></div>
+  <div class="nav-item" onclick="nav('automation')" id="nav-automation"><span class="nav-icon">⚙</span>Règles récurrentes</div>
   <div class="nav-item" onclick="nav('queue')" id="nav-queue"><span class="nav-icon">⧗</span>File de validation<span class="nav-badge" id="queue-badge" style="display:none">0</span></div>
   <div class="nav-item" onclick="nav('history')" id="nav-history"><span class="nav-icon">◎</span>Historique</div>
   <div class="nav-item" onclick="nav('calendar')" id="nav-calendar"><span class="nav-icon">▦</span>Calendrier</div>
@@ -440,6 +440,8 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
         <div class="card-title">Démarrage rapide</div>
         <div class="flex gap12 flex-wrap">
           <button class="btn btn-neon" onclick="nav('create')">✦ Créer un post</button>
+          <button class="btn btn-ghost" onclick="nav('myposts')">📋 Posts programmés</button>
+          <button class="btn btn-ghost" onclick="nav('automation')">⚙ Règles récurrentes</button>
           <button class="btn btn-ghost" onclick="nav('queue')">⧗ File de validation</button>
           <button class="btn btn-ghost" onclick="nav('connections')">⟳ Connexions</button>
           <button class="btn btn-ghost" onclick="nav('ai')">⚡ Configuration AI</button>
@@ -778,10 +780,13 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
     <div class="page" id="page-myposts">
       <div class="card">
         <div class="card-title flex-between">
-          Mes posts sauvegardés
+          Posts programmés à date fixe
           <button class="btn btn-neon btn-sm" onclick="openNewSchedModal()">+ Nouveau post</button>
         </div>
-        <p class="text-sm text-muted mb16">Préparez et stockez vos posts. Programmez-les ou publiez-les à la demande. Modifiez ou supprimez à tout moment.</p>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:4px">Posts à date et heure exactes choisies par vous</div>
+          <div class="text-sm text-muted">Créez un post, choisissez une date et heure précises, et le système le publiera automatiquement à ce moment-là. Pour les publications répétitives (tous les jours, toutes les semaines...) utilisez plutôt <strong style="color:var(--text)">Règles récurrentes</strong>.</div>
+        </div>
 
         <!-- Filters -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
@@ -869,13 +874,13 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
     <div class="page" id="page-automation">
       <div class="card">
         <div class="card-title flex-between">
-          Automatisation des publications
+          Règles récurrentes automatisées
           <button class="btn btn-neon btn-sm" onclick="openAutoModal()">+ Nouvelle règle</button>
         </div>
-        <p class="text-sm text-muted mb16">
-          Créez des règles d'envoi automatique. Le système générera et vous enverra un post pour validation selon la fréquence choisie.
-          Le cron Cloudflare s'exécute toutes les heures et vérifie les règles actives.
-        </p>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Fréquence choisie par vous — Cloudflare vérifie toutes les heures</div>
+          <div class="text-sm text-muted">Choisissez une fréquence (quotidien, hebdomadaire...) et une heure. Le système génère automatiquement un nouveau post à chaque échéance. Avec validation email optionnelle avant publication. Pour une date unique précise, utilisez <strong style="color:var(--text)">Posts programmés</strong>.</div>
+        </div>
 
         <!-- Frequency legend -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
@@ -894,7 +899,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
       <div id="auto-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:16px">
         <div style="background:var(--panel);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:28px">
           <div class="flex-between mb16">
-            <div class="card-title" style="margin:0;border:none;padding:0" id="auto-modal-title">Nouvelle règle d'automatisation</div>
+            <div class="card-title" style="margin:0;border:none;padding:0" id="auto-modal-title">Nouvelle règle récurrente</div>
             <button class="btn btn-ghost btn-sm" onclick="closeAutoModal()">✕</button>
           </div>
 
@@ -1000,8 +1005,18 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
 // ═══════════════════════════════════════════════════════════
 // CONFIG & STATE
 // ═══════════════════════════════════════════════════════════
-const ADMIN_TOKEN = 'pgi_direct_access_2024'; // Token hardcodé pour accès direct
-let WORKER_URL = localStorage.getItem('pgi_worker_url') || ''; // jamais de valeur par défaut
+// ── STORAGE KEYS — uniques à cette instance PGI ─────────────
+// Préfixe basé sur le nom du Worker pour éviter tout conflit
+// avec d'autres sites ou dashboards sur le même navigateur
+const STORAGE_PREFIX = 'pgi_fredericandco_';
+const SK = {
+  workerUrl: STORAGE_PREFIX + 'worker_url',
+  token:     STORAGE_PREFIX + 'token',
+  refImg:    STORAGE_PREFIX + 'ref_img',
+};
+
+const ADMIN_TOKEN = 'pgi_direct_access_2024'; // doit correspondre au secret Cloudflare
+let WORKER_URL = localStorage.getItem(SK.workerUrl) || '';
 
 const SITE_PAGES = [
   // ── PAGES PRINCIPALES ──
@@ -1164,7 +1179,7 @@ function saveWorkerUrl() {
   const v = document.getElementById('worker-url-inp').value.trim();
   if (!v) return notify('Entrez une URL valide.', 'err');
   WORKER_URL = v;
-  localStorage.setItem('pgi_worker_url', v);
+  localStorage.setItem(SK.workerUrl, v);
   updateWorkerStatus();
   notify('URL Worker sauvegardée.', 'ok');
   initApp();
@@ -1828,14 +1843,14 @@ function saveRef() {
   if (!file) { notify('Sélectionnez une image.', 'err'); return; }
   const r = new FileReader();
   r.onload = e => {
-    localStorage.setItem('pgi_ref_img', e.target.result);
+    localStorage.setItem(SK.refImg, e.target.result);
     renderRef(e.target.result);
     notify('Image de référence sauvegardée.', 'ok');
   };
   r.readAsDataURL(file);
 }
 function loadRef() {
-  const img = localStorage.getItem('pgi_ref_img');
+  const img = localStorage.getItem(SK.refImg);
   if (img) renderRef(img);
 }
 function renderRef(src) {
@@ -1879,8 +1894,8 @@ function closeSidebar() {
 // PAGE TITLES (extend for new pages)
 // ═══════════════════════════════════════════════════════════
 Object.assign(PAGE_TITLES, {
-  myposts:    'Mes posts sauvegardés',
-  automation: 'Automatisation des publications',
+  myposts:    'Posts programmés à date fixe',
+  automation: 'Règles récurrentes automatisées',
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -2111,7 +2126,7 @@ function openAutoModal(editData = null) {
   document.getElementById('am-hour').value = editData?.hour || '09:00';
   document.getElementById('am-theme').value = editData?.themes?.[0] || '';
   document.getElementById('am-tone').value  = editData?.tone || 'balanced';
-  document.getElementById('auto-modal-title').textContent = editData ? 'Modifier la règle' : 'Nouvelle règle d\'automatisation';
+  document.getElementById('auto-modal-title').textContent = editData ? 'Modifier la règle récurrente' : 'Nouvelle règle récurrente';
 
   // Restore email validation toggle
   const validateEmail = editData ? (editData.validateEmail !== false) : true; // par défaut activé
