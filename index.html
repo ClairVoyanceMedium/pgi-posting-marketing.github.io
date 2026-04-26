@@ -374,7 +374,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
 
   <div class="nav-section">Système</div>
-  <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Moteur AI</div>
+  <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Configuration AI</div>
   <div class="nav-item" onclick="nav('email')" id="nav-email"><span class="nav-icon">✉</span>Email</div>
   <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span class="nav-icon">▤</span>Logs</div>
 
@@ -442,7 +442,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
           <button class="btn btn-neon" onclick="nav('create')">✦ Créer un post</button>
           <button class="btn btn-ghost" onclick="nav('queue')">⧗ File de validation</button>
           <button class="btn btn-ghost" onclick="nav('connections')">⟳ Connexions</button>
-          <button class="btn btn-ghost" onclick="nav('ai')">⚡ Moteur AI</button>
+          <button class="btn btn-ghost" onclick="nav('ai')">⚡ Configuration AI</button>
         </div>
       </div>
     </div>
@@ -634,8 +634,68 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
 
     <!-- ══ AI ENGINE ══ -->
     <div class="page" id="page-ai">
+
+      <!-- Guide clés API gratuites -->
+      <div class="card" style="border-color:rgba(0,191,255,.3)">
+        <div class="card-title">Où trouver votre clé API — Recommandations gratuites</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="font-size:22px">⚡</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--green)">Groq — GRATUIT illimité</div>
+                <div class="text-sm text-muted">Llama 3.3 70B — très rapide</div>
+              </div>
+            </div>
+            <div class="fhelp" style="margin-bottom:10px">Créez un compte sur <strong style="color:var(--neon)">console.groq.com</strong>, allez dans API Keys → Create API Key. Copiez la clé commençant par <code style="color:var(--gold)">gsk_</code></div>
+            <a href="https://console.groq.com/keys" target="_blank" class="btn btn-green btn-sm" style="font-size:11px">Obtenir la clé Groq →</a>
+          </div>
+
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="font-size:22px">🤖</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--green)">DeepSeek — quasi gratuit</div>
+                <div class="text-sm text-muted">DeepSeek Chat — ~0.002$/1000 tokens</div>
+              </div>
+            </div>
+            <div class="fhelp" style="margin-bottom:10px">Créez un compte sur <strong style="color:var(--neon)">platform.deepseek.com</strong>, allez dans API Keys → Create. Clé commençant par <code style="color:var(--gold)">sk-</code></div>
+            <a href="https://platform.deepseek.com/api_keys" target="_blank" class="btn btn-green btn-sm" style="font-size:11px">Obtenir la clé DeepSeek →</a>
+          </div>
+
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="font-size:22px">🌟</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--gold)">Mistral — généreux</div>
+                <div class="text-sm text-muted">Mistral Large — crédit offert</div>
+              </div>
+            </div>
+            <div class="fhelp" style="margin-bottom:10px">Créez un compte sur <strong style="color:var(--neon)">console.mistral.ai</strong>, allez dans API Keys → Create new key. Clé alphanumérique longue.</div>
+            <a href="https://console.mistral.ai/api-keys" target="_blank" class="btn btn-ghost btn-sm" style="font-size:11px">Obtenir la clé Mistral →</a>
+          </div>
+
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="font-size:22px">🎨</span>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:var(--orange)">Images — GRATUIT Pollinations</div>
+                <div class="text-sm text-muted">Aucune clé requise — open source</div>
+              </div>
+            </div>
+            <div class="fhelp">Pollinations.ai est entièrement gratuit et sans clé API. Choisissez "Pollinations (gratuit)" dans Fournisseur d'images. Les images sont générées via leur service public.</div>
+          </div>
+
+        </div>
+        <div style="background:rgba(0,187,85,.07);border:1px solid rgba(0,187,85,.2);border-radius:8px;padding:12px 16px;margin-top:14px">
+          <span style="color:var(--green);font-weight:700;font-size:13px">Recommandation gratuite complète :</span>
+          <span class="text-sm" style="color:var(--text2);margin-left:8px">Fournisseur texte = <strong style="color:var(--text)">Groq</strong> (gratuit) + Fournisseur images = <strong style="color:var(--text)">Pollinations</strong> (gratuit) → 0€/mois</span>
+        </div>
+      </div>
+
       <div class="card">
-        <div class="card-title">Moteur AI — Génération de texte</div>
+        <div class="card-title">Configuration AI — Génération de texte</div>
         <div class="grid2">
           <div class="fgrp">
             <label class="flabel">Fournisseur AI</label>
@@ -671,8 +731,9 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
           <div class="fgrp">
             <label class="flabel">Fournisseur d'images</label>
             <select class="fselect" id="img-provider">
-              <option value="dalle3">DALL-E 3 (OpenAI)</option>
-              <option value="stability">Stability AI (SDXL)</option>
+              <option value="pollinations">Pollinations AI (GRATUIT — aucune clé requise)</option>
+              <option value="dalle3">DALL-E 3 (OpenAI) — payant</option>
+              <option value="stability">Stability AI (SDXL) — payant</option>
               <option value="none">Pas de génération d'image</option>
             </select>
           </div>
@@ -943,24 +1004,69 @@ const ADMIN_TOKEN = 'pgi_direct_access_2024'; // Token hardcodé pour accès dir
 let WORKER_URL = localStorage.getItem('pgi_worker_url') || ''; // jamais de valeur par défaut
 
 const SITE_PAGES = [
-  { url:"https://www.clairvoyancemedium.com/Accueil-ccbaaaaaa.asp",label:"Accueil",themes:["general","voyance","presentation","bienvenue"] },
-  { url:"https://www.clairvoyancemedium.com/Voyance-Telephone-cbbaaaaaa.asp",label:"Voyance par Téléphone",themes:["telephone","appel","urgence","direct","immediat"] },
-  { url:"https://www.clairvoyancemedium.com/Voyance-Par-email-cbcaaaaaa.asp",label:"Voyance par Email",themes:["email","ecrit","questions"] },
-  { url:"https://www.clairvoyancemedium.com/Consultation-express-cbgaaaaac.asp",label:"Consultation Express",themes:["express","rapide","urgent","maintenant"] },
-  { url:"https://www.clairvoyancemedium.com/Love-Compatibilite-cbgaaaaaj.asp",label:"Love & Compatibilité",themes:["amour","sentimental","couple","retour","coeur","ex","rupture"] },
-  { url:"https://www.clairvoyancemedium.com/Desenvoutement-cbgaaaaae.asp",label:"Désenvoûtement",themes:["envoutement","blocage","malchance","sort","protection"] },
-  { url:"https://www.clairvoyancemedium.com/Magie-Blanche-Rouge-cbgaaaaag.asp",label:"Magie Blanche/Rouge",themes:["magie","rituel","charme","rouge","blanche"] },
-  { url:"https://www.clairvoyancemedium.com/Rituels-Les-Methodes-de-Frederick-ccgaaaaaa.asp",label:"Rituels de Frederick",themes:["methode","rituel","frederick","technique","secret"] },
-  { url:"https://www.clairvoyancemedium.com/Astrologie-cbfaaaaaa.asp",label:"Astrologie",themes:["astrologie","horoscope","signe","planete","zodiaque"] },
-  { url:"https://www.clairvoyancemedium.com/Horoscope-Du-jour-cbgaaaaah.asp",label:"Horoscope du jour",themes:["horoscope","jour","quotidien"] },
-  { url:"https://www.clairvoyancemedium.com/Dialoguer-avec-un-defunt-cbgaaaaaf.asp",label:"Dialoguer avec un défunt",themes:["deuil","defunt","mediumnite","esprit"] },
-  { url:"https://www.clairvoyancemedium.com/WhatsApp-Signal-cbgaaaaak.asp",label:"WhatsApp / Signal",themes:["whatsapp","signal","chat"] },
-  { url:"https://www.clairvoyancemedium.com/Voyance-photos-cbgaaaaau.asp",label:"Voyance par photos",themes:["photo","portrait","image"] },
-  { url:"https://www.clairvoyancemedium.com/Voyance-Pendule-cbgaaaaav.asp",label:"Voyance Pendule",themes:["pendule","divination","oscillation"] },
-  { url:"https://www.clairvoyancemedium.com/ENTREPRISE-Voyance-Email-cbgaaaaat.asp",label:"Voyance Entreprise",themes:["entreprise","professionnel","business"] },
-  { url:"https://www.clairvoyancemedium.com/Contact-ccfaaaaaa.asp",label:"Contact",themes:["contact","joindre","question"] },
-  { url:"https://www.clairvoyancemedium.com/Qui-suis-je-ccdaaaaaa.asp",label:"Qui suis-je — Frederick",themes:["presentation","frederick","medium","biographie","qui"] },
-  { url:"https://www.clairvoyancemedium.com/Blog-Retour-affectif-ce-que-les-marabouts-ne-vous-disent-jamais-ccnaaaaaa.asp",label:"Blog Retour Affectif",themes:["retour","affectif","marabout","blog"] },
+  // ── PAGES PRINCIPALES ──
+  { url:"https://www.clairvoyancemedium.com/Accueil-ccbaaaaaa.asp", label:"Accueil", themes:["general","voyance","presentation","bienvenue","accueil"] },
+  { url:"https://www.clairvoyancemedium.com/Qui-suis-je-ccdaaaaaa.asp", label:"Qui suis-je — Frederick", themes:["presentation","frederick","medium","biographie","qui","confiance"] },
+  { url:"https://www.clairvoyancemedium.com/Contact-ccfaaaaaa.asp", label:"Contact", themes:["contact","joindre","question","information"] },
+  // ── SERVICES VOYANCE ──
+  { url:"https://www.clairvoyancemedium.com/Voyance-Telephone-cbbaaaaaa.asp", label:"Voyance par Téléphone", themes:["telephone","appel","urgence","direct","immediat","appeler","consultation"] },
+  { url:"https://www.clairvoyancemedium.com/Voyance-Par-email-cbcaaaaaa.asp", label:"Voyance par Email", themes:["email","ecrit","questions","reponse","courrier"] },
+  { url:"https://www.clairvoyancemedium.com/Voyance-par-SMS-cbdaaaaaa.asp", label:"Voyance par SMS", themes:["sms","texto","message","rapide","court"] },
+  { url:"https://www.clairvoyancemedium.com/WhatsApp-Signal-cbgaaaaak.asp", label:"Voyance WhatsApp / Signal", themes:["whatsapp","signal","chat","messagerie","instant"] },
+  { url:"https://www.clairvoyancemedium.com/Consultation-express-cbgaaaaac.asp", label:"Consultation Express", themes:["express","rapide","urgent","immediat","maintenant","vite"] },
+  { url:"https://www.clairvoyancemedium.com/Voyance-photos-cbgaaaaau.asp", label:"Voyance par Photos", themes:["photo","portrait","image","photo"] },
+  { url:"https://www.clairvoyancemedium.com/Voyance-Pendule-cbgaaaaav.asp", label:"Voyance par Pendule", themes:["pendule","divination","oscillation"] },
+  { url:"https://www.clairvoyancemedium.com/ENTREPRISE-Voyance-Email-cbgaaaaat.asp", label:"Voyance Entreprise / Email", themes:["entreprise","professionnel","business","societe","travail"] },
+  // ── CATÉGORIES SPÉCIALISÉES ──
+  { url:"https://www.clairvoyancemedium.com/Love-Compatibilite-cbgaaaaaj.asp", label:"Love & Compatibilité Amoureuse", themes:["amour","sentimental","couple","compatibilite","retour","coeur","ex","rupture","relation","rencontre","amoureuse"] },
+  { url:"https://www.clairvoyancemedium.com/Desenvoutement-cbgaaaaae.asp", label:"Désenvoûtement", themes:["envoutement","blocage","malchance","sort","protection","desenvoutement","mauvais"] },
+  { url:"https://www.clairvoyancemedium.com/Magie-Blanche-Rouge-cbgaaaaag.asp", label:"Magie Blanche / Rouge", themes:["magie","rituel","charme","rouge","blanche","sort","attirer","retour"] },
+  { url:"https://www.clairvoyancemedium.com/Rituels-Les-Methodes-de-Frederick-ccgaaaaaa.asp", label:"Rituels — Les Méthodes de Frederick", themes:["methode","rituel","frederick","technique","secret","puissant"] },
+  { url:"https://www.clairvoyancemedium.com/Dialoguer-avec-un-defunt-cbgaaaaaf.asp", label:"Dialoguer avec un Défunt", themes:["deuil","defunt","mediumnite","mort","esprit","ange","contact"] },
+  { url:"https://www.clairvoyancemedium.com/Medecine-Naturelle-cbgaaaaad.asp", label:"Médecine Naturelle", themes:["sante","naturel","bien-etre","guerison","plante","energie","corps"] },
+  { url:"https://www.clairvoyancemedium.com/Astrologie-cbfaaaaaa.asp", label:"Astrologie", themes:["astrologie","horoscope","signe","planete","zodiaque","astre","theme"] },
+  { url:"https://www.clairvoyancemedium.com/Horoscope-Du-jour-cbgaaaaah.asp", label:"Horoscope du Jour", themes:["horoscope","jour","quotidien","semaine","mois","signe"] },
+  { url:"https://www.clairvoyancemedium.com/Ligne-de-la-main-cbgaaaaal.asp", label:"Ligne de la Main — Chiromancie", themes:["main","chiromancie","ligne","palmiste","destin"] },
+  { url:"https://www.clairvoyancemedium.com/Interpretation-cbgaaaaax.asp", label:"Interprétation Symbolique", themes:["interpretation","reve","symbole","sens","signification"] },
+  { url:"https://www.clairvoyancemedium.com/Les-plus-demandes-cbgaaaaab.asp", label:"Les plus demandés", themes:["populaire","demande","top","best","service"] },
+  { url:"https://www.clairvoyancemedium.com/A-Decouvrir-cbgaaaaai.asp", label:"À Découvrir", themes:["decouvrir","nouveau","offre","selection"] },
+  { url:"https://www.clairvoyancemedium.com/Forum-Voyance-FC-cbhaaaaaa.asp", label:"Forum Voyance", themes:["forum","discussion","communaute","avis","temoignage"] },
+  // ── BOUTIQUE ──
+  { url:"https://www.clairvoyancemedium.com/Univers-de-la-voyance-cbeaaaaad.asp", label:"Boutique — Univers de la Voyance", themes:["boutique","produit","achat","article","voyance"] },
+  { url:"https://www.clairvoyancemedium.com/Minceur-et-dietetique-cbeaaaaab.asp", label:"Minceur et Diététique", themes:["minceur","regime","dietetique","poids","sante"] },
+  { url:"https://www.clairvoyancemedium.com/Sommeil-et-bien-etre-cbeaaaaac.asp", label:"Sommeil et Bien-être", themes:["sommeil","repos","bien-etre","relaxation","stress"] },
+  // ── FAQ ──
+  { url:"https://www.clairvoyancemedium.com/F-A-Q-VOYANCE-SERIEUSE-60-REPONSES-COMPLETES-AUX-QUESTIONS-LES-PLU-ccBaaaaaa.asp", label:"FAQ — 60 réponses sur la voyance", themes:["faq","question","reponse","guide","conseil","serieux"] },
+  // ── BLOGS ──
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-par-telephone-ccwaaaaaa.asp", label:"Blog : Voyance par téléphone", themes:["blog","telephone","voyance","article","guide"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Retour-affectif-ce-que-les-marabouts-ne-vous-disent-jamais-ccnaaaaaa.asp", label:"Blog : Retour affectif — ce que les marabouts ne disent pas", themes:["retour","affectif","marabout","ex","blog","amour"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Dependance-affective-la-comprendre-la-surmonter-Guide-psych-cckaaaaaa.asp", label:"Blog : Dépendance affective", themes:["dependance","emprise","psychologie","emotionnel","relation","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Rever-de-Morts-Signification-et-Interpretation-Complete-ccoaaaaaa.asp", label:"Blog : Rêver de morts — signification", themes:["reve","mort","signification","interpretation","songe","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Comment-Interpreter-un-Tirage-de-Tarot-Les-Fondamentaux-que-T-ccpaaaaaa.asp", label:"Blog : Interpréter un tirage de tarot", themes:["tarot","tirage","carte","interpretation","divination","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-par-email-fiable-ccxaaaaaa.asp", label:"Blog : Voyance par email fiable", themes:["email","fiable","serieux","voyance","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Mauvais-%C5%93il-symptomes-diagnostic-et-solutions-ccqaaaaaa.asp", label:"Blog : Mauvais œil — symptômes et solutions", themes:["mauvais","oeil","symptome","protection","diagnostic","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Chemin-de-vie-en-numerologie-guide-complet-pour-reveler-votre-ccraaaaaa.asp", label:"Blog : Chemin de vie en numérologie", themes:["numerologie","chemin","vie","mission","chiffre","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-gratuite-par-Telephone-Serieuse-Comment-Reconnaitre-u-cclaaaaaa.asp", label:"Blog : Voyance gratuite par téléphone sérieuse", themes:["gratuit","telephone","serieux","cabinet","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Oracle-de-Belline-3-methodes-de-tirage-gratuit-pour-debutant-ccjaaaaaa.asp", label:"Blog : Oracle de Belline", themes:["oracle","belline","tirage","debutant","carte","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Compatibilite-amoureuse-et-voyance-sentimentale-pour-comprendre-ccKaaaaaa.asp", label:"Blog : Compatibilité amoureuse et voyance sentimentale", themes:["compatibilite","amour","sentimental","couple","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Retour-d-ex-et-voyance-sentimentale-pour-savoir-si-une-reconcil-ccLaaaaaa.asp", label:"Blog : Retour d'ex et réconciliation amoureuse", themes:["retour","ex","reconciliation","amour","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Protection-spirituelle-efficace-contre-les-energies-negatives-ccEaaaaaa.asp", label:"Blog : Protection spirituelle contre énergies négatives", themes:["protection","spirituelle","energie","negative","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Desenvoutement-puissant-et-efficace-pour-retrouver-la-paix-inte-ccDaaaaaa.asp", label:"Blog : Désenvoûtement puissant", themes:["desenvoutement","puissant","paix","interieure","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-par-telephone-immediate-et-fiable-pour-des-reponses-cla-ccFaaaaaa.asp", label:"Blog : Voyance par téléphone immédiate et fiable", themes:["telephone","immediat","fiable","reponse","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Retour-d-ex-par-voyance-comprendre-et-reussir-a-renouer-avec-ccGaaaaaa.asp", label:"Blog : Retour d'ex par voyance", themes:["retour","ex","voyance","renouer","amour","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-par-SMS-immediate-et-pas-chere-pour-obtenir-des-reponse-ccHaaaaaa.asp", label:"Blog : Voyance par SMS immédiate", themes:["sms","immediat","pas-cher","reponse","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Desenvoutement-efficace-et-rituel-spirituel-puissant-contre-les-ccIaaaaaa.asp", label:"Blog : Désenvoûtement et rituel spirituel", themes:["desenvoutement","rituel","spirituel","energies","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Pourquoi-choisir-la-voyance-par-email-un-pont-vers-votre-veri-ccJaaaaaa.asp", label:"Blog : Pourquoi choisir la voyance par email", themes:["email","voyance","choisir","verite","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Les-signes-que-votre-intuition-veut-vous-avertir-reconnaitre-cctaaaaaa.asp", label:"Blog : Les signes de votre intuition", themes:["intuition","signe","message","interieur","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-et-Psychologie-L-Accompagnement-Meconnu-des-Personnes-ccmaaaaaa.asp", label:"Blog : Voyance et psychologie", themes:["psychologie","accompagnement","detresse","emotionnel","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Compatibilite-amoureuse-spirituelle-comment-savoir-si-deux-am-ccOaaaaaa.asp", label:"Blog : Compatibilité amoureuse spirituelle", themes:["compatibilite","spirituelle","ames","union","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Desenvoutement-spirituel-comment-se-liberer-des-energies-nega-ccPaaaaaa.asp", label:"Blog : Désenvoûtement spirituel", themes:["desenvoutement","spirituel","liberer","energies","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Purification-energetique-de-la-maison-methodes-efficaces-et-b-ccWaaaaaa.asp", label:"Blog : Purification énergétique de la maison", themes:["purification","maison","energie","methode","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Rituel-de-pleine-lune-pour-manifester-vos-desirs-guide-energe-ccXaaaaaa.asp", label:"Blog : Rituel de pleine lune", themes:["lune","rituel","manifester","desir","energie","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Protection-psychique-techniques-energetiques-pour-se-premunir-ccYaaaaaa.asp", label:"Blog : Protection psychique", themes:["protection","psychique","technique","energetique","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Pourquoi-mes-relations-echouent-toujours-comprendre-les-bloca-ccTaaaaaa.asp", label:"Blog : Pourquoi mes relations échouent", themes:["relation","echec","blocage","emotionnel","guerison","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-amoureuse-par-email-liberez-vos-questionnements-du-c%C5%93-ccRaaaaaa.asp", label:"Blog : Voyance amoureuse par email", themes:["email","amoureux","question","coeur","blog"] },
+  { url:"https://www.clairvoyancemedium.com/Blog-Voyance-par-SMS-eclairer-vos-questions-au-creux-de-votre-poch-ccQaaaaaa.asp", label:"Blog : Voyance par SMS", themes:["sms","question","eclairage","blog"] },
 ];
 
 const PLATFORMS = {
@@ -1030,17 +1136,25 @@ let linkSuggestTimer = null;
 // ═══════════════════════════════════════════════════════════
 async function api(path, method = 'GET', body = null) {
   const base = (WORKER_URL || '').replace(/\/$/, '');
-  if (!base) throw new Error('Worker URL non configuré. Renseignez-la dans la barre en haut à gauche.');
+  if (!base) throw new Error('Worker URL non configuré. Renseignez-la dans la barre en haut de la sidebar.');
   const opts = { method, headers: { 'Content-Type':'application/json', 'X-Admin-Token': ADMIN_TOKEN } };
   if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(base + path, opts);
-  if (!r.ok && r.status !== 200) {
-    const t = await r.text();
-    let msg = t;
-    try { msg = JSON.parse(t).error || t; } catch {}
-    throw new Error(`API ${r.status}: ${msg}`);
+  let r;
+  try {
+    r = await fetch(base + path, opts);
+  } catch (e) {
+    throw new Error('Impossible de joindre le Worker. Vérifiez que l\'URL est correcte et que le Worker est déployé.');
   }
-  return r.json();
+  if (r.status === 401) {
+    throw new Error('Accès refusé (401). Vérifiez que le secret ADMIN_TOKEN dans Cloudflare vaut bien : pgi_direct_access_2024');
+  }
+  if (r.status === 404 && !path.includes('/api/')) {
+    throw new Error('Route introuvable sur le Worker.');
+  }
+  let data;
+  try { data = await r.json(); } catch { throw new Error(`Réponse invalide du Worker (HTTP ${r.status})`); }
+  if (!r.ok) throw new Error(data.error || `Erreur HTTP ${r.status}`);
+  return data;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1075,7 +1189,7 @@ const PAGE_TITLES = {
   dashboard:'Tableau de bord', create:'Créer un post', queue:'File de validation',
   history:'Historique', calendar:'Calendrier', platforms:'Statut des plateformes',
   connections:'Connexions aux plateformes', references:'Images de référence',
-  links:'Liens du site', ai:'Moteur AI', email:'Configuration email', logs:'Logs système',
+  links:'Liens du site', ai:'Configuration AI', email:'Configuration email', logs:'Logs système',
 };
 function nav(name) {
   if (window.innerWidth <= 900) closeSidebar();
@@ -1261,12 +1375,16 @@ async function loadStats() {
 // EMAIL VALIDATION TOGGLE (automation modal)
 // ═══════════════════════════════════════════════════════════
 function toggleEmailValidation() {
-  const cb = document.getElementById('am-validate-email');
+  const cb    = document.getElementById('am-validate-email');
   const track = document.getElementById('am-toggle-track');
   const thumb = document.getElementById('am-toggle-thumb');
-  const hint = document.getElementById('am-validate-hint');
-  cb.checked = !cb.checked;
-  if (cb.checked) {
+  const hint  = document.getElementById('am-validate-hint');
+  // Lire l'état actuel depuis l'attribut data pour fiabilité
+  const isActive = track.dataset.active !== 'false';
+  const nowActive = !isActive;
+  track.dataset.active = String(nowActive);
+  cb.checked = nowActive;
+  if (nowActive) {
     track.style.background = 'var(--neon)';
     thumb.style.left = 'calc(100% - 21px)';
     hint.textContent = 'Actif — chaque post généré vous sera envoyé sur chicsensation@gmail.com pour approbation avant d\'être publié';
@@ -1375,7 +1493,7 @@ function renderResult(content, imageUrl, platforms, postId) {
   if (imageUrl) {
     imgBox.innerHTML = `<img src="${imageUrl}" alt="Visuel">`;
   } else {
-    document.getElementById('r-img-status').textContent = 'Configurez un fournisseur d\'images dans Moteur AI';
+    document.getElementById('r-img-status').textContent = 'Configurez un fournisseur d\'images dans Configuration AI';
   }
 
   const platDiv = document.getElementById('r-platforms');
@@ -1668,7 +1786,7 @@ async function testAiConfig() {
       themes: ['telephone'],
     });
     if (r.success) {
-      el.textContent = '✓ Moteur AI opérationnel. Texte généré avec succès.';
+      el.textContent = '✓ Configuration AI opérationnelle. Texte généré avec succès.';
       el.style.color = 'var(--green)';
     } else throw new Error(r.error);
   } catch (e) {
@@ -2002,6 +2120,7 @@ function openAutoModal(editData = null) {
   const thumb = document.getElementById('am-toggle-thumb');
   const hint  = document.getElementById('am-validate-hint');
   cb.checked = validateEmail;
+  track.dataset.active = String(validateEmail);
   if (validateEmail) {
     track.style.background = 'var(--neon)';
     thumb.style.left = 'calc(100% - 21px)';
@@ -2034,7 +2153,7 @@ async function saveAutomation() {
   const hour  = document.getElementById('am-hour').value;
   const theme = document.getElementById('am-theme').value;
   const tone  = document.getElementById('am-tone').value;
-  const validateEmail = document.getElementById('am-validate-email').checked;
+  const validateEmail = document.getElementById('am-toggle-track').dataset.active !== 'false';
 
   if (!name) { notify('Donnez un nom à cette règle.', 'err'); return; }
   if (!desc)  { notify('Décrivez le contenu à générer.', 'err'); return; }
