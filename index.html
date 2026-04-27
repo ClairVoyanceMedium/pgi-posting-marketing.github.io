@@ -362,7 +362,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
   <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard"><span class="nav-icon">◈</span>Tableau de bord</div>
   <div class="nav-item" onclick="nav('create')" id="nav-create"><span class="nav-icon">✦</span>Créer un post</div>
   <div class="nav-item" onclick="nav('myposts')" id="nav-myposts"><span class="nav-icon">📋</span>Posts programmés<span class="nav-badge" id="myposts-badge" style="display:none">0</span></div>
-  <div class="nav-item" onclick="nav('automation')" id="nav-automation"><span class="nav-icon">⚙</span>Règles récurrentes</div>
+  <div class="nav-item" onclick="nav('automation')" id="nav-automation"><span class="nav-icon">⚙</span>Automatisation</div>
   <div class="nav-item" onclick="nav('queue')" id="nav-queue"><span class="nav-icon">⧗</span>File de validation<span class="nav-badge" id="queue-badge" style="display:none">0</span></div>
   <div class="nav-item" onclick="nav('history')" id="nav-history"><span class="nav-icon">◎</span>Historique</div>
   <div class="nav-item" onclick="nav('calendar')" id="nav-calendar"><span class="nav-icon">▦</span>Calendrier</div>
@@ -441,7 +441,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
         <div class="flex gap12 flex-wrap">
           <button class="btn btn-neon" onclick="nav('create')">✦ Créer un post</button>
           <button class="btn btn-ghost" onclick="nav('myposts')">📋 Posts programmés</button>
-          <button class="btn btn-ghost" onclick="nav('automation')">⚙ Règles récurrentes</button>
+          <button class="btn btn-ghost" onclick="nav('automation')">⚙ Automatisation</button>
           <button class="btn btn-ghost" onclick="nav('queue')">⧗ File de validation</button>
           <button class="btn btn-ghost" onclick="nav('connections')">⟳ Connexions</button>
           <button class="btn btn-ghost" onclick="nav('ai')">⚡ Configuration AI</button>
@@ -599,11 +599,36 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
     <!-- ══ CONNECTIONS ══ -->
     <div class="page" id="page-connections">
       <div class="card">
-        <div class="card-title">Connexion aux plateformes — identifiants navigateur</div>
-        <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px 18px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:600;color:var(--neon);margin-bottom:5px">Connexion simple par pseudo et mot de passe</div>
-          <div class="text-sm text-muted">Entrez les mêmes identifiants que vous utilisez dans votre navigateur pour chaque plateforme. Toutes les données sont chiffrées et stockées uniquement côté serveur Cloudflare — jamais exposées côté navigateur.</div>
+        <div class="card-title">Connexion aux plateformes</div>
+
+        <!-- Explication honnête des méthodes de publication -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+          <div style="background:rgba(0,187,85,.07);border:1px solid rgba(0,187,85,.25);border-radius:10px;padding:14px">
+            <div style="font-weight:700;font-size:12px;color:var(--green);margin-bottom:8px">✓ Publication directe via API</div>
+            <div class="text-sm text-muted" style="line-height:1.6">
+              <strong style="color:var(--text)">Facebook Page</strong> — nécessite un token de page Meta (pas juste pseudo/mdp)<br>
+              <strong style="color:var(--text)">Telegram</strong> — via Bot Token + Chat ID<br>
+              <strong style="color:var(--text)">Discord</strong> — via Webhook URL<br>
+              <strong style="color:var(--text)">Bluesky</strong> — via handle + App Password<br>
+              <strong style="color:var(--text)">Mastodon</strong> — via Access Token
+            </div>
+          </div>
+          <div style="background:rgba(238,119,34,.07);border:1px solid rgba(238,119,34,.25);border-radius:10px;padding:14px">
+            <div style="font-weight:700;font-size:12px;color:var(--orange);margin-bottom:8px">⚠ Contenu préparé — publication manuelle</div>
+            <div class="text-sm text-muted" style="line-height:1.6">
+              <strong style="color:var(--text)">Instagram, TikTok, X, LinkedIn</strong><br>
+              <strong style="color:var(--text)">Pinterest, Reddit, YouTube</strong><br>
+              <strong style="color:var(--text)">Snapchat, Threads, Medium</strong><br>
+              Ces plateformes imposent des restrictions API strictes. Le système <strong style="color:var(--text)">prépare le contenu complet</strong> et vous le fournit — vous copiez-collez en quelques secondes.
+            </div>
+          </div>
         </div>
+
+        <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px 18px;margin-bottom:18px">
+          <div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:5px">Comment entrer vos identifiants</div>
+          <div class="text-sm text-muted">Pour chaque plateforme, renseignez les identifiants demandés. Ils sont chiffrés et stockés uniquement sur votre Worker Cloudflare. Pour <strong style="color:var(--text)">Facebook</strong>, il faut un token de page Meta — pas votre mot de passe personnel. Pour <strong style="color:var(--text)">Telegram</strong>, créez un bot via @BotFather. Pour <strong style="color:var(--text)">Discord</strong>, copiez le Webhook URL depuis les paramètres de votre salon.</div>
+        </div>
+
         <div id="conn-list"></div>
       </div>
     </div>
@@ -785,7 +810,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
         </div>
         <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:16px">
           <div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:4px">Posts à date et heure exactes choisies par vous</div>
-          <div class="text-sm text-muted">Créez un post, choisissez une date et heure précises, et le système le publiera automatiquement à ce moment-là. Pour les publications répétitives (tous les jours, toutes les semaines...) utilisez plutôt <strong style="color:var(--text)">Règles récurrentes</strong>.</div>
+          <div class="text-sm text-muted">Créez un post, choisissez une date et heure précises, et le système le publiera automatiquement à ce moment-là. Pour les publications répétitives (tous les jours, toutes les semaines...) utilisez plutôt <strong style="color:var(--text)">Automatisation</strong>.</div>
         </div>
 
         <!-- Filters -->
@@ -874,7 +899,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
     <div class="page" id="page-automation">
       <div class="card">
         <div class="card-title flex-between">
-          Règles récurrentes automatisées
+          Automatisation
           <button class="btn btn-neon btn-sm" onclick="openAutoModal()">+ Nouvelle règle</button>
         </div>
         <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
@@ -899,13 +924,13 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
       <div id="auto-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:16px">
         <div style="background:var(--panel);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:28px">
           <div class="flex-between mb16">
-            <div class="card-title" style="margin:0;border:none;padding:0" id="auto-modal-title">Nouvelle règle récurrente</div>
+            <div class="card-title" style="margin:0;border:none;padding:0" id="auto-modal-title">Nouvelle automatisation</div>
             <button class="btn btn-ghost btn-sm" onclick="closeAutoModal()">✕</button>
           </div>
 
           <input type="hidden" id="am-id">
           <div class="fgrp">
-            <label class="flabel">Nom de la règle *</label>
+            <label class="flabel">Nom de l'automatisation *</label>
             <input class="finput" id="am-name" placeholder="Ex: Post quotidien voyance téléphone">
           </div>
           <div class="fgrp">
@@ -958,12 +983,50 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
               </select>
             </div>
           </div>
+          <!-- Durée de la campagne -->
+          <div style="background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:10px;padding:16px;margin-bottom:16px">
+            <div style="font-weight:600;font-size:13px;color:var(--gold);margin-bottom:12px">Durée de la campagne</div>
+
+            <!-- Toggle infini / date de fin -->
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;margin-bottom:12px">
+              <div style="position:relative;flex-shrink:0">
+                <input type="checkbox" id="am-infinite" checked style="opacity:0;position:absolute;width:0;height:0">
+                <div id="am-infinite-track" onclick="toggleInfinite()" data-active="true"
+                  style="width:44px;height:24px;background:var(--gold);border-radius:12px;cursor:pointer;transition:background .2s;position:relative">
+                  <div id="am-infinite-thumb" style="position:absolute;top:3px;left:calc(100% - 21px);width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s"></div>
+                </div>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:13px;color:var(--text)">Campagne infinie</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px" id="am-infinite-hint">
+                  Active — l'automatisation tourne indéfiniment jusqu'à ce que vous l'arrêtiez manuellement
+                </div>
+              </div>
+            </label>
+
+            <!-- Champs date de fin (masqués si infini) -->
+            <div id="am-enddate-block" style="display:none">
+              <div class="grid2">
+                <div class="fgrp" style="margin-bottom:0">
+                  <label class="flabel">Date de fin</label>
+                  <input type="date" class="finput" id="am-enddate">
+                  <div class="fhelp">L'automatisation s'arrêtera automatiquement après cette date</div>
+                </div>
+                <div class="fgrp" style="margin-bottom:0">
+                  <label class="flabel">Ou nombre max de publications</label>
+                  <input type="number" class="finput" id="am-maxruns" min="1" max="999" placeholder="Ex: 7 pour 2 semaines tous les 2 jours">
+                  <div class="fhelp">Laissez vide pour utiliser uniquement la date de fin</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Validation email toggle -->
           <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:16px;margin-bottom:16px">
             <label style="display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none">
               <div style="position:relative;flex-shrink:0">
                 <input type="checkbox" id="am-validate-email" checked style="opacity:0;position:absolute;width:0;height:0">
-                <div id="am-toggle-track" onclick="toggleEmailValidation()" style="width:44px;height:24px;background:var(--neon);border-radius:12px;cursor:pointer;transition:background .2s;position:relative">
+                <div id="am-toggle-track" onclick="toggleEmailValidation()" data-active="true" style="width:44px;height:24px;background:var(--neon);border-radius:12px;cursor:pointer;transition:background .2s;position:relative">
                   <div id="am-toggle-thumb" style="position:absolute;top:3px;left:calc(100% - 21px);width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s"></div>
                 </div>
               </div>
@@ -979,7 +1042,7 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
           <div style="display:flex;gap:12px">
             <button class="btn btn-neon btn-full" onclick="saveAutomation()">
               <span class="loader" id="am-ldr" style="display:none"></span>
-              Sauvegarder la règle
+              Sauvegarder
             </button>
             <button class="btn btn-ghost" onclick="closeAutoModal()">Annuler</button>
           </div>
@@ -1108,7 +1171,12 @@ const PLATFORMS = {
 };
 
 const CONN_FIELDS = {
-  facebook:    [{k:"username",l:"Email ou téléphone Facebook",t:"text",h:"Votre identifiant de connexion Facebook"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Facebook"},{k:"pageId",l:"Nom ou ID de votre page (optionnel)",t:"text",h:"Ex: ClairvoyanceMedium — laissez vide pour profil perso"}],
+  facebook:    [
+    {k:"accessToken",  l:"Access Token de page Meta",    t:"password", h:"Depuis developers.facebook.com → Explorateur API Graph → Générer token avec pages_manage_posts"},
+    {k:"pageId",       l:"ID de votre page Facebook",    t:"text",     h:"Paramètres de votre page Facebook → À propos → ID de la page (numéro)"},
+    {k:"appId",        l:"App ID Meta (pour renouvellement auto)", t:"text", h:"Depuis developers.facebook.com → Mon App → Paramètres → ID de l'application"},
+    {k:"appSecret",    l:"App Secret Meta (pour renouvellement auto)", t:"password", h:"Depuis developers.facebook.com → Mon App → Paramètres → Clé secrète"},
+  ],
   instagram:   [{k:"username",l:"Nom d'utilisateur Instagram",t:"text",h:"Votre @pseudo Instagram"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Instagram"}],
   x:           [{k:"username",l:"Nom d'utilisateur X",t:"text",h:"Votre @pseudo X (sans le @)"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe X"}],
   threads:     [{k:"username",l:"Nom d'utilisateur Threads",t:"text",h:"Votre @pseudo Threads (même que Instagram)"},{k:"password",l:"Mot de passe",t:"password",h:"Même mot de passe que votre compte Instagram"}],
@@ -1298,11 +1366,18 @@ function buildConnectionsList() {
               autocomplete="${f.t === 'password' ? 'current-password' : 'username'}">
             ${f.h ? `<div class="fhelp">${f.h}</div>` : ''}
           </div>`).join('')}
-        <button class="btn btn-neon btn-sm" onclick="saveCreds('${platform}')">
-          🔒 Sauvegarder les identifiants
-        </button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-neon btn-sm" onclick="saveCreds('${platform}')">
+            🔒 Sauvegarder
+          </button>
+          ${platform === 'facebook' ? `
+          <button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()" title="Échanger le token contre un token longue durée renouvelé">
+            🔄 Renouveler le token
+          </button>` : ''}
+        </div>
         <div class="fhelp mt8" style="color:var(--text3)">
-          Vos identifiants sont chiffrés et stockés uniquement sur votre Worker Cloudflare. Ils ne transitent jamais en clair.
+          Vos identifiants sont chiffrés et stockés uniquement sur votre Worker Cloudflare.
+          ${platform === 'facebook' ? '<br><span style="color:var(--gold)">⚡ Avec App ID + App Secret : renouvellement automatique du token activé — jamais de coupure.</span>' : ''}
         </div>
       </div>
     </div>`;
@@ -1394,7 +1469,6 @@ function toggleEmailValidation() {
   const track = document.getElementById('am-toggle-track');
   const thumb = document.getElementById('am-toggle-thumb');
   const hint  = document.getElementById('am-validate-hint');
-  // Lire l'état actuel depuis l'attribut data pour fiabilité
   const isActive = track.dataset.active !== 'false';
   const nowActive = !isActive;
   track.dataset.active = String(nowActive);
@@ -1409,6 +1483,36 @@ function toggleEmailValidation() {
     thumb.style.left = '3px';
     hint.textContent = 'Désactivé — les posts seront publiés automatiquement sans validation de votre part';
     hint.style.color = 'var(--orange)';
+  }
+}
+
+// ── TOGGLE CAMPAGNE INFINIE / DATE DE FIN ────────────────────
+function toggleInfinite() {
+  const track = document.getElementById('am-infinite-track');
+  const thumb  = document.getElementById('am-infinite-thumb');
+  const hint   = document.getElementById('am-infinite-hint');
+  const block  = document.getElementById('am-enddate-block');
+  const isActive = track.dataset.active !== 'false';
+  const nowActive = !isActive;
+  track.dataset.active = String(nowActive);
+  if (nowActive) {
+    track.style.background = 'var(--gold)';
+    thumb.style.left = 'calc(100% - 21px)';
+    hint.textContent = "Active — l'automatisation tourne indéfiniment jusqu'à ce que vous l'arrêtiez manuellement";
+    hint.style.color = 'var(--gold)';
+    block.style.display = 'none';
+    document.getElementById('am-enddate').value = '';
+    document.getElementById('am-maxruns').value = '';
+  } else {
+    track.style.background = 'var(--border2)';
+    thumb.style.left = '3px';
+    hint.textContent = 'Désactivé — choisissez une date de fin ou un nombre max ci-dessous';
+    hint.style.color = 'var(--orange)';
+    block.style.display = 'block';
+    // Pré-remplir à +2 semaines par défaut
+    const d = new Date();
+    d.setDate(d.getDate() + 14);
+    document.getElementById('am-enddate').value = d.toISOString().split('T')[0];
   }
 }
 
@@ -1722,9 +1826,26 @@ async function saveCreds(platform) {
   if (!Object.keys(creds).length) { notify('Renseignez au moins un champ.', 'err'); return; }
   try {
     const r = await api('/api/platforms/' + platform + '/credentials', 'PUT', creds);
-    if (r.success) notify(`${PLATFORMS[platform]?.name} : identifiants sauvegardés.`, 'ok');
-    else throw new Error(r.error);
+    if (r.success) {
+      notify(`${PLATFORMS[platform]?.name} : identifiants sauvegardés.`, 'ok');
+      // Pour Facebook : proposer le renouvellement immédiat si App ID + Secret fournis
+      if (platform === 'facebook' && creds.appId && creds.appSecret && creds.accessToken) {
+        setTimeout(() => {
+          notify('App ID + Secret détectés — renouvellement automatique du token activé.', 'info');
+          loadConnectionStatuses();
+        }, 800);
+      }
+    } else throw new Error(r.error);
   } catch (e) { notify(e.message, 'err'); }
+}
+
+async function renewFacebookToken() {
+  notify('Renouvellement du token Facebook en cours...', 'info');
+  try {
+    const data = await api('/api/platforms/facebook/renew-token', 'POST');
+    if (data.success) notify(`✓ ${data.message}`, 'ok');
+    else throw new Error(data.error);
+  } catch (e) { notify('Erreur : ' + e.message, 'err'); }
 }
 
 async function disconnectConn(platform) {
@@ -1895,7 +2016,7 @@ function closeSidebar() {
 // ═══════════════════════════════════════════════════════════
 Object.assign(PAGE_TITLES, {
   myposts:    'Posts programmés à date fixe',
-  automation: 'Règles récurrentes automatisées',
+  automation: 'Automatisation',
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -2119,35 +2240,60 @@ function buildAutoPlatGrid(containerId) {
 
 function openAutoModal(editData = null) {
   buildAutoPlatGrid('am-platforms');
-  document.getElementById('am-id').value   = editData?.id || '';
-  document.getElementById('am-name').value = editData?.name || '';
-  document.getElementById('am-desc').value = editData?.description || '';
-  document.getElementById('am-freq').value = editData?.frequency || 'daily';
-  document.getElementById('am-hour').value = editData?.hour || '09:00';
+  document.getElementById('am-id').value    = editData?.id || '';
+  document.getElementById('am-name').value  = editData?.name || '';
+  document.getElementById('am-desc').value  = editData?.description || '';
+  document.getElementById('am-freq').value  = editData?.frequency || 'daily';
+  document.getElementById('am-hour').value  = editData?.hour || '09:00';
   document.getElementById('am-theme').value = editData?.themes?.[0] || '';
   document.getElementById('am-tone').value  = editData?.tone || 'balanced';
-  document.getElementById('auto-modal-title').textContent = editData ? 'Modifier la règle récurrente' : 'Nouvelle règle récurrente';
+  document.getElementById('auto-modal-title').textContent = editData ? "Modifier l'automatisation" : "Nouvelle automatisation";
 
-  // Restore email validation toggle
-  const validateEmail = editData ? (editData.validateEmail !== false) : true; // par défaut activé
-  const cb    = document.getElementById('am-validate-email');
-  const track = document.getElementById('am-toggle-track');
-  const thumb = document.getElementById('am-toggle-thumb');
-  const hint  = document.getElementById('am-validate-hint');
-  cb.checked = validateEmail;
-  track.dataset.active = String(validateEmail);
-  if (validateEmail) {
-    track.style.background = 'var(--neon)';
-    thumb.style.left = 'calc(100% - 21px)';
-    hint.textContent = 'Actif — chaque post vous sera envoyé sur chicsensation@gmail.com pour approbation';
-    hint.style.color = 'var(--neon)';
+  // ── Restore infinite toggle ──
+  const infinite = editData ? (editData.infinite !== false) : true;
+  const iTrack = document.getElementById('am-infinite-track');
+  const iThumb = document.getElementById('am-infinite-thumb');
+  const iHint  = document.getElementById('am-infinite-hint');
+  const iBlock = document.getElementById('am-enddate-block');
+  iTrack.dataset.active = String(infinite);
+  if (infinite) {
+    iTrack.style.background = 'var(--gold)';
+    iThumb.style.left = 'calc(100% - 21px)';
+    iHint.textContent = "Active — l'automatisation tourne indéfiniment jusqu'à ce que vous l'arrêtiez manuellement";
+    iHint.style.color = 'var(--gold)';
+    iBlock.style.display = 'none';
+    document.getElementById('am-enddate').value  = '';
+    document.getElementById('am-maxruns').value  = '';
   } else {
-    track.style.background = 'var(--border2)';
-    thumb.style.left = '3px';
-    hint.textContent = 'Désactivé — les posts seront publiés automatiquement sans validation';
-    hint.style.color = 'var(--orange)';
+    iTrack.style.background = 'var(--border2)';
+    iThumb.style.left = '3px';
+    iHint.textContent = "Désactivé — choisissez une date de fin ou un nombre max ci-dessous";
+    iHint.style.color = 'var(--orange)';
+    iBlock.style.display = 'block';
+    document.getElementById('am-enddate').value  = editData?.endDate  || '';
+    document.getElementById('am-maxruns').value  = editData?.maxRuns  || '';
   }
 
+  // ── Restore email validation toggle ──
+  const validateEmail = editData ? (editData.validateEmail !== false) : true;
+  const vTrack = document.getElementById('am-toggle-track');
+  const vThumb = document.getElementById('am-toggle-thumb');
+  const vHint  = document.getElementById('am-validate-hint');
+  document.getElementById('am-validate-email').checked = validateEmail;
+  vTrack.dataset.active = String(validateEmail);
+  if (validateEmail) {
+    vTrack.style.background = 'var(--neon)';
+    vThumb.style.left = 'calc(100% - 21px)';
+    vHint.textContent = 'Actif — chaque post vous sera envoyé sur chicsensation@gmail.com pour approbation';
+    vHint.style.color = 'var(--neon)';
+  } else {
+    vTrack.style.background = 'var(--border2)';
+    vThumb.style.left = '3px';
+    vHint.textContent = 'Désactivé — publication automatique directe sans validation';
+    vHint.style.color = 'var(--orange)';
+  }
+
+  // ── Restore platforms ──
   if (editData?.platforms) editData.platforms.forEach(p => {
     const el = document.getElementById(`am-platforms-${p}`);
     if (el) el.checked = true;
@@ -2160,19 +2306,25 @@ function closeAutoModal() {
 }
 
 async function saveAutomation() {
-  const id   = document.getElementById('am-id').value;
-  const name = document.getElementById('am-name').value.trim();
-  const desc = document.getElementById('am-desc').value.trim();
+  const id        = document.getElementById('am-id').value;
+  const name      = document.getElementById('am-name').value.trim();
+  const desc      = document.getElementById('am-desc').value.trim();
   const platforms = [...document.querySelectorAll('#am-platforms input:checked')].map(i => i.value);
   const frequency = document.getElementById('am-freq').value;
-  const hour  = document.getElementById('am-hour').value;
-  const theme = document.getElementById('am-theme').value;
-  const tone  = document.getElementById('am-tone').value;
+  const hour      = document.getElementById('am-hour').value;
+  const theme     = document.getElementById('am-theme').value;
+  const tone      = document.getElementById('am-tone').value;
   const validateEmail = document.getElementById('am-toggle-track').dataset.active !== 'false';
+  const infinite      = document.getElementById('am-infinite-track').dataset.active !== 'false';
+  const endDate   = infinite ? null : (document.getElementById('am-enddate').value || null);
+  const maxRuns   = infinite ? null : (parseInt(document.getElementById('am-maxruns').value) || null);
 
-  if (!name) { notify('Donnez un nom à cette règle.', 'err'); return; }
+  if (!name) { notify('Donnez un nom à cette automatisation.', 'err'); return; }
   if (!desc)  { notify('Décrivez le contenu à générer.', 'err'); return; }
   if (!platforms.length) { notify('Sélectionnez au moins une plateforme.', 'err'); return; }
+  if (!infinite && !endDate && !maxRuns) {
+    notify('Précisez une date de fin ou un nombre max de publications.', 'err'); return;
+  }
 
   const ldr = document.getElementById('am-ldr');
   ldr.style.display = 'inline-block';
@@ -2181,7 +2333,10 @@ async function saveAutomation() {
     name, description: desc, platforms, frequency, hour, tone,
     themes: theme ? [theme] : [],
     active: true,
-    validateEmail,  // ← clé centrale : email de validation ou publication auto directe
+    validateEmail,
+    infinite,
+    endDate:  endDate  || null,
+    maxRuns:  maxRuns  || null,
   };
   try {
     const data = id
@@ -2190,10 +2345,13 @@ async function saveAutomation() {
     if (!data.success) throw new Error(data.error);
     closeAutoModal();
     loadAutomations();
-    const emailMsg = validateEmail
-      ? 'Validation email activée — vous recevrez chaque post pour approbation.'
-      : 'Publication automatique directe — aucun email de validation.';
-    notify(`Règle ${id ? 'mise à jour' : 'créée'}. ${emailMsg}`, 'ok');
+    const durMsg = infinite
+      ? 'Campagne infinie.'
+      : endDate
+        ? `Se termine le ${new Date(endDate).toLocaleDateString('fr-FR')}.`
+        : `S'arrête après ${maxRuns} publication(s).`;
+    const emailMsg = validateEmail ? 'Validation email activée.' : 'Publication automatique directe.';
+    notify(`Automatisation ${id ? 'mise à jour' : 'créée'}. ${durMsg} ${emailMsg}`, 'ok');
   } catch (e) { notify(e.message, 'err'); }
   finally { ldr.style.display = 'none'; }
 }
@@ -2202,6 +2360,18 @@ const FREQ_LABELS = {
   daily:'Quotidien', '2days':'Tous les 2 jours', '3days':'Tous les 3 jours',
   weekly:'Hebdomadaire', biweekly:'Bihebdomadaire', monthly:'Mensuel'
 };
+
+function timeUntil(ts) {
+  if (!ts) return '—';
+  const diff = ts - Date.now();
+  if (diff <= 0) return 'Imminent';
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000) / 60000);
+  if (days > 0)  return `dans ${days}j ${hours}h`;
+  if (hours > 0) return `dans ${hours}h ${mins}min`;
+  return `dans ${mins} min`;
+}
 
 async function loadAutomations() {
   const el = document.getElementById('auto-list');
@@ -2212,43 +2382,73 @@ async function loadAutomations() {
     if (!rules.length) {
       el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text2)">
         <div style="font-size:40px;margin-bottom:12px">⚙</div>
-        <div style="font-size:14px;margin-bottom:12px">Aucune règle d'automatisation</div>
-        <button class="btn btn-neon btn-sm" onclick="openAutoModal()">Créer ma première règle</button>
+        <div style="font-size:14px;margin-bottom:12px">Aucune automatisation créée</div>
+        <button class="btn btn-neon btn-sm" onclick="openAutoModal()">Créer ma première automatisation</button>
       </div>`;
       return;
     }
     el.innerHTML = rules.map(r => {
       const platIcons = (r.platforms || []).map(p => PLATFORMS[p]?.icon || '').join(' ');
-      const nextDate = r.nextRun ? new Date(r.nextRun).toLocaleString('fr-FR') : '—';
-      const lastDate = r.lastRun ? new Date(r.lastRun).toLocaleString('fr-FR') : 'Jamais';
+      const nextDate = r.nextRun
+        ? `${new Date(r.nextRun).toLocaleString('fr-FR', {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} (${timeUntil(r.nextRun)})`
+        : '—';
+      const lastDate = r.lastRun
+        ? new Date(r.lastRun).toLocaleString('fr-FR', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+        : 'Jamais';
+
+      // Durée de campagne
+      let dureeLabel = '<span class="badge b-gray" style="font-size:9px">∞ Infinie</span>';
+      let progressBar = '';
+      if (!r.infinite && r.endDate) {
+        const fin = new Date(r.endDate);
+        const now = new Date();
+        const isExpired = fin < now;
+        dureeLabel = `<span class="badge ${isExpired?'b-red':'b-orange'}" style="font-size:9px">
+          ${isExpired ? '⚠ Expirée' : '📅 Fin le ' + fin.toLocaleDateString('fr-FR')}
+        </span>`;
+      }
+      if (!r.infinite && r.maxRuns) {
+        const pct = Math.min(100, Math.round(((r.runCount||0) / r.maxRuns) * 100));
+        dureeLabel += ` <span class="badge b-blue" style="font-size:9px">${r.runCount||0}/${r.maxRuns} publications</span>`;
+        progressBar = `<div style="margin-top:8px;height:4px;background:var(--border);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--neon2),var(--neon));border-radius:4px;transition:width .3s"></div>
+        </div>`;
+      }
+
       return `<div style="background:var(--bg2);border:1px solid ${r.active?'rgba(0,191,255,.25)':'var(--border)'};border-radius:10px;padding:18px;margin-bottom:12px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:200px">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
               <div style="font-weight:700;font-size:14px">${r.name}</div>
               <span class="badge ${r.active?'b-green':'b-gray'}">${r.active?'Active':'Inactive'}</span>
               <span class="badge b-blue">${FREQ_LABELS[r.frequency]||r.frequency}</span>
+              ${dureeLabel}
             </div>
-            <div class="text-sm text-muted" style="margin-bottom:8px">${(r.description||'').slice(0,80)}…</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap">
-              <span class="text-sm" style="color:var(--text2)">Plateformes: <span style="color:var(--text)">${platIcons} ${(r.platforms||[]).map(p=>PLATFORMS[p]?.name||p).join(', ')}</span></span>
+            <div class="text-sm text-muted" style="margin-bottom:8px">${(r.description||'').slice(0,90)}${(r.description||'').length>90?'…':''}</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:4px">
+              ${platIcons} <span style="color:var(--text)">${(r.platforms||[]).map(p=>PLATFORMS[p]?.name||p).join(', ')}</span>
             </div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px">
               <span class="text-sm text-muted">Heure: <span style="color:var(--neon)">${r.hour||'09:00'}</span></span>
-              <span class="text-sm text-muted">Prochain envoi: <span style="color:var(--gold)">${nextDate}</span></span>
-              <span class="text-sm text-muted">Dernier envoi: ${lastDate}</span>
-              <span class="text-sm text-muted">Exécutions: <span style="color:var(--text)">${r.runCount||0}</span></span>
-              <span class="badge ${r.validateEmail !== false ? 'b-blue' : 'b-orange'}" style="font-size:9px">
-                ${r.validateEmail !== false ? '✉ Validation email' : '⚡ Publication auto'}
-              </span>
-              <span class="badge b-gray" style="font-size:9px">Contenu unique par plateforme</span>
+              <span class="text-sm text-muted">Prochain: <span style="color:var(--gold)">${nextDate}</span></span>
+              <span class="text-sm text-muted">Dernier: <span style="color:var(--text)">${lastDate}</span></span>
+              <span class="text-sm text-muted">Total: <span style="color:var(--text)">${r.runCount||0} pub.</span></span>
             </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+              <span class="badge ${r.validateEmail!==false?'b-blue':'b-orange'}" style="font-size:9px">
+                ${r.validateEmail!==false?'✉ Validation email':'⚡ Auto direct'}
+              </span>
+              <span class="badge b-gray" style="font-size:9px">Texte + visuel uniques à chaque envoi</span>
+            </div>
+            ${progressBar}
           </div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;flex-shrink:0">
-            <button class="btn ${r.active?'btn-ghost':'btn-green'} btn-sm" onclick="toggleAuto('${r.id}')">${r.active?'Désactiver':'Activer'}</button>
+            <button class="btn ${r.active?'btn-red':'btn-green'} btn-sm" onclick="toggleAuto('${r.id}')">
+              ${r.active?'⏸ Arrêter':'▶ Reprendre'}
+            </button>
             <button class="btn btn-neon btn-sm" onclick="runAutoNow('${r.id}')">Exécuter</button>
             <button class="btn btn-ghost btn-sm" onclick="editAuto('${r.id}')">Modifier</button>
-            <button class="btn btn-red btn-sm" onclick="deleteAuto('${r.id}')">Supprimer</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteAuto('${r.id}')">Supprimer</button>
           </div>
         </div>
       </div>`;
@@ -2259,7 +2459,7 @@ async function loadAutomations() {
 async function toggleAuto(id) {
   try {
     const data = await api('/api/automations/' + id + '/toggle', 'POST');
-    notify(data.active ? 'Règle activée.' : 'Règle désactivée.', 'ok');
+    notify(data.active ? 'Automatisation activée.' : 'Automatisation désactivée.', 'ok');
     loadAutomations();
   } catch (e) { notify(e.message, 'err'); }
 }
@@ -2287,7 +2487,7 @@ async function deleteAuto(id) {
   if (!confirm('Supprimer cette règle d\'automatisation ?')) return;
   try {
     const data = await api('/api/automations/' + id, 'DELETE');
-    if (data.success) { notify('Règle supprimée.', 'ok'); loadAutomations(); }
+    if (data.success) { notify('Automatisation supprimée.', 'ok'); loadAutomations(); }
     else throw new Error(data.error);
   } catch (e) { notify(e.message, 'err'); }
 }
