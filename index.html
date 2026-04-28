@@ -1172,10 +1172,9 @@ const PLATFORMS = {
 
 const CONN_FIELDS = {
   facebook:    [
-    {k:"accessToken",  l:"Access Token de page Meta",    t:"password", h:"Depuis developers.facebook.com → Explorateur API Graph → Générer token avec pages_manage_posts"},
-    {k:"pageId",       l:"ID de votre page Facebook",    t:"text",     h:"Paramètres de votre page Facebook → À propos → ID de la page (numéro)"},
-    {k:"appId",        l:"App ID Meta (pour renouvellement auto)", t:"text", h:"Depuis developers.facebook.com → Mon App → Paramètres → ID de l'application"},
-    {k:"appSecret",    l:"App Secret Meta (pour renouvellement auto)", t:"password", h:"Depuis developers.facebook.com → Mon App → Paramètres → Clé secrète"},
+    {k:"pageId",    l:"ID de votre page (rempli automatiquement après connexion OAuth)", t:"text",     h:"Se remplit automatiquement quand vous cliquez Connexion Facebook ci-dessous"},
+    {k:"appId",     l:"App ID Meta",     t:"text",     h:"Depuis developers.facebook.com → votre app → Paramètres → ID de l'application"},
+    {k:"appSecret", l:"App Secret Meta", t:"password", h:"Depuis developers.facebook.com → votre app → Paramètres → Clé secrète — DOIT aussi être dans Cloudflare Variables"},
   ],
   instagram:   [{k:"username",l:"Nom d'utilisateur Instagram",t:"text",h:"Votre @pseudo Instagram"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Instagram"}],
   x:           [{k:"username",l:"Nom d'utilisateur X",t:"text",h:"Votre @pseudo X (sans le @)"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe X"}],
@@ -1289,9 +1288,9 @@ function nav(name) {
   if (name === 'platforms')   loadPlatStatus();
   if (name === 'ai')          loadAiConfig();
   if (name === 'email')       loadEmailConfig();
-  if (name === 'logs')        loadLogs();
-  if (name === 'myposts')     loadMyPosts();
-  if (name === 'automation')  loadAutomations();
+  if (name === 'connections') {
+    setTimeout(() => { loadConnectionStatuses(); loadFacebookStatus(); }, 300);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1366,18 +1365,37 @@ function buildConnectionsList() {
               autocomplete="${f.t === 'password' ? 'current-password' : 'username'}">
             ${f.h ? `<div class="fhelp">${f.h}</div>` : ''}
           </div>`).join('')}
+
+        ${platform === 'facebook' ? `
+        <!-- FACEBOOK : Bouton OAuth + statut -->
+        <div style="background:rgba(0,100,255,.08);border:1px solid rgba(0,100,255,.25);border-radius:10px;padding:16px;margin-bottom:14px">
+          <div style="font-weight:700;font-size:13px;color:var(--neon);margin-bottom:8px">Connexion OAuth recommandée (token permanent automatique)</div>
+          <div class="text-sm text-muted" style="margin-bottom:12px">
+            Cliquez le bouton ci-dessous. Facebook vous demandera d'autoriser l'accès à votre page. Le token permanent sera récupéré automatiquement — plus jamais besoin de le renouveler.
+          </div>
+          <div id="fb-oauth-status" style="margin-bottom:12px;font-size:12px;color:var(--text2)">Chargement du statut...</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-neon btn-sm" onclick="startFacebookOAuth()" id="btn-fb-oauth">
+              📘 Connexion Facebook via OAuth
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="loadFacebookStatus()">↺ Actualiser le statut</button>
+            <button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()" title="Forcer le renouvellement du token">🔄 Renouveler manuellement</button>
+          </div>
+        </div>
+        ` : ''}
+
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-neon btn-sm" onclick="saveCreds('${platform}')">
             🔒 Sauvegarder
           </button>
           ${platform === 'facebook' ? `
-          <button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()" title="Échanger le token contre un token longue durée renouvelé">
+          <button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()">
             🔄 Renouveler le token
           </button>` : ''}
         </div>
         <div class="fhelp mt8" style="color:var(--text3)">
           Vos identifiants sont chiffrés et stockés uniquement sur votre Worker Cloudflare.
-          ${platform === 'facebook' ? '<br><span style="color:var(--gold)">⚡ Avec App ID + App Secret : renouvellement automatique du token activé — jamais de coupure.</span>' : ''}
+          ${platform === 'facebook' ? '<br><span style="color:var(--gold)">⚡ Utilisez le bouton OAuth ci-dessus pour une connexion permanente et sans maintenance.</span>' : ''}
         </div>
       </div>
     </div>`;
@@ -1843,9 +1861,51 @@ async function renewFacebookToken() {
   notify('Renouvellement du token Facebook en cours...', 'info');
   try {
     const data = await api('/api/platforms/facebook/renew-token', 'POST');
-    if (data.success) notify(`✓ ${data.message}`, 'ok');
+    if (data.success) { notify(`✓ ${data.message}`, 'ok'); loadFacebookStatus(); }
     else throw new Error(data.error);
   } catch (e) { notify('Erreur : ' + e.message, 'err'); }
+}
+
+function startFacebookOAuth() {
+  if (!WORKER_URL) { notify('Configurez d\'abord l\'URL du Worker dans la sidebar.', 'err'); return; }
+  const oauthUrl = WORKER_URL.replace(/\/$/, '') + '/auth/facebook/start';
+  const w = window.open(oauthUrl, 'fb_oauth', 'width=600,height=700,scrollbars=yes');
+  // Vérifier régulièrement si la fenêtre OAuth s'est fermée
+  const checkInterval = setInterval(() => {
+    if (w && w.closed) {
+      clearInterval(checkInterval);
+      setTimeout(() => {
+        loadFacebookStatus();
+        loadConnectionStatuses();
+        notify('Vérification de la connexion Facebook...', 'info');
+      }, 1000);
+    }
+  }, 500);
+}
+
+async function loadFacebookStatus() {
+  const el = document.getElementById('fb-oauth-status');
+  if (!el) return;
+  if (!WORKER_URL) { el.innerHTML = '<span style="color:var(--text3)">Worker non configuré</span>'; return; }
+  try {
+    const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/facebook/status', {
+      headers: { 'X-Admin-Token': ADMIN_TOKEN }
+    });
+    const data = await r.json();
+    if (data.connected) {
+      const tokenInfo = data.tokenType === 'page_permanent'
+        ? '<span style="color:var(--green)">✓ Token de page permanent</span>'
+        : data.daysLeft
+          ? `<span style="color:var(--gold)">Token expire dans ${data.daysLeft} jours${data.autoRenew ? ' (renouvellement auto actif)' : ''}</span>`
+          : '<span style="color:var(--text2)">Token configuré</span>';
+      el.innerHTML = `<span style="color:var(--green)">✓ Connecté</span> — Page : <strong style="color:var(--neon)">${data.pageName}</strong> (ID: ${data.pageId}) — ${tokenInfo}`;
+      document.getElementById('btn-fb-oauth').textContent = '📘 Reconnecter Facebook';
+    } else {
+      el.innerHTML = '<span style="color:var(--orange)">Non connecté — cliquez le bouton ci-dessous pour vous connecter</span>';
+    }
+  } catch (_) {
+    el.innerHTML = '<span style="color:var(--text3)">Impossible de vérifier le statut</span>';
+  }
 }
 
 async function disconnectConn(platform) {
