@@ -1395,6 +1395,7 @@ function buildConnectionsList() {
             <button class="btn btn-neon btn-sm" onclick="startThreadsOAuth()" id="btn-threads-oauth">🧵 Connexion Threads via OAuth</button>
             <button class="btn btn-ghost btn-sm" onclick="loadThreadsStatus()">↺ Actualiser le statut</button>
             <button class="btn btn-ghost btn-sm" onclick="testThreads()">✓ Tester</button>
+            <button class="btn btn-ghost btn-sm" onclick="manualRefreshThreads()">🔄 Renouveler le token</button>
             <button class="btn btn-red btn-sm" onclick="disconnectThreads()">Déconnecter</button>
           </div>
         </div>
@@ -1425,7 +1426,11 @@ async function loadConnectionStatuses() {
       if (!el) return;
       if (p.connected) {
         el.className = 'badge b-green';
-        el.textContent = 'Connecté';
+        el.textContent = key === 'threads' && p.username
+          ? `@${p.username}`
+          : key === 'facebook' && p.pageName
+            ? p.pageName
+            : 'Connecté';
       } else {
         el.className = 'badge b-gray';
         el.textContent = 'Non connecté';
@@ -1938,16 +1943,43 @@ async function loadThreadsStatus() {
     const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/threads/status');
     const data = await r.json();
     if (data.connected) {
-      const exp = data.daysLeft !== null
-        ? `<span style="color:var(--gold)">Expire dans ${data.daysLeft} jours</span>`
+      const days = data.daysRemaining;
+      const expInfo = days !== null
+        ? days > 10
+          ? `<span style="color:var(--green)">Expire dans ${days} jours</span>`
+          : days > 0
+            ? `<span style="color:var(--orange)">⚠ Expire dans ${days} jours — renouvellement auto actif</span>`
+            : `<span style="color:var(--red)">⚠ Token expiré</span>`
         : '';
-      el.innerHTML = `<span style="color:var(--green)">✓ Connecté</span> — <strong style="color:var(--neon)">@${data.username}</strong> ${exp}`;
+      const autoInfo = data.canAutoRefresh
+        ? '<span style="color:var(--neon);font-size:10px;margin-left:8px">↻ Auto-renouvellement actif</span>'
+        : '';
+      el.innerHTML = `<span style="color:var(--green)">✓ Connecté</span> — <strong style="color:var(--neon)">@${data.username}</strong> ${expInfo}${autoInfo}`;
       const btn = document.getElementById('btn-threads-oauth');
       if (btn) btn.textContent = '🧵 Reconnecter Threads';
+      // Mettre à jour le badge dans la bulle
+      const badge = document.getElementById('conn-status-threads');
+      if (badge) { badge.className = 'badge b-green'; badge.textContent = 'Connecté'; }
     } else {
       el.innerHTML = '<span style="color:var(--orange)">Non connecté — cliquez le bouton pour vous connecter</span>';
+      const badge = document.getElementById('conn-status-threads');
+      if (badge) { badge.className = 'badge b-gray'; badge.textContent = 'Non connecté'; }
     }
   } catch (_) { el.innerHTML = '<span style="color:var(--text3)">Impossible de vérifier le statut</span>'; }
+}
+
+async function manualRefreshThreads() {
+  notify('Renouvellement du token Threads...', 'info');
+  try {
+    const data = await api('/auth/threads/refresh', 'POST');
+    if (data.ok) {
+      const msg = data.refreshed
+        ? `✓ Token renouvelé — valide ${data.daysLeft} jours`
+        : `Pas nécessaire — ${data.daysLeft} jours restants`;
+      notify(msg, data.refreshed ? 'ok' : 'info');
+      loadThreadsStatus();
+    } else throw new Error(data.error || 'Échec');
+  } catch (e) { notify('Erreur : ' + e.message, 'err'); }
 }
 
 async function testThreads() {
