@@ -939,6 +939,12 @@ tbody td{padding:11px 13px;font-size:12.5px;vertical-align:middle}
             <textarea class="ftextarea" id="am-desc" rows="3" placeholder="Décrivez le type de post à générer automatiquement..."></textarea>
           </div>
           <div class="fgrp">
+            <label class="flabel">Prompt image personnalisé (optionnel)</label>
+            <input type="text" class="finput" id="am-image-prompt"
+              placeholder="Ex: pendule doré, rose rouge, bougie violette... Laissez vide pour le style par défaut">
+            <div class="fhelp">Si rempli, ce thème sera intégré au visuel généré automatiquement. Si vide, le style mystique par défaut est utilisé.</div>
+          </div>
+          <div class="fgrp">
             <label class="flabel">Plateformes *</label>
             <div class="plat-grid" id="am-platforms" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))"></div>
           </div>
@@ -1177,7 +1183,7 @@ const CONN_FIELDS = {
     {k:"appId",     l:"App ID Meta",     t:"text",     h:"Depuis developers.facebook.com → votre app → Paramètres → ID de l'application"},
     {k:"appSecret", l:"App Secret Meta", t:"password", h:"Depuis developers.facebook.com → votre app → Paramètres → Clé secrète — DOIT aussi être dans Cloudflare Variables"},
   ],
-  instagram:   [{k:"username",l:"Nom d'utilisateur Instagram",t:"text",h:"Votre @pseudo Instagram"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Instagram"}],
+  instagram:   [{k:"_info", l:"Token configuré dans Cloudflare Variables", t:"text", h:"INSTAGRAM_ACCESS_TOKEN et INSTAGRAM_USER_ID sont définis dans vos Variables Cloudflare — aucune saisie requise ici"}],
   x:           [{k:"username",l:"Nom d'utilisateur X",t:"text",h:"Votre @pseudo X (sans le @)"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe X"}],
   threads:     [
     {k:"_info", l:"Connexion via OAuth uniquement", t:"text", h:"Threads se connecte via le bouton OAuth ci-dessous — aucune saisie manuelle requise"},
@@ -1293,7 +1299,7 @@ function nav(name) {
   if (name === 'ai')          loadAiConfig();
   if (name === 'email')       loadEmailConfig();
   if (name === 'connections') {
-    setTimeout(() => { loadConnectionStatuses(); loadFacebookStatus(); loadThreadsStatus(); }, 300);
+    setTimeout(() => { loadConnectionStatuses(); loadFacebookStatus(); loadThreadsStatus(); loadInstagramStatus(); }, 300);
   }
 }
 
@@ -1383,12 +1389,25 @@ function buildConnectionsList() {
         </div>
         ` : ''}
 
+        ${platform === 'instagram' ? `
+        <div style="background:linear-gradient(135deg,rgba(131,58,180,.1),rgba(253,29,29,.08),rgba(252,176,69,.08));border:1px solid rgba(180,100,200,.3);border-radius:10px;padding:16px;margin-bottom:14px">
+          <div style="font-weight:700;font-size:13px;background:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px">📷 Instagram — Connexion via token Cloudflare</div>
+          <div class="text-sm text-muted" style="margin-bottom:12px">
+            Votre token Instagram est configuré directement dans vos Variables Cloudflare (<code>INSTAGRAM_ACCESS_TOKEN</code> + <code>INSTAGRAM_USER_ID</code>). Aucune saisie manuelle requise ici.
+          </div>
+          <div id="instagram-status" style="margin-bottom:12px;font-size:12px;color:var(--text2)">Chargement du statut...</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" onclick="loadInstagramStatus()">↺ Actualiser le statut</button>
+            <button class="btn btn-ghost btn-sm" onclick="testInstagram()">✓ Tester</button>
+          </div>
+        </div>
+        ` : ''}
+
         ${platform === 'threads' ? `
         <div style="background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px;margin-bottom:14px">
           <div style="font-weight:700;font-size:13px;color:#e0e0e0;margin-bottom:8px">🧵 Connexion Threads via OAuth</div>
           <div class="text-sm text-muted" style="margin-bottom:12px">
-            Cliquez le bouton ci-dessous. Vous serez redirigé vers Threads pour autoriser l'accès.
-            Le token longue durée sera stocké automatiquement — aucune saisie requise.
+            Cliquez le bouton ci-dessous. Vous serez redirigé vers Threads pour autoriser l'accès. Le token longue durée sera stocké automatiquement.
           </div>
           <div id="threads-oauth-status" style="margin-bottom:12px;font-size:12px;color:var(--text2)">Chargement du statut...</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1922,7 +1941,35 @@ async function loadFacebookStatus() {
   } catch (_) { el.innerHTML = '<span style="color:var(--text3)">Impossible de vérifier le statut</span>'; }
 }
 
-// ── THREADS OAUTH FUNCTIONS ───────────────────────────────────
+// ── INSTAGRAM STATUS FUNCTIONS ────────────────────────────────
+async function loadInstagramStatus() {
+  const el = document.getElementById('instagram-status');
+  if (!el) return;
+  if (!WORKER_URL) { el.innerHTML = '<span style="color:var(--text3)">Worker non configuré</span>'; return; }
+  try {
+    const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/instagram/status');
+    const d = await r.json();
+    if (d.connected) {
+      el.innerHTML = `<span style="color:var(--green)">✓ Connecté</span> — <strong style="color:#fcb045">@${d.username}</strong> — ID: <span style="color:var(--text2)">${d.userId}</span>`;
+      const badge = document.getElementById('conn-status-instagram');
+      if (badge) { badge.className = 'badge b-green'; badge.textContent = d.username ? `@${d.username}` : 'Connecté'; }
+    } else {
+      el.innerHTML = `<span style="color:var(--orange)">${d.message || 'Non connecté'}</span>`;
+      const badge = document.getElementById('conn-status-instagram');
+      if (badge) { badge.className = 'badge b-gray'; badge.textContent = 'Non connecté'; }
+    }
+  } catch (_) { el.innerHTML = '<span style="color:var(--text3)">Impossible de vérifier le statut</span>'; }
+}
+
+async function testInstagram() {
+  notify('Test Instagram en cours...', 'info');
+  try {
+    const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/instagram/test');
+    const d = await r.json();
+    if (d.ok) notify(`✓ Instagram connecté : @${d.username} (ID: ${d.userId})`, 'ok');
+    else notify('Instagram : ' + (d.error || 'Non connecté'), 'err');
+  } catch (e) { notify(e.message, 'err'); }
+}
 function startThreadsOAuth() {
   if (!WORKER_URL) { notify("Configurez d'abord l'URL du Worker dans la sidebar.", 'err'); return; }
   const oauthUrl = WORKER_URL.replace(/\/$/, '') + '/auth/threads/start';
@@ -2397,6 +2444,7 @@ function openAutoModal(editData = null) {
   document.getElementById('am-id').value    = editData?.id || '';
   document.getElementById('am-name').value  = editData?.name || '';
   document.getElementById('am-desc').value  = editData?.description || '';
+  document.getElementById('am-image-prompt').value = editData?.imagePrompt || '';
   document.getElementById('am-freq').value  = editData?.frequency || 'daily';
   document.getElementById('am-hour').value  = editData?.hour || '09:00';
   document.getElementById('am-theme').value = editData?.themes?.[0] || '';
@@ -2460,14 +2508,15 @@ function closeAutoModal() {
 }
 
 async function saveAutomation() {
-  const id        = document.getElementById('am-id').value;
-  const name      = document.getElementById('am-name').value.trim();
-  const desc      = document.getElementById('am-desc').value.trim();
-  const platforms = [...document.querySelectorAll('#am-platforms input:checked')].map(i => i.value);
-  const frequency = document.getElementById('am-freq').value;
-  const hour      = document.getElementById('am-hour').value;
-  const theme     = document.getElementById('am-theme').value;
-  const tone      = document.getElementById('am-tone').value;
+  const id          = document.getElementById('am-id').value;
+  const name        = document.getElementById('am-name').value.trim();
+  const desc        = document.getElementById('am-desc').value.trim();
+  const imagePrompt = document.getElementById('am-image-prompt').value.trim();
+  const platforms   = [...document.querySelectorAll('#am-platforms input:checked')].map(i => i.value);
+  const frequency   = document.getElementById('am-freq').value;
+  const hour        = document.getElementById('am-hour').value;
+  const theme       = document.getElementById('am-theme').value;
+  const tone        = document.getElementById('am-tone').value;
   const validateEmail = document.getElementById('am-toggle-track').dataset.active !== 'false';
   const infinite      = document.getElementById('am-infinite-track').dataset.active !== 'false';
   const endDate   = infinite ? null : (document.getElementById('am-enddate').value || null);
@@ -2486,6 +2535,7 @@ async function saveAutomation() {
   const body = {
     name, description: desc, platforms, frequency, hour, tone,
     themes: theme ? [theme] : [],
+    imagePrompt: imagePrompt || "",
     active: true,
     validateEmail,
     infinite,
@@ -2579,6 +2629,7 @@ async function loadAutomations() {
               ${dureeLabel}
             </div>
             <div class="text-sm text-muted" style="margin-bottom:8px">${(r.description||'').slice(0,90)}${(r.description||'').length>90?'…':''}</div>
+            ${r.imagePrompt ? `<div class="text-sm" style="color:var(--gold);margin-bottom:6px">🎨 Image: ${r.imagePrompt}</div>` : ''}
             <div style="font-size:12px;color:var(--text2);margin-bottom:4px">
               ${platIcons} <span style="color:var(--text)">${(r.platforms||[]).map(p=>PLATFORMS[p]?.name||p).join(', ')}</span>
             </div>
