@@ -1188,7 +1188,7 @@ const CONN_FIELDS = {
   threads:     [
     {k:"_info", l:"Connexion via OAuth uniquement", t:"text", h:"Threads se connecte via le bouton OAuth ci-dessous — aucune saisie manuelle requise"},
   ],
-  linkedin:    [{k:"username",l:"Email LinkedIn",t:"text",h:"Votre adresse email de connexion LinkedIn"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe LinkedIn"}],
+  linkedin:    [{k:"_info", l:"Connexion via OAuth LinkedIn", t:"text", h:"LinkedIn se connecte via le bouton OAuth ci-dessous — aucune saisie manuelle requise"}],
   pinterest:   [{k:"username",l:"Email ou pseudo Pinterest",t:"text",h:"Votre identifiant Pinterest"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Pinterest"},{k:"boardName",l:"Nom du tableau cible",t:"text",h:"Ex: Voyance et spiritualité"}],
   reddit:      [{k:"username",l:"Nom d'utilisateur Reddit",t:"text",h:"Votre pseudo Reddit"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe Reddit"},{k:"subreddit",l:"Subreddit cible",t:"text",h:"Ex: voyance (sans le r/)"}],
   tiktok:      [{k:"username",l:"Email ou téléphone TikTok",t:"text",h:"Votre identifiant de connexion TikTok"},{k:"password",l:"Mot de passe",t:"password",h:"Votre mot de passe TikTok"}],
@@ -1299,7 +1299,7 @@ function nav(name) {
   if (name === 'ai')          loadAiConfig();
   if (name === 'email')       loadEmailConfig();
   if (name === 'connections') {
-    setTimeout(() => { loadConnectionStatuses(); loadFacebookStatus(); loadThreadsStatus(); loadInstagramStatus(); }, 300);
+    setTimeout(() => { loadConnectionStatuses(); loadFacebookStatus(); loadThreadsStatus(); loadInstagramStatus(); loadLinkedInStatus(); }, 300);
   }
 }
 
@@ -1356,18 +1356,33 @@ function buildConnectionsList() {
           <span class="conn-icon">${p.icon || '⬡'}</span>
           <div>
             <div class="conn-label">${p.name}</div>
-            <div class="conn-mode">Connexion par identifiants navigateur</div>
+            <div class="conn-mode">${
+              platform === 'facebook'  ? 'Connexion via OAuth Meta' :
+              platform === 'threads'   ? 'Connexion via OAuth Threads' :
+              platform === 'instagram' ? 'Connexion via token Cloudflare' :
+              platform === 'linkedin'  ? 'Connexion via OAuth LinkedIn' :
+              platform === 'telegram'  ? 'Connexion via Bot Token' :
+              platform === 'discord'   ? 'Connexion via Webhook URL' :
+              platform === 'bluesky'   ? 'Connexion via App Password' :
+              platform === 'mastodon'  ? 'Connexion via Access Token' :
+              'Connexion par identifiants'
+            }</div>
           </div>
         </div>
         <div class="conn-actions">
           <span class="badge b-gray" id="conn-status-${platform}">—</span>
-          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();testConn('${platform}')">Tester</button>
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();${
+            platform === 'instagram' ? 'testInstagram()' :
+            platform === 'threads'   ? 'testThreads()' :
+            platform === 'linkedin'  ? 'testLinkedIn()' :
+            `testConn('${platform}')`
+          }">Tester</button>
           <button class="btn btn-red btn-sm" onclick="event.stopPropagation();disconnectConn('${platform}')">Déconnecter</button>
           <span style="color:var(--text3);margin-left:6px">▾</span>
         </div>
       </div>
       <div class="conn-body" id="connb-${platform}">
-        ${fields.map(f => f.k === '_info' ? '' : `
+        ${fields.filter(f => f.k !== '_info').map(f => `
           <div class="fgrp">
             <label class="flabel">${f.l}</label>
             <input type="${f.t}" class="finput" id="cred-${platform}-${f.k}"
@@ -1385,6 +1400,23 @@ function buildConnectionsList() {
             <button class="btn btn-neon btn-sm" onclick="startFacebookOAuth()" id="btn-fb-oauth">📘 Connexion Facebook via OAuth</button>
             <button class="btn btn-ghost btn-sm" onclick="loadFacebookStatus()">↺ Actualiser</button>
             <button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()">🔄 Renouveler le token</button>
+          </div>
+        </div>
+        ` : ''}
+
+        ${platform === 'linkedin' ? `
+        <div style="background:rgba(0,119,181,.08);border:1px solid rgba(0,119,181,.3);border-radius:10px;padding:16px;margin-bottom:14px">
+          <div style="font-weight:700;font-size:13px;color:#0077b5;margin-bottom:8px">💼 Connexion LinkedIn via OAuth</div>
+          <div class="text-sm text-muted" style="margin-bottom:12px">
+            Cliquez le bouton ci-dessous. LinkedIn vous demandera d'autoriser l'accès à votre profil. Le token sera stocké automatiquement — aucune saisie requise.<br>
+            <span style="color:var(--gold);font-size:11px">Le contenu publié sur LinkedIn est automatiquement adapté à un ton sobre et professionnel.</span>
+          </div>
+          <div id="linkedin-oauth-status" style="margin-bottom:12px;font-size:12px;color:var(--text2)">Chargement du statut...</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-neon btn-sm" onclick="startLinkedInOAuth()" id="btn-linkedin-oauth">💼 Connexion LinkedIn via OAuth</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadLinkedInStatus()">↺ Actualiser</button>
+            <button class="btn btn-ghost btn-sm" onclick="testLinkedIn()">✓ Tester</button>
+            <button class="btn btn-red btn-sm" onclick="disconnectLinkedIn()">Déconnecter</button>
           </div>
         </div>
         ` : ''}
@@ -1421,12 +1453,15 @@ function buildConnectionsList() {
         ` : ''}
 
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          ${platform !== 'threads' ? `<button class="btn btn-neon btn-sm" onclick="saveCreds('${platform}')">🔒 Sauvegarder</button>` : ''}
+          ${platform !== 'threads' && platform !== 'instagram' && platform !== 'linkedin' ? `<button class="btn btn-neon btn-sm" onclick="saveCreds('${platform}')">🔒 Sauvegarder</button>` : ''}
           ${platform === 'facebook' ? `<button class="btn btn-ghost btn-sm" onclick="renewFacebookToken()">🔄 Renouveler le token</button>` : ''}
         </div>
         <div class="fhelp mt8" style="color:var(--text3)">
-          ${platform === 'threads' ? '<span style="color:var(--neon)">Threads utilise exclusivement OAuth — aucune saisie manuelle de token requise.</span>' : 'Vos identifiants sont chiffrés et stockés uniquement sur votre Worker Cloudflare.'}
-          ${platform === 'facebook' ? '<br><span style="color:var(--gold)">⚡ Utilisez le bouton OAuth ci-dessus pour une connexion permanente.</span>' : ''}
+          ${platform === 'threads'   ? '<span style="color:var(--neon)">Threads utilise exclusivement OAuth — aucune saisie manuelle requise.</span>' :
+            platform === 'instagram' ? '<span style="color:var(--neon)">Instagram utilise votre token Cloudflare — aucune saisie manuelle requise.</span>' :
+            platform === 'linkedin'  ? '<span style="color:#0077b5">LinkedIn utilise OAuth — aucune saisie manuelle requise. Ton professionnel appliqué automatiquement.</span>' :
+            platform === 'facebook'  ? '<span style="color:var(--gold)">⚡ Utilisez le bouton OAuth ci-dessus pour une connexion permanente.</span>' :
+            'Vos identifiants sont chiffrés et stockés uniquement sur votre Worker Cloudflare.'}
         </div>
       </div>
     </div>`;
@@ -1445,11 +1480,11 @@ async function loadConnectionStatuses() {
       if (!el) return;
       if (p.connected) {
         el.className = 'badge b-green';
-        el.textContent = key === 'threads' && p.username
-          ? `@${p.username}`
-          : key === 'facebook' && p.pageName
-            ? p.pageName
-            : 'Connecté';
+        el.textContent = key === 'threads'   && p.username ? `@${p.username}` :
+                         key === 'facebook'  && p.pageName ? p.pageName :
+                         key === 'instagram' && p.username ? `@${p.username}` :
+                         key === 'linkedin'  && p.name     ? p.name :
+                         'Connecté';
       } else {
         el.className = 'badge b-gray';
         el.textContent = 'Non connecté';
@@ -2042,9 +2077,69 @@ async function testThreads() {
 async function disconnectThreads() {
   if (!confirm('Déconnecter Threads ?')) return;
   try {
-    const r = await api('/auth/threads/disconnect', 'POST');
+    await api('/auth/threads/disconnect', 'POST');
     notify('Threads déconnecté.', 'ok');
     loadThreadsStatus();
+    loadConnectionStatuses();
+  } catch (e) { notify(e.message, 'err'); }
+}
+
+// ── LINKEDIN OAUTH FUNCTIONS ──────────────────────────────────
+function startLinkedInOAuth() {
+  if (!WORKER_URL) { notify("Configurez d'abord l'URL du Worker dans la sidebar.", 'err'); return; }
+  const oauthUrl = WORKER_URL.replace(/\/$/, '') + '/auth/linkedin/start';
+  const w = window.open(oauthUrl, 'linkedin_oauth', 'width=600,height=700,scrollbars=yes');
+  const check = setInterval(() => {
+    if (w && w.closed) {
+      clearInterval(check);
+      setTimeout(() => { loadLinkedInStatus(); loadConnectionStatuses(); }, 800);
+    }
+  }, 500);
+}
+
+async function loadLinkedInStatus() {
+  const el = document.getElementById('linkedin-oauth-status');
+  if (!el) return;
+  if (!WORKER_URL) { el.innerHTML = '<span style="color:var(--text3)">Worker non configuré</span>'; return; }
+  try {
+    const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/linkedin/status');
+    const d = await r.json();
+    if (d.connected) {
+      const days = d.daysRemaining;
+      const expInfo = days !== null
+        ? days > 10
+          ? `<span style="color:var(--green)">Token valide ${days} jours</span>`
+          : `<span style="color:var(--orange)">⚠ Expire dans ${days} jours</span>`
+        : '';
+      el.innerHTML = `<span style="color:var(--green)">✓ Connecté</span> — <strong style="color:#0077b5">${d.name}</strong> ${expInfo}`;
+      const btn = document.getElementById('btn-linkedin-oauth');
+      if (btn) btn.textContent = '💼 Reconnecter LinkedIn';
+      const badge = document.getElementById('conn-status-linkedin');
+      if (badge) { badge.className = 'badge b-green'; badge.textContent = d.name || 'Connecté'; }
+    } else {
+      el.innerHTML = '<span style="color:var(--orange)">Non connecté — cliquez le bouton pour vous connecter</span>';
+      const badge = document.getElementById('conn-status-linkedin');
+      if (badge) { badge.className = 'badge b-gray'; badge.textContent = 'Non connecté'; }
+    }
+  } catch (_) { el.innerHTML = '<span style="color:var(--text3)">Impossible de vérifier le statut</span>'; }
+}
+
+async function testLinkedIn() {
+  notify('Test LinkedIn en cours...', 'info');
+  try {
+    const r = await fetch(WORKER_URL.replace(/\/$/, '') + '/auth/linkedin/test');
+    const d = await r.json();
+    if (d.ok) notify(`✓ LinkedIn connecté : ${d.name} (ID: ${d.personId})`, 'ok');
+    else notify('LinkedIn : ' + (d.error || 'Non connecté'), 'err');
+  } catch (e) { notify(e.message, 'err'); }
+}
+
+async function disconnectLinkedIn() {
+  if (!confirm('Déconnecter LinkedIn ?')) return;
+  try {
+    await api('/auth/linkedin/disconnect', 'POST');
+    notify('LinkedIn déconnecté.', 'ok');
+    loadLinkedInStatus();
     loadConnectionStatuses();
   } catch (e) { notify(e.message, 'err'); }
 }
