@@ -138,11 +138,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         </div>
         <!-- IMAGE BLOCK CREATE -->
         <div class="fgrp" style="margin-bottom:0">
-          <div class="img-toggle-row" onclick="toggleImgBlock('create')">
-            <input type="checkbox" id="img-check-create" onclick="event.stopPropagation();toggleImgBlock('create')">
+          <label class="img-toggle-row" for="img-check-create">
+            <input type="checkbox" id="img-check-create" onchange="onImgToggle('create')">
             <span class="img-toggle-label">🖼 Inclure une image</span>
             <span class="img-toggle-sub">Référence bibliothèque ou description libre</span>
-          </div>
+          </label>
           <div class="img-options-panel" id="img-panel-create">
             <div class="img-options-inner">
               <div class="img-cols">
@@ -253,11 +253,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
     <!-- IMAGE BLOCK AUTOMATION -->
     <div class="fgrp" style="margin-bottom:18px">
-      <div class="img-toggle-row" onclick="toggleImgBlock('auto')">
-        <input type="checkbox" id="img-check-auto" onclick="event.stopPropagation();toggleImgBlock('auto')">
+      <label class="img-toggle-row" for="img-check-auto">
+        <input type="checkbox" id="img-check-auto" onchange="onImgToggle('auto')">
         <span class="img-toggle-label">🖼 Inclure une image</span>
         <span class="img-toggle-sub">Référence bibliothèque ou description libre</span>
-      </div>
+      </label>
       <div class="img-options-panel" id="img-panel-auto">
         <div class="img-options-inner">
           <div class="img-cols">
@@ -305,11 +305,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
     <!-- IMAGE BLOCK SCHED -->
     <div class="fgrp" style="margin-bottom:18px">
-      <div class="img-toggle-row" onclick="toggleImgBlock('sched')">
-        <input type="checkbox" id="img-check-sched" onclick="event.stopPropagation();toggleImgBlock('sched')">
+      <label class="img-toggle-row" for="img-check-sched">
+        <input type="checkbox" id="img-check-sched" onchange="onImgToggle('sched')">
         <span class="img-toggle-label">🖼 Inclure une image</span>
         <span class="img-toggle-sub">Référence bibliothèque ou description libre</span>
-      </div>
+      </label>
       <div class="img-options-panel" id="img-panel-sched">
         <div class="img-options-inner">
           <div class="img-cols">
@@ -347,6 +347,13 @@ let calYear,calMonth,calPosts=[];
 
 /* ──── Image block: sélections par contexte ──── */
 const _libSelected={create:[],auto:[],sched:[]};
+
+function onImgToggle(ctx){
+  const cb=document.getElementById('img-check-'+ctx);
+  const panel=document.getElementById('img-panel-'+ctx);
+  if(!cb||!panel)return;
+  panel.classList.toggle('open',cb.checked);
+}
 
 function toggleImgBlock(ctx){
   const cb=document.getElementById('img-check-'+ctx);
