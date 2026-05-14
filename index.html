@@ -106,6 +106,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
   <div class="nav-section">Système</div>
   <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Répondre forums</div>
+  <div class="nav-item" onclick="nav('horaires')" id="nav-horaires"><span class="nav-icon">🕐</span>Meilleurs horaires</div>
+  <div class="nav-item" onclick="nav('forumhistory')" id="nav-forumhistory"><span class="nav-icon">📜</span>Historique forums</div>
+  <div class="nav-item" onclick="nav('clicks')" id="nav-clicks"><span class="nav-icon">📊</span>Stats clics</div>
   <div class="nav-item" onclick="nav('notes')" id="nav-notes"><span class="nav-icon">📝</span>Notes<span class="nav-badge" id="notes-badge" style="display:none">0</span></div>
   <div class="nav-item" onclick="nav('guide')" id="nav-guide"><span class="nav-icon">📖</span>Guide plateformes</div>
   <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Configuration AI</div>
@@ -231,6 +234,28 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
     <!-- AUTOMATISATION -->
     <div class="page" id="page-automation"><div class="card"><div class="card-title flex-between">Automatisation<button class="btn btn-neon btn-sm" onclick="openAutoModal()">+ Nouvelle règle</button></div><div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px"><div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Fréquence choisie par vous — Cloudflare vérifie par Cron</div><div class="text-sm text-muted">Bouton Vérifier maintenant ajouté pour forcer le traitement si l'automatisation reste en "imminent".</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"><span class="badge b-blue">Quotidien</span><span class="badge b-blue">Tous les 2 jours</span><span class="badge b-blue">Tous les 3 jours</span><span class="badge b-blue">Hebdomadaire</span><span class="badge b-blue">Bihebdomadaire</span><span class="badge b-blue">Mensuel</span><button class="btn btn-ghost btn-sm" onclick="runCronNow()" style="margin-left:auto">Vérifier maintenant</button></div><div id="auto-list"><div class="text-muted text-sm">Chargement...</div></div></div></div>
+
+    <!-- MEILLEURS HORAIRES -->
+    <div class="page" id="page-horaires">
+      <div class="card"><div class="card-title">Meilleurs horaires de publication par plateforme</div>
+      <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--text2)">Basé sur les études marketing 2024-2025 pour le marché français. Heure de Paris. Adapte selon tes propres statistiques au fil du temps.</div>
+      <div id="horaires-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div></div>
+    </div>
+
+    <!-- HISTORIQUE FORUMS -->
+    <div class="page" id="page-forumhistory">
+      <div class="card"><div class="card-title flex-between"><span>Historique des réponses postées sur les forums</span><button class="btn btn-red btn-sm" onclick="clearForumHistory()">Vider</button></div>
+      <div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Chaque réponse que tu marques comme postée est sauvegardée ici pour éviter les doublons.</div>
+      <div id="forumhistory-list"></div></div>
+    </div>
+
+    <!-- STATS CLICS -->
+    <div class="page" id="page-clicks">
+      <div class="card"><div class="card-title flex-between"><span>Statistiques de clics sur vos liens</span><button class="btn btn-ghost btn-sm" onclick="loadClickStats()">↺</button></div>
+      <div style="background:rgba(0,187,85,.05);border:1px solid rgba(0,187,85,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Chaque lien généré dans vos posts peut être suivi. Le Worker enregistre chaque clic via le endpoint <code style="color:var(--neon)">/track/:postId/:platform</code>.</div>
+      <div id="clicks-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
+      <div id="clicks-list"></div></div>
+    </div>
 
     <!-- FORUMS -->
     <div class="page" id="page-forums"><div class="card"><div class="card-title flex-between"><span>Répondre sur les forums</span><button class="btn btn-neon" id="btn-forums" onclick="analyzeForums()"><span class="loader" id="forums-ldr" style="display:none"></span>🔍 Analyser les forums</button></div><div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:18px"><div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Comment ça marche</div><div class="text-sm text-muted">Cochez les forums à analyser, cliquez sur Analyser. L'IA trouve les sujets actifs pertinents (voyance, sentimental, rituel…) et rédige une réponse naturelle pour chacun, avec le lien pour aller poster directement.</div></div><div class="fgrp"><label class="flabel">Forums à analyser</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px" id="forums-checklist"></div></div><div id="forums-results" style="margin-top:8px"></div></div></div>
@@ -486,7 +511,7 @@ function setImgBlock(ctx,data){
 const SITE_PAGES=[{url:'https://www.clairvoyancemedium.com/Accueil-ccbaaaaaa.asp',label:'Accueil',themes:['general','voyance','presentation']},{url:'https://www.clairvoyancemedium.com/Voyance-Telephone-cbbaaaaaa.asp',label:'Voyance par Téléphone',themes:['telephone','appel','consultation']},{url:'https://www.clairvoyancemedium.com/Voyance-Par-email-cbcaaaaaa.asp',label:'Voyance par Email',themes:['email','questions','reponse']},{url:'https://www.clairvoyancemedium.com/Love-Compatibilite-cbgaaaaaj.asp',label:'Love & Compatibilité Amoureuse',themes:['amour','sentimental','couple']},{url:'https://www.clairvoyancemedium.com/Les-plus-demandes-cbgaaaaab.asp',label:'Les plus demandés',themes:['populaire','service']}];
 const PLATFORMS={instagram:{name:'Instagram',icon:'📷',mode:'meta',oauth:true},facebook:{name:'Facebook',icon:'📘',mode:'oauth',oauth:true},threads:{name:'Threads',icon:'🧵',mode:'oauth',oauth:true},linkedin:{name:'LinkedIn',icon:'💼',mode:'oauth',oauth:true},pinterest:{name:'Pinterest',icon:'📌',mode:'oauth',oauth:true},reddit:{name:'Reddit',icon:'🔴',mode:'oauth',oauth:true},mastodon:{name:'Mastodon',icon:'🐘',mode:'oauth',oauth:true},x:{name:'X / Twitter',icon:'𝕏',mode:'token'},telegram:{name:'Telegram',icon:'✈',mode:'bot'},discord:{name:'Discord',icon:'💬',mode:'webhook'},bluesky:{name:'Bluesky',icon:'🦋',mode:'app_password'},tumblr:{name:'Tumblr',icon:'📝',mode:'token'},medium:{name:'Medium',icon:'Ⓜ',mode:'token'},whatsapp:{name:'WhatsApp Business',icon:'💚',mode:'meta_token'},tiktok:{name:'TikTok',icon:'▶',mode:'semi'},youtube:{name:'YouTube',icon:'▶',mode:'semi'},quora:{name:'Quora',icon:'❓',mode:'semi'},snapchat:{name:'Snapchat',icon:'👻',mode:'semi'},vimeo:{name:'Vimeo',icon:'🎬',mode:'semi'},dailymotion:{name:'Dailymotion',icon:'📺',mode:'semi'}};
 const CONN_FIELDS={instagram:[{k:'accountId',l:'Instagram Business Account ID',t:'text',h:'Rempli via Facebook OAuth si Instagram est lié à la Page'},{k:'accessToken',l:'Token Meta',t:'password',h:'Optionnel'}],facebook:[{k:'pageId',l:'ID de page Facebook',t:'text',h:'Normalement rempli automatiquement par OAuth Meta'},{k:'accessToken',l:'Token page Meta',t:'password',h:'Optionnel si OAuth fonctionne'}],threads:[{k:'accessToken',l:'Token Threads',t:'password',h:'Normalement rempli automatiquement par OAuth Threads'},{k:'userId',l:'Threads User ID',t:'text',h:'Rempli via OAuth'}],linkedin:[{k:'personUrn',l:'Person URN LinkedIn',t:'text',h:'Ex: urn:li:person:xxxx'}],pinterest:[{k:'boardId',l:'Board ID Pinterest',t:'text',h:'Obligatoire pour choisir le tableau cible'}],reddit:[{k:'subreddit',l:'Subreddit cible',t:'text',h:'Sans r/. Exemple : voyance'}],mastodon:[{k:'instanceUrl',l:'Instance Mastodon',t:'text',h:'Ex: https://mastodon.social'}],x:[{k:'bearerToken',l:'Bearer Token X',t:'password',h:'OAuth X non inclus sans app X API validée'}],telegram:[{k:'botToken',l:'Bot Token',t:'password',h:'Depuis @BotFather'},{k:'chatId',l:'Chat ID ou @canal',t:'text',h:'Ex: @MonCanal'}],discord:[{k:'webhookUrl',l:'Webhook URL',t:'text',h:'Paramètres du salon Discord > Webhooks'}],bluesky:[{k:'handle',l:'Handle Bluesky',t:'text',h:'exemple.bsky.social'},{k:'appPassword',l:'App Password',t:'password',h:'Mot de passe d\'application'}],tumblr:[{k:'accessToken',l:'Access Token Tumblr',t:'password',h:'Token API Tumblr'},{k:'blogName',l:'Nom du blog',t:'text',h:'sans .tumblr.com'}],medium:[{k:'integrationToken',l:'Integration Token Medium',t:'password',h:'Medium Settings > Integration tokens'}],whatsapp:[{k:'accessToken',l:'Token Meta WhatsApp',t:'password',h:'Cloud API'},{k:'phoneNumberId',l:'Phone Number ID',t:'text',h:'Meta WhatsApp'},{k:'recipientPhone',l:'Numéro destinataire',t:'text',h:'Format international'}],tiktok:[{k:'note',l:'Mode semi-auto',t:'text',h:'API publication soumise à validation TikTok'}],youtube:[{k:'note',l:'Mode semi-auto',t:'text',h:'YouTube Data API nécessite OAuth Google validé'}],quora:[{k:'note',l:'Mode semi-auto',t:'text',h:'Copier-coller manuel'}],snapchat:[{k:'note',l:'Mode semi-auto',t:'text',h:'Copier-coller manuel'}],vimeo:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}],dailymotion:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}]};
-const PAGE_TITLES={dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Répondre sur les forums'};
+const PAGE_TITLES={dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Répondre sur les forums',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
 
 /* ──── API ──── */
 async function api(path,method='GET',body=null,extraHeaders={}){const base=(WORKER_URL||'').replace(/\/$/,'');if(!base)throw new Error('Worker URL non configuré.');const opts={method,headers:{'Content-Type':'application/json','X-Admin-Token':ADMIN_TOKEN,...extraHeaders}};if(body)opts.body=JSON.stringify(body);let response;try{response=await fetch(base+path,opts)}catch{throw new Error('Impossible de joindre le Worker.')}let data;try{data=await response.json()}catch{throw new Error('Réponse Worker invalide HTTP '+response.status)}if(!response.ok)throw new Error(data.error||'Erreur HTTP '+response.status);return data}
@@ -500,7 +525,7 @@ function statusBadge(s){return{published:'b-green',pending_validation:'b-orange'
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('on')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('on')}
 function nav(name){currentPage=name;if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
-function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist()}
+function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats()}
 
 /* ──── WORKER ──── */
 function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');refreshCurrent()}
@@ -658,7 +683,8 @@ async function analyzeForums(){
         +'</div>'
         +'<div style="font-size:10px;color:var(--text3);margin-bottom:6px">Reponse suggeree - copiez et adaptez avant de poster :</div>'
         +'<div class="forum-result-reply" id="reply-'+escapeHtml(r.id)+'">'+escapeHtml(r.reply)+'</div>'
-        +'<button class="btn btn-ghost btn-sm" onclick="copyForumReply(\''+escapeHtml(r.id)+'\')">Copier la reponse</button>'
+        +'<div class="flex gap8" style="flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="copyForumReply(\''+escapeHtml(r.id)+'\')">Copier la reponse</button>'
+        +'<button class="btn btn-green btn-sm" onclick="markForumPosted(\''+escapeHtml(r.id)+'\',\''+escapeHtml(r.forum)+'\',\''+escapeHtml(r.title)+'\',\''+escapeHtml(r.url)+'\')">Marque comme postee</button></div>'
         +'</div>';
     }).join('');
     notify(results.length+' sujet(s) trouve(s).','ok');
@@ -676,6 +702,124 @@ function copyForumReply(id){
   const txt=el.textContent||el.innerText||'';
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){notify('Reponse copiee !','ok')});}
   else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);notify('Reponse copiee !','ok');}
+}
+
+/* ──── MEILLEURS HORAIRES ──── */
+const BEST_TIMES={
+  instagram:{name:'Instagram',icon:'📷',slots:[{day:'Mardi',time:'11h00',score:5},{day:'Mercredi',time:'13h00',score:5},{day:'Vendredi',time:'10h00',score:4},{day:'Jeudi',time:'15h00',score:4}],tip:'Evite le lundi matin et les weekends apres 20h. Le visuel est primordial.'},
+  facebook:{name:'Facebook',icon:'📘',slots:[{day:'Mercredi',time:'13h00',score:5},{day:'Jeudi',time:'08h00',score:5},{day:'Vendredi',time:'09h00',score:4},{day:'Mardi',time:'10h00',score:4}],tip:'Les posts avec image ont 2x plus de portee. Evite dimanche soir.'},
+  instagram_stories:{name:'Instagram Stories',icon:'📷',slots:[{day:'Tous les jours',time:'08h00-09h00',score:5},{day:'Tous les jours',time:'19h00-21h00',score:5}],tip:'Les stories matinales et soiree capturent les routines.'},
+  threads:{name:'Threads',icon:'🧵',slots:[{day:'Lundi',time:'09h00',score:5},{day:'Mercredi',time:'12h00',score:4},{day:'Vendredi',time:'11h00',score:4}],tip:'Plateforme recente — l\'engagement est fort le matin en semaine.'},
+  linkedin:{name:'LinkedIn',icon:'💼',slots:[{day:'Mardi',time:'08h00',score:5},{day:'Mercredi',time:'09h00',score:5},{day:'Jeudi',time:'10h00',score:4}],tip:'Strictement en semaine. Evite totalement samedi et dimanche.'},
+  pinterest:{name:'Pinterest',icon:'📌',slots:[{day:'Samedi',time:'20h00',score:5},{day:'Dimanche',time:'14h00',score:5},{day:'Vendredi',time:'21h00',score:4}],tip:'Pinterest est une plateforme de weekend et de soiree. Tres different des autres.'},
+  reddit:{name:'Reddit FR',icon:'🔴',slots:[{day:'Lundi',time:'09h00',score:5},{day:'Mercredi',time:'10h00',score:4},{day:'Vendredi',time:'08h00',score:4}],tip:'Poster tot le matin en semaine pour maximiser les votes. Evite vendredi soir.'},
+  twitter:{name:'X / Twitter',icon:'𝕏',slots:[{day:'Lundi',time:'08h00',score:5},{day:'Mercredi',time:'09h00',score:5},{day:'Jeudi',time:'08h00',score:4}],tip:'La duree de vie d\'un tweet est courte — publie en heure de pointe.'},
+  telegram:{name:'Telegram',icon:'✈',slots:[{day:'Tous les jours',time:'18h00-21h00',score:5},{day:'Weekend',time:'10h00-12h00',score:4}],tip:'Les canaux Telegram sont tres lus en soiree apres le travail.'},
+  discord:{name:'Discord',icon:'💬',slots:[{day:'Vendredi',time:'19h00',score:5},{day:'Samedi',time:'15h00',score:5},{day:'Dimanche',time:'14h00',score:4}],tip:'Communaute tres active le weekend. Evite lundi-mercredi matin.'},
+  tiktok:{name:'TikTok',icon:'▶',slots:[{day:'Mardi',time:'19h00',score:5},{day:'Jeudi',time:'20h00',score:5},{day:'Vendredi',time:'18h00',score:4}],tip:'Soiree et nuit pour TikTok — public jeune connecte apres 18h.'},
+  youtube:{name:'YouTube',icon:'▶',slots:[{day:'Vendredi',time:'17h00',score:5},{day:'Samedi',time:'11h00',score:5},{day:'Dimanche',time:'10h00',score:4}],tip:'Les videos du vendredi apres-midi ont le meilleur depart. Weekend = audience pic.'},
+  bluesky:{name:'Bluesky',icon:'🦋',slots:[{day:'Lundi',time:'10h00',score:4},{day:'Mercredi',time:'11h00',score:4},{day:'Vendredi',time:'09h00',score:4}],tip:'Communaute intellectuelle — matin en semaine, contenu de fond.'},
+  mastodon:{name:'Mastodon',icon:'🐘',slots:[{day:'Mardi',time:'10h00',score:4},{day:'Jeudi',time:'11h00',score:4}],tip:'Similaire a Twitter — matin en semaine pour le public tech/culture.'},
+  whatsapp:{name:'WhatsApp Business',icon:'💚',slots:[{day:'Tous les jours',time:'09h00',score:5},{day:'Tous les jours',time:'19h00',score:5}],tip:'Messages lus quasi instantanement — matin et soiree sont les meilleurs moments.'}
+};
+
+function renderHoraires(){
+  const el=document.getElementById('horaires-grid');
+  if(!el)return;
+  const stars=function(n){var s='';for(var i=0;i<5;i++)s+=i<n?'★':'☆';return s;};
+  el.innerHTML=Object.values(BEST_TIMES).map(function(p){
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px">'
+      +'<div style="font-size:18px;margin-bottom:4px">'+p.icon+' <strong style="color:var(--neon)">'+p.name+'</strong></div>'
+      +'<div style="margin:10px 0">'
+      +p.slots.map(function(s){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">'
+          +'<span style="font-size:12px;color:var(--text)">'+s.day+' <strong>'+s.time+'</strong></span>'
+          +'<span style="color:var(--gold);font-size:12px">'+stars(s.score)+'</span>'
+          +'</div>';
+      }).join('')
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">'+p.tip+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ──── HISTORIQUE FORUMS ──── */
+function getForumHistory(){try{return JSON.parse(localStorage.getItem('pgi_forum_history')||'[]')}catch{return[]}}
+function saveForumHistory(list){localStorage.setItem('pgi_forum_history',JSON.stringify(list));try{api('/api/forum-history','PUT',{history:list})}catch(e){}}
+
+function markForumPosted(id,forum,title,url){
+  const history=getForumHistory();
+  if(history.find(function(h){return h.url===url})){notify('Deja marque comme poste !','info');return;}
+  history.unshift({id:id,forum:forum,title:title,url:url,postedAt:Date.now()});
+  saveForumHistory(history.slice(0,200));
+  notify('Reponse marquee comme postee — sauvegardee dans l\'historique.','ok');
+  const btn=document.querySelector('[onclick*="markForumPosted(\''+id+'\'"]');
+  if(btn){btn.textContent='Poste !';btn.disabled=true;btn.className='btn btn-ghost btn-sm';}
+}
+
+async function loadForumHistory(){
+  const el=document.getElementById('forumhistory-list');
+  if(!el)return;
+  try{const data=await api('/api/forum-history');if(data.history&&data.history.length){saveForumHistory(data.history);}}catch(e){}
+  const history=getForumHistory();
+  if(!history.length){el.innerHTML='<div class="text-muted text-sm">Aucune reponse marquee comme postee pour l\'instant.</div>';return;}
+  el.innerHTML=history.map(function(h){
+    const date=new Date(h.postedAt).toLocaleString('fr-FR');
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:200px">'
+      +'<div style="font-weight:600;font-size:13px;margin-bottom:3px">'+escapeHtml(h.title)+'</div>'
+      +'<div style="font-size:11px;color:var(--text3)">'+escapeHtml(h.forum)+' &bull; '+date+'</div>'
+      +'</div>'
+      +'<a href="'+escapeHtml(h.url)+'" target="_blank" class="btn btn-ghost btn-sm">Voir le fil</a>'
+      +'<button class="btn btn-red btn-sm" onclick="deleteForumHistory(\''+escapeHtml(h.id)+'\')">Supprimer</button>'
+      +'</div>';
+  }).join('');
+}
+
+function deleteForumHistory(id){
+  saveForumHistory(getForumHistory().filter(function(h){return h.id!==id;}));
+  loadForumHistory();
+  notify('Supprime.','ok');
+}
+
+function clearForumHistory(){
+  if(!confirm('Vider tout l\'historique des forums ?'))return;
+  saveForumHistory([]);
+  loadForumHistory();
+  notify('Historique vide.','ok');
+}
+
+/* ──── STATS CLICS ──── */
+async function loadClickStats(){
+  const el=document.getElementById('clicks-list');
+  const sumEl=document.getElementById('clicks-summary');
+  if(!el||!sumEl)return;
+  try{
+    const data=await api('/api/clicks');
+    const clicks=data.clicks||[];
+    const total=clicks.reduce(function(a,c){return a+c.count;},0);
+    const byPlatform={};
+    clicks.forEach(function(c){byPlatform[c.platform]=(byPlatform[c.platform]||0)+c.count;});
+    sumEl.innerHTML='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center"><div style="font-family:Cinzel,serif;font-size:32px;color:var(--neon)">'+total+'</div><div style="font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-top:4px">Clics totaux</div></div>'
+      +Object.entries(byPlatform).sort(function(a,b){return b[1]-a[1];}).map(function(e){
+        return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">'
+          +'<div style="font-family:Cinzel,serif;font-size:26px;color:var(--text)">'+e[1]+'</div>'
+          +'<div style="font-size:10px;color:var(--text2);margin-top:4px">'+escapeHtml(e[0])+'</div>'
+          +'</div>';
+      }).join('');
+    if(!clicks.length){el.innerHTML='<div class="text-muted text-sm">Aucun clic enregistre pour l\'instant. Les clics sur vos liens de posts seront comptabilises automatiquement.</div>';return;}
+    el.innerHTML='<div class="card-title" style="margin-top:4px">Detail par post</div>'
+      +clicks.map(function(c){
+        return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+          +'<div><div style="font-size:12px;font-weight:600">'+escapeHtml(c.postId)+'</div>'
+          +'<div style="font-size:10px;color:var(--text3)">'+escapeHtml(c.platform)+' &bull; '+new Date(c.lastClick||c.firstClick).toLocaleString('fr-FR')+'</div></div>'
+          +'<span class="badge b-blue">'+c.count+' clics</span>'
+          +'</div>';
+      }).join('');
+  }catch(e){
+    el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';
+    sumEl.innerHTML='';
+  }
 }
 
 /* ──── INIT ──── */
