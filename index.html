@@ -105,6 +105,10 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--panel);border:1px solid var(--border2);border-radius:8px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:5px;padding:10px}.hamburger span{display:block;width:20px;height:2px;background:var(--neon);border-radius:2px}.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99}
 .note-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;transition:border-color .15s}.note-card:hover{border-color:var(--border2)}.note-card textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'Raleway',sans-serif;font-size:13px;line-height:1.7;resize:none;min-height:80px;overflow:hidden}.note-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}.note-date{font-size:10px;color:var(--text3)}.note-actions{display:flex;gap:6px}
 .forum-check-label{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .18s;user-select:none}.forum-check-label:hover{border-color:var(--border2)}.forum-check-label input{width:15px;height:15px;accent-color:var(--neon);flex-shrink:0}.forum-check-label input:checked~span{color:var(--neon)}.forum-result-card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:18px;margin-bottom:14px}.forum-result-title{font-weight:700;font-size:14px;color:var(--text);margin-bottom:6px}.forum-result-meta{font-size:11px;color:var(--text3);margin-bottom:10px}.forum-result-reply{background:rgba(0,0,0,.25);border-left:3px solid var(--neon);border-radius:0 8px 8px 0;padding:12px 14px;font-size:13px;line-height:1.7;color:var(--text);margin-bottom:10px;white-space:pre-wrap}
+.forums-tag{display:inline-flex;align-items:center;padding:5px 12px;background:rgba(0,191,255,.07);border:1px solid rgba(0,191,255,.2);border-radius:20px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s;user-select:none}
+.forums-tag:hover{background:rgba(0,191,255,.15);border-color:var(--neon);color:var(--neon)}
+.forums-tag.active{background:rgba(0,191,255,.18);border-color:var(--neon);color:var(--neon);font-weight:700}
+.forums-search-active{background:rgba(0,191,255,.06);border:1px solid var(--neon);box-shadow:0 0 0 2px rgba(0,191,255,.1)}
 @media(max-width:900px){:root{--sw:0px}.hamburger{display:flex}.sidebar{left:-280px;width:280px;transition:left .25s cubic-bezier(.4,0,.2,1);z-index:101}.sidebar.open{left:0}.overlay.on{display:block}.main{margin-left:0!important}.topbar{padding:0 14px 0 60px}.page-content{padding:16px}.grid2{grid-template-columns:1fr!important}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.stat-card{min-height:145px}.plat-grid{grid-template-columns:1fr 1fr!important}.worker-bar{margin:10px 8px 4px}.img-cols{grid-template-columns:1fr!important}.pinterest-boards-list{grid-template-columns:1fr!important}}
 @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.stat-card{min-height:132px;padding:14px}.stat-num{font-size:28px}.stat-lbl{font-size:9px}.plat-grid{grid-template-columns:1fr!important}.topbar-title{font-size:11px}.page-content{padding:12px}.card{padding:14px}.topbar-right .btn-neon{display:none}.ref-grid{grid-template-columns:1fr}.ref-select-list{grid-template-columns:1fr}}
 </style>
@@ -284,7 +288,34 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
 
     <!-- FORUMS -->
-    <div class="page" id="page-forums"><div class="card"><div class="card-title flex-between"><span>Répondre sur les forums</span><button class="btn btn-neon" id="btn-forums" onclick="analyzeForums()"><span class="loader" id="forums-ldr" style="display:none"></span>🔍 Analyser les forums</button></div><div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:18px"><div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Comment ça marche</div><div class="text-sm text-muted">Cochez les forums à analyser, cliquez sur Analyser. L'IA trouve les sujets actifs pertinents et rédige une réponse naturelle pour chacun.</div></div><div class="fgrp"><label class="flabel">Forums à analyser</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px" id="forums-checklist"></div></div><div id="forums-results" style="margin-top:8px"></div></div></div>
+    <div class="page" id="page-forums"><div class="card"><div class="card-title flex-between"><span>Répondre sur les forums</span><button class="btn btn-neon" id="btn-forums" onclick="analyzeForums()"><span class="loader" id="forums-ldr" style="display:none"></span>🔍 Analyser les forums</button></div>
+      <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:18px"><div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Comment ça marche</div><div class="text-sm text-muted">Cochez les forums, entrez un thème précis dans la barre de recherche (optionnel) et cliquez sur Analyser. Si un thème est saisi, il prime sur les sujets par défaut et cible exactement ce que vous cherchez.</div></div>
+
+      <!-- BARRE DE RECHERCHE THÉMATIQUE -->
+      <div class="fgrp" style="margin-bottom:18px">
+        <label class="flabel">🔎 Recherche thématique (optionnel — prime sur les sujets par défaut)</label>
+        <div style="position:relative">
+          <input class="finput" id="forums-search-query" placeholder="Ex : voyance par email, retour ex, rituel amour, désenvoûtement…" style="padding-right:110px" oninput="onForumSearchInput()" onkeydown="if(event.key==='Enter')analyzeForums()">
+          <button class="btn btn-ghost btn-sm" onclick="clearForumSearch()" id="forums-search-clear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px">✕ Effacer</button>
+        </div>
+        <div id="forums-search-status" style="margin-top:7px;font-size:11px;color:var(--text3)">Sans thème : l'IA recherche les sujets voyance/sentimental/rituel les plus actifs du moment.</div>
+        <!-- Suggestions rapides -->
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="forums-quick-tags">
+          <span class="forums-tag" onclick="setForumSearch(this)">voyance par email</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">retour ex affectif</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">rituel amour</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">désenvoûtement</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">voyance téléphone</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">horoscope du jour</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">consultation medium</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">magie blanche</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">avenir sentimental</span>
+          <span class="forums-tag" onclick="setForumSearch(this)">rupture amoureuse</span>
+        </div>
+      </div>
+
+      <div class="fgrp"><label class="flabel">Forums à analyser</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px" id="forums-checklist"></div></div>
+      <div id="forums-results" style="margin-top:8px"></div></div></div>
 
     <!-- NOTES -->
     <div class="page" id="page-notes"><div class="card"><div class="card-title flex-between"><span>Notes personnelles</span><button class="btn btn-neon btn-sm" onclick="addNote()">+ Nouvelle note</button></div><div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Vos notes sont sauvegardées dans le cloud (Worker) — accessibles sur tous vos appareils.</div><div id="notes-list"></div></div></div>
@@ -1017,26 +1048,71 @@ async function renderNotes(skipSync){const el=document.getElementById('notes-lis
 
 /* ──── FORUMS ──── */
 const FORUMS_LIST=[
-  {id:'doctissimo',name:'Doctissimo',icon:'D',desc:'Sante bien-etre amour',url:'https://forum.doctissimo.fr/sante'},
-  {id:'aufeminin',name:'Aufeminin',icon:'F',desc:'Amour couple spiritualite',url:'https://forum.aufeminin.com/forum'},
-  {id:'psychologies',name:'Psychologies Magazine',icon:'P',desc:'Developpement personnel relations',url:'https://www.psychologies.com/Forum'},
-  {id:'predifrance',name:'PrediFrance',icon:'🔮',desc:'Voyance medium predictions France',url:'https://www.predifrance.com/forum'},
-  {id:'kinthia',name:'Forum Kinthia',icon:'✨',desc:'Voyance esoterisme medium spirituel',url:'https://www.kinthia.com/forum'},
-  {id:'monsitevoyance',name:'MonSiteVoyance',icon:'🌙',desc:'Voyance medium horoscope rituels',url:'https://www.monsitevoyance.com/forum'},
-  {id:'marmiton',name:'Marmiton',icon:'C',desc:'Communaute active sections vie perso',url:'https://www.marmiton.org/forum'},
-  {id:'lesensdelavie',name:'Le Sens de la Vie',icon:'S',desc:'Spiritualite voyance esoterisme',url:'https://www.lesensdelavie.net'},
-  {id:'astrocenter',name:'AstroCenter',icon:'A',desc:'Astrologie horoscope voyance',url:'https://www.astrocenter.fr'},
-  {id:'elle',name:'ELLE Forum',icon:'E',desc:'Amour bien-etre feminite',url:'https://www.elle.fr/Forum'},
-  {id:'magicmaman',name:'Magic Maman',icon:'B',desc:'Famille couple bien-etre',url:'https://www.magicmaman.com/forum'},
-  {id:'commentcamarche',name:'Comment Ca Marche',icon:'Q',desc:'Generaliste sections relations',url:'https://forums.commentcamarche.net'},
-  {id:'jeuxvideo',name:'JVC Amour et Psy',icon:'J',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm'},
-  {id:'reddit',name:'Reddit FR',icon:'R',desc:'r/voyance r/spiritualite r/amour',url:'https://www.reddit.com/r/france'}
+  {id:'reddit',name:'Reddit FR',icon:'🟠',desc:'r/voyance r/spiritualite r/amour r/relation_de_couple',url:'https://www.reddit.com/r/france',defaultChecked:true},
+  {id:'predifrance',name:'PrediFrance',icon:'🔮',desc:'Voyance medium predictions France',url:'https://www.predifrance.com/forum',defaultChecked:true},
+  {id:'kinthia',name:'Forum Kinthia',icon:'✨',desc:'Voyance esoterisme medium spirituel',url:'https://www.kinthia.com/forum',defaultChecked:true},
+  {id:'monsitevoyance',name:'MonSiteVoyance',icon:'🌙',desc:'Voyance medium horoscope rituels',url:'https://www.monsitevoyance.com/forum',defaultChecked:true},
+  {id:'doctissimo',name:'Doctissimo',icon:'D',desc:'Sante bien-etre amour — tres actif',url:'https://forum.doctissimo.fr/sante',defaultChecked:true},
+  {id:'aufeminin',name:'Aufeminin',icon:'F',desc:'Amour couple spiritualite',url:'https://forum.aufeminin.com/forum',defaultChecked:true},
+  {id:'psychologies',name:'Psychologies Magazine',icon:'P',desc:'Developpement personnel relations',url:'https://www.psychologies.com/Forum',defaultChecked:false},
+  {id:'lesensdelavie',name:'Le Sens de la Vie',icon:'S',desc:'Spiritualite voyance esoterisme',url:'https://www.lesensdelavie.net',defaultChecked:false},
+  {id:'astrocenter',name:'AstroCenter',icon:'A',desc:'Astrologie horoscope voyance',url:'https://www.astrocenter.fr',defaultChecked:false},
+  {id:'elle',name:'ELLE Forum',icon:'E',desc:'Amour bien-etre feminite',url:'https://www.elle.fr/Forum',defaultChecked:false},
+  {id:'magicmaman',name:'Magic Maman',icon:'B',desc:'Famille couple bien-etre',url:'https://www.magicmaman.com/forum',defaultChecked:false},
+  {id:'commentcamarche',name:'Comment Ca Marche',icon:'Q',desc:'Generaliste sections relations',url:'https://forums.commentcamarche.net',defaultChecked:false},
+  {id:'jeuxvideo',name:'JVC Amour et Psy',icon:'J',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm',defaultChecked:false},
+  {id:'marmiton',name:'Marmiton',icon:'C',desc:'Communaute active sections vie perso',url:'https://www.marmiton.org/forum',defaultChecked:false}
 ];
 
 function buildForumsChecklist(){
   const el=document.getElementById('forums-checklist');
   if(!el)return;
-  el.innerHTML=FORUMS_LIST.map(f=>`<label class="forum-check-label"><input type="checkbox" id="fc-${f.id}" value="${f.id}" checked><span>${f.icon} ${f.name}<br><span style="font-size:10px;color:var(--text3)">${f.desc}</span></span></label>`).join('');
+  el.innerHTML=FORUMS_LIST.map(f=>`<label class="forum-check-label"><input type="checkbox" id="fc-${f.id}" value="${f.id}" ${f.defaultChecked?'checked':''}><span>${f.icon} ${f.name}<br><span style="font-size:10px;color:var(--text3)">${f.desc}</span></span></label>`).join('');
+}
+
+/* ── Barre de recherche thématique forums ── */
+function onForumSearchInput(){
+  const val=(document.getElementById('forums-search-query')?.value||'').trim();
+  const clearBtn=document.getElementById('forums-search-clear');
+  const statusEl=document.getElementById('forums-search-status');
+  const input=document.getElementById('forums-search-query');
+  if(clearBtn)clearBtn.style.display=val?'':'none';
+  if(val){
+    if(input)input.classList.add('forums-search-active');
+    if(statusEl)statusEl.innerHTML=`<span style="color:var(--neon);font-weight:700">✦ Mode recherche active</span> — L'IA va chercher <strong>"${escapeHtml(val)}"</strong> dans les forums cochés uniquement.`;
+    // Désactive les tags rapides
+    document.querySelectorAll('.forums-tag').forEach(t=>t.classList.remove('active'));
+  } else {
+    if(input)input.classList.remove('forums-search-active');
+    if(statusEl)statusEl.innerHTML="Sans thème : l'IA recherche les sujets voyance/sentimental/rituel les plus actifs du moment.";
+  }
+}
+
+function setForumSearch(el){
+  const val=el.textContent.trim();
+  const input=document.getElementById('forums-search-query');
+  if(!input)return;
+  // Toggle : si déjà actif, efface
+  if(input.value===val){
+    input.value='';
+    el.classList.remove('active');
+  } else {
+    input.value=val;
+    document.querySelectorAll('.forums-tag').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  onForumSearchInput();
+}
+
+function clearForumSearch(){
+  const input=document.getElementById('forums-search-query');
+  if(input)input.value='';
+  document.querySelectorAll('.forums-tag').forEach(t=>t.classList.remove('active'));
+  onForumSearchInput();
+}
+
+function getForumSearchQuery(){
+  return (document.getElementById('forums-search-query')?.value||'').trim();
 }
 
 /* Mots-clés SEO voyance les plus recherchés sur Google France */
@@ -1058,11 +1134,13 @@ async function analyzeForums(){
   const btn=document.getElementById('btn-forums');const ldr=document.getElementById('forums-ldr');
   btn.disabled=true;ldr.style.display='inline-block';
   const el=document.getElementById('forums-results');
-  el.innerHTML='<div class="text-muted text-sm" style="padding:16px 0">Analyse en cours — intégration SEO active...</div>';
+  el.innerHTML='<div class="text-muted text-sm" style="padding:16px 0">'+(getForumSearchQuery()?'🔎 Recherche de <strong>\"'+escapeHtml(getForumSearchQuery())+'\"</strong> dans les forums cochés...' :'Analyse en cours — intégration SEO active...')+'</div>';
   try{
+    const customQuery=getForumSearchQuery();
     const data=await api('/api/forums/analyze','POST',{
       forums:checked.map(f=>({id:f.id,name:f.name,url:f.url})),
-      seoKeywords:SEO_KEYWORDS_VOYANCE
+      seoKeywords:SEO_KEYWORDS_VOYANCE,
+      customQuery:customQuery||null
     });
     const results=data.results||[];
     if(!results.length){el.innerHTML='<div class="text-muted text-sm" style="padding:12px 0">Aucun sujet trouvé.</div>';return}
