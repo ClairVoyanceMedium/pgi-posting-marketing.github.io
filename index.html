@@ -109,6 +109,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .forums-tag:hover{background:rgba(0,191,255,.15);border-color:var(--neon);color:var(--neon)}
 .forums-tag.active{background:rgba(0,191,255,.18);border-color:var(--neon);color:var(--neon);font-weight:700}
 .forums-search-active{background:rgba(0,191,255,.06);border:1px solid var(--neon);box-shadow:0 0 0 2px rgba(0,191,255,.1)}
+.regen-panel{background:rgba(0,0,20,.4);border:1px solid var(--border2);border-radius:0 0 10px 10px;padding:14px;margin-top:0;display:none}
+.regen-panel.open{display:block}
+.regen-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.regen-lbl{font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:5px}
+.regen-input{width:100%;padding:9px 12px;background:rgba(0,0,0,.35);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Raleway',sans-serif;font-size:12.5px;outline:none;transition:border-color .18s}
+.regen-input:focus{border-color:var(--neon);box-shadow:0 0 0 2px rgba(0,191,255,.1)}
+.regen-loader{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,191,255,.25);border-top-color:var(--neon);border-radius:50%;animation:spin .7s linear infinite}
+@media(max-width:600px){.regen-row{grid-template-columns:1fr!important}}
 @media(max-width:900px){:root{--sw:0px}.hamburger{display:flex}.sidebar{left:-280px;width:280px;transition:left .25s cubic-bezier(.4,0,.2,1);z-index:101}.sidebar.open{left:0}.overlay.on{display:block}.main{margin-left:0!important}.topbar{padding:0 14px 0 60px}.page-content{padding:16px}.grid2{grid-template-columns:1fr!important}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.stat-card{min-height:145px}.plat-grid{grid-template-columns:1fr 1fr!important}.worker-bar{margin:10px 8px 4px}.img-cols{grid-template-columns:1fr!important}.pinterest-boards-list{grid-template-columns:1fr!important}}
 @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.stat-card{min-height:132px;padding:14px}.stat-num{font-size:28px}.stat-lbl{font-size:9px}.plat-grid{grid-template-columns:1fr!important}.topbar-title{font-size:11px}.page-content{padding:12px}.card{padding:14px}.topbar-right .btn-neon{display:none}.ref-grid{grid-template-columns:1fr}.ref-select-list{grid-template-columns:1fr}}
 </style>
@@ -1144,10 +1152,12 @@ async function analyzeForums(){
     });
     const results=data.results||[];
     if(!results.length){el.innerHTML='<div class="text-muted text-sm" style="padding:12px 0">Aucun sujet trouvé.</div>';return}
+    // Stocker les résultats pour la régénération
+    window._forumResults = results;
     el.innerHTML=results.map(r=>{
       const modeBadge=r.searchMode==='web'?'<span class="badge b-green" style="font-size:9px;margin-left:6px">Fil réel</span>':'<span class="badge b-gray" style="font-size:9px;margin-left:6px">IA générée</span>';
       const seoUsed=r.seoKeywordsUsed&&r.seoKeywordsUsed.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${r.seoKeywordsUsed.map(k=>`<span style="background:rgba(196,160,68,.12);border:1px solid rgba(196,160,68,.3);border-radius:10px;padding:1px 7px;font-size:9px;color:var(--gold)">${escapeHtml(k)}</span>`).join('')}</div>`:'';
-      return `<div class="forum-result-card">
+      return `<div class="forum-result-card" id="fcard-${escapeHtml(r.id)}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
           <div style="flex:1">
             <div class="forum-result-title">${escapeHtml(r.title)}${modeBadge}</div>
@@ -1159,9 +1169,33 @@ async function analyzeForums(){
         </div>
         <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Réponse suggérée <span style="color:var(--gold)">(mots-clés SEO intégrés)</span> :</div>
         <div class="forum-result-reply" id="reply-${escapeHtml(r.id)}">${escapeHtml(r.reply)}</div>
-        <div class="flex gap8" style="flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="copyForumReply('${escapeHtml(r.id)}')">Copier</button>
-          <button class="btn btn-green btn-sm" onclick="markForumPosted('${escapeHtml(r.id)}','${escapeHtml(r.forum)}','${escapeHtml(r.title)}','${escapeHtml(r.url)}')">Marquée comme postée</button>
+
+        <!-- BOUTON RÉGÉNÉRER -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <button class="btn btn-ghost btn-sm" onclick="copyForumReply('${escapeHtml(r.id)}')">📋 Copier</button>
+          <button class="btn btn-orange btn-sm" onclick="toggleRegenPanel('${escapeHtml(r.id)}')">⟳ Régénérer</button>
+          <button class="btn btn-green btn-sm" onclick="markForumPosted('${escapeHtml(r.id)}','${escapeHtml(r.forum)}','${escapeHtml(r.title)}','${escapeHtml(r.url)}')">✓ Marquée comme postée</button>
+        </div>
+
+        <!-- PANNEAU RÉGÉNÉRATION -->
+        <div class="regen-panel" id="regen-${escapeHtml(r.id)}">
+          <div class="regen-row">
+            <div>
+              <div class="regen-lbl">✍️ Instruction (optionnel)</div>
+              <input class="regen-input" id="regen-inst-${escapeHtml(r.id)}" placeholder="Ex : plus court, commence par une question, plus émotionnel…">
+            </div>
+            <div>
+              <div class="regen-lbl">➕ Éléments à inclure (optionnel)</div>
+              <input class="regen-input" id="regen-include-${escapeHtml(r.id)}" placeholder="Ex : 06 95 46 89 23, voyance par email, disponible ce soir…">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-neon btn-sm" id="regen-btn-${escapeHtml(r.id)}" onclick="regenForumReply('${escapeHtml(r.id)}')">
+              <span id="regen-ldr-${escapeHtml(r.id)}" class="regen-loader" style="display:none"></span>
+              ⟳ Lancer la régénération
+            </button>
+            <span style="font-size:10px;color:var(--text3)">Laissez vide pour une nouvelle version automatique</span>
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -1175,6 +1209,67 @@ function copyForumReply(id){
   const txt=el.textContent||el.innerText||'';
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>notify('Réponse copiée !','ok'));}
   else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);notify('Réponse copiée !','ok');}
+}
+
+function toggleRegenPanel(id){
+  const panel=document.getElementById('regen-'+id);
+  if(!panel)return;
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    document.getElementById('regen-inst-'+id)?.focus();
+  }
+}
+
+async function regenForumReply(id){
+  const btn=document.getElementById('regen-btn-'+id);
+  const ldr=document.getElementById('regen-ldr-'+id);
+  const replyEl=document.getElementById('reply-'+id);
+  if(!replyEl)return;
+
+  const instruction=(document.getElementById('regen-inst-'+id)?.value||'').trim();
+  const includeWords=(document.getElementById('regen-include-'+id)?.value||'').trim();
+
+  // Récupère le contexte du fil depuis les résultats stockés
+  const result=(window._forumResults||[]).find(r=>r.id===id);
+  if(!result)return notify('Contexte introuvable — relancez une analyse.','err');
+
+  if(btn)btn.disabled=true;
+  if(ldr)ldr.style.display='inline-block';
+  replyEl.style.opacity='0.4';
+
+  try{
+    const data=await api('/api/forums/regen','POST',{
+      forumName: result.forum,
+      forumUrl:  result.url,
+      title:     result.title,
+      topic:     result.topic||'',
+      audienceProfile: result.audienceProfile||'',
+      currentReply: replyEl.textContent||'',
+      instruction:  instruction||null,
+      includeWords: includeWords||null,
+      seoKeywords:  SEO_KEYWORDS_VOYANCE
+    });
+
+    if(data.reply){
+      replyEl.textContent=data.reply;
+      replyEl.style.opacity='1';
+      // Met à jour le résultat stocké
+      if(result)result.reply=data.reply;
+      notify('Réponse régénérée avec succès.','ok');
+      // Ferme le panneau si tout était vide
+      if(!instruction&&!includeWords){
+        document.getElementById('regen-'+id)?.classList.remove('open');
+      }
+    } else {
+      throw new Error(data.error||'Réponse vide');
+    }
+  }catch(e){
+    replyEl.style.opacity='1';
+    notify('Erreur régénération : '+e.message,'err');
+  }finally{
+    if(btn)btn.disabled=false;
+    if(ldr)ldr.style.display='none';
+  }
 }
 
 /* ──── MEILLEURS HORAIRES ──── */
