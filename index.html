@@ -153,6 +153,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Configuration AI</div>
   <div class="nav-item" onclick="nav('email')" id="nav-email"><span class="nav-icon">✉</span>Email</div>
   <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span class="nav-icon">▤</span>Logs</div>
+  <div class="nav-section">Publicité &amp; Marketplaces</div>
+  <div class="nav-item" onclick="nav('ebay')" id="nav-ebay"><span class="nav-icon">🛒</span>Annonces eBay</div>
+  <div class="nav-item" onclick="nav('googleads')" id="nav-googleads"><span class="nav-icon">🎯</span>Google Ads</div>
+  <div class="nav-item" onclick="nav('microsoftads')" id="nav-microsoftads"><span class="nav-icon">🪟</span>Microsoft Ads</div>
+  <div class="nav-item" onclick="nav('metaads')" id="nav-metaads"><span class="nav-icon">📣</span>Meta Ads</div>
   <div class="sidebar-footer"><div style="margin-bottom:4px">clairvoyancemedium.com</div><div>06 95 46 89 23</div><div style="margin-top:4px;color:var(--text3)">chicsensation@gmail.com</div></div>
 </aside>
 
@@ -327,6 +332,272 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
     <!-- NOTES -->
     <div class="page" id="page-notes"><div class="card"><div class="card-title flex-between"><span>Notes personnelles</span><button class="btn btn-neon btn-sm" onclick="addNote()">+ Nouvelle note</button></div><div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Vos notes sont sauvegardées dans le cloud (Worker) — accessibles sur tous vos appareils.</div><div id="notes-list"></div></div></div>
+
+    <!-- ANNONCES EBAY -->
+    <div class="page" id="page-ebay">
+      <!-- CONNEXION EBAY -->
+      <div class="card" id="ebay-connection-card">
+        <div class="card-title flex-between"><span>🛒 Connexion eBay</span><span class="badge b-gray" id="ebay-conn-status">Non configuré</span></div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables d'environnement requises côté Worker</div>
+          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">EBAY_CLIENT_ID • EBAY_CLIENT_SECRET • EBAY_REFRESH_TOKEN • EBAY_DEFAULT_MARKETPLACE_ID</div>
+        </div>
+        <div class="flex gap8 flex-wrap"><button class="btn btn-ghost btn-sm" onclick="checkEbayStatus()">↺ Vérifier la connexion</button></div>
+        <div id="ebay-status-msg" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <!-- GÉNÉRATION IA -->
+      <div class="card">
+        <div class="card-title">⚡ Rédaction IA de l'annonce</div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2)">Décrivez ce que vous voulez vendre — l'IA rédige un titre et une description optimisés eBay.</div>
+        <div class="fgrp"><label class="flabel">Décris ce que tu veux vendre *</label><textarea class="ftextarea" id="ebay-ai-desc" rows="3" placeholder="Ex : Consultation de voyance par téléphone, sérieuse, rapide, confidentielle, avec Frederick médium reconnu…"></textarea></div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Public cible</label><input class="finput" id="ebay-ai-target" placeholder="Ex : personnes en quête de réponses sentimentales"></div>
+          <div class="fgrp"><label class="flabel">Ton souhaité</label><select class="fselect" id="ebay-ai-tone"><option value="professionnel">Professionnel</option><option value="rassurant">Rassurant</option><option value="vendeur">Vendeur</option><option value="neutre">Neutre</option><option value="urgent">Urgent</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Mots-clés à inclure</label><input class="finput" id="ebay-ai-keywords" placeholder="Ex : voyance, médium, téléphone, sérieux"></div>
+          <div class="fgrp"><label class="flabel">Objectif principal</label><select class="fselect" id="ebay-ai-goal"><option value="vendre_rapidement">Vendre rapidement</option><option value="maximiser_visibilite">Maximiser la visibilité</option><option value="rassurer_acheteur">Rassurer l'acheteur</option><option value="mettre_en_avant_prix">Mettre en avant le prix</option><option value="mettre_en_avant_qualite">Mettre en avant la qualité</option><option value="generer_conversions">Générer des conversions</option></select></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Contraintes / éléments obligatoires</label><input class="finput" id="ebay-ai-constraints" placeholder="Ex : mentionner 06 95 46 89 23, disponible 24h/24"></div>
+        <div class="flex gap8 flex-wrap mb16">
+          <button class="btn btn-neon" id="ebay-ai-gen-btn" onclick="generateEbayListing()"><span class="loader" id="ebay-ai-ldr" style="display:none"></span>⚡ Générer avec l'IA</button>
+          <button class="btn btn-ghost btn-sm" onclick="regenerateEbayListing()">⟳ Régénérer</button>
+        </div>
+        <!-- Résultat IA -->
+        <div id="ebay-ai-result" style="display:none">
+          <div style="background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;margin-bottom:12px">
+            <div class="r-lbl mb16">Titre généré</div>
+            <div id="ebay-ai-title-out" style="font-size:15px;font-weight:700;color:var(--neon);margin-bottom:14px;line-height:1.4"></div>
+            <div class="r-lbl mb16">Description générée</div>
+            <div id="ebay-ai-desc-out" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;margin-bottom:14px"></div>
+            <div class="r-lbl mb16">Mots-clés suggérés</div>
+            <div id="ebay-ai-kw-out" style="font-size:12px;color:var(--gold);margin-bottom:14px"></div>
+            <div class="r-lbl mb16">Arguments de vente</div>
+            <div id="ebay-ai-args-out" style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px"></div>
+            <div class="flex gap8 flex-wrap">
+              <button class="btn btn-green btn-sm" onclick="useEbayAiText()">✓ Utiliser ce texte dans l'annonce</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleEbayImprove()">✍ Corriger / améliorer</button>
+            </div>
+          </div>
+          <!-- Panneau correction -->
+          <div id="ebay-improve-panel" style="display:none;background:rgba(0,0,20,.4);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px">
+            <div class="flabel">Instruction de correction</div>
+            <textarea class="ftextarea" id="ebay-improve-inst" rows="2" placeholder="Ex : rends le texte plus court, plus professionnel, ajoute plus de mots-clés…" style="min-height:60px;margin-bottom:10px"></textarea>
+            <button class="btn btn-neon btn-sm" onclick="improveEbayListing()"><span class="loader" id="ebay-improve-ldr" style="display:none"></span>Appliquer la correction</button>
+          </div>
+        </div>
+
+        <!-- Génération image -->
+        <div class="divider"></div>
+        <div class="card-title" style="margin-top:0">🖼 Génération d'image</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Description de l'image souhaitée</label><textarea class="ftextarea" id="ebay-img-desc" rows="2" placeholder="Ex : visuel professionnel mystérieux, fond bleu nuit, cristal, ambiance premium…" style="min-height:70px"></textarea></div>
+          <div class="fgrp"><label class="flabel">Style</label><select class="fselect" id="ebay-img-style"><option value="photorealiste">Photoréaliste</option><option value="illustration">Illustration</option><option value="minimaliste">Minimaliste</option><option value="professionnel">Professionnel / studio</option><option value="mystique">Mystique / ésotérique</option></select></div>
+        </div>
+        <div class="flex gap8 flex-wrap mb16">
+          <button class="btn btn-ghost" id="ebay-img-gen-btn" onclick="generateEbayImage()"><span class="loader" id="ebay-img-ldr" style="display:none"></span>🖼 Générer une image</button>
+        </div>
+        <div id="ebay-img-result" style="display:none">
+          <div class="img-box" id="ebay-img-box" style="min-height:220px;margin-bottom:10px"><div class="img-placeholder">Image en attente</div></div>
+          <button class="btn btn-green btn-sm" onclick="useEbayImage()">✓ Utiliser cette image dans l'annonce</button>
+        </div>
+      </div>
+
+      <!-- FORMULAIRE ANNONCE -->
+      <div class="card">
+        <div class="card-title">📋 Formulaire de l'annonce eBay</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Titre de l'annonce *</label><input class="finput" id="ebay-title" placeholder="Max 80 caractères" maxlength="80"><div class="fhelp" id="ebay-title-count">0/80 caractères</div></div>
+          <div class="fgrp"><label class="flabel">Marketplace eBay *</label><select class="fselect" id="ebay-marketplace"><option value="EBAY_FR">🇫🇷 France — EBAY_FR</option><option value="EBAY_BE">🇧🇪 Belgique — EBAY_BE</option><option value="EBAY_CH">🇨🇭 Suisse — EBAY_CH</option><option value="EBAY_DE">🇩🇪 Allemagne — EBAY_DE</option><option value="EBAY_ES">🇪🇸 Espagne — EBAY_ES</option><option value="EBAY_IT">🇮🇹 Italie — EBAY_IT</option><option value="EBAY_GB">🇬🇧 Royaume-Uni — EBAY_GB</option><option value="EBAY_US">🇺🇸 États-Unis — EBAY_US</option><option value="EBAY_CA">🇨🇦 Canada — EBAY_CA</option></select></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Description *</label><textarea class="ftextarea" id="ebay-description" rows="6" placeholder="Description complète de votre annonce…"></textarea></div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Prix *</label><input type="number" class="finput" id="ebay-price" placeholder="Ex : 29.90" min="0" step="0.01"></div>
+          <div class="fgrp"><label class="flabel">Devise</label><select class="fselect" id="ebay-currency"><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Livre sterling</option><option value="USD">USD — Dollar US</option><option value="CAD">CAD — Dollar canadien</option><option value="CHF">CHF — Franc suisse</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Catégorie eBay</label><input class="finput" id="ebay-category" placeholder="Ex : 15032 (ID catégorie eBay)"><div class="fhelp">Consultez le catalogue eBay pour l'ID de catégorie.</div></div>
+          <div class="fgrp"><label class="flabel">État de l'article</label><select class="fselect" id="ebay-condition"><option value="NEW">Neuf</option><option value="LIKE_NEW">Comme neuf</option><option value="VERY_GOOD">Très bon état</option><option value="GOOD">Bon état</option><option value="ACCEPTABLE">État acceptable</option><option value="FOR_PARTS">Pour pièces</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Quantité</label><input type="number" class="finput" id="ebay-quantity" value="1" min="1"></div>
+          <div class="fgrp"><label class="flabel">URLs d'images (une par ligne)</label><textarea class="ftextarea" id="ebay-images" rows="2" placeholder="https://..." style="min-height:60px"></textarea></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Politique de livraison</label><input class="finput" id="ebay-shipping" placeholder="ID politique livraison eBay"></div>
+          <div class="fgrp"><label class="flabel">Politique de retour</label><input class="finput" id="ebay-return" placeholder="ID politique retour eBay"></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Politique de paiement</label><input class="finput" id="ebay-payment" placeholder="ID politique paiement eBay"></div>
+
+        <!-- MODE DE PUBLICATION -->
+        <div class="divider"></div>
+        <div class="card-title" style="margin-top:0">⏱ Mode de publication</div>
+        <div class="fgrp"><label class="flabel">Mode *</label><select class="fselect" id="ebay-pub-mode" onchange="onEbayPubModeChange()"><option value="draft">Enregistrer en brouillon</option><option value="now">Publier maintenant</option><option value="scheduled">Programmer la publication</option></select></div>
+        <div id="ebay-schedule-fields" style="display:none">
+          <div class="grid2">
+            <div class="fgrp"><label class="flabel">Date de publication</label><input type="date" class="finput" id="ebay-pub-date"></div>
+            <div class="fgrp"><label class="flabel">Heure de publication</label><input type="time" class="finput" id="ebay-pub-time" value="09:00"></div>
+          </div>
+          <div class="fgrp"><label class="flabel">Fuseau horaire</label><select class="fselect" id="ebay-timezone"><option value="Europe/Paris">Europe/Paris (FR)</option><option value="Europe/London">Europe/London (UK)</option><option value="Europe/Berlin">Europe/Berlin (DE)</option><option value="America/New_York">America/New_York (US-EST)</option><option value="America/Los_Angeles">America/Los_Angeles (US-PST)</option></select></div>
+        </div>
+
+        <div class="flex gap8 flex-wrap mt16">
+          <button class="btn btn-ghost" onclick="previewEbayListing()">👁 Prévisualiser</button>
+          <button class="btn btn-neon" id="ebay-submit-btn" onclick="submitEbayListing()"><span class="loader" id="ebay-submit-ldr" style="display:none"></span>✓ Valider l'annonce</button>
+          <button class="btn btn-ghost" onclick="resetEbayForm()">↺ Réinitialiser</button>
+        </div>
+        <div id="ebay-form-status" style="margin-top:14px;font-size:13px;display:none"></div>
+      </div>
+
+      <!-- ANNONCES PROGRAMMÉES / BROUILLONS -->
+      <div class="card">
+        <div class="card-title flex-between"><span>📅 Annonces enregistrées</span><button class="btn btn-ghost btn-sm" onclick="loadEbayListings()">↺</button></div>
+        <div id="ebay-listings-list"><div class="text-muted text-sm">Chargement...</div></div>
+      </div>
+
+      <!-- PRÉVISUALISATION -->
+      <div id="ebay-preview-box" style="display:none" class="card">
+        <div class="card-title flex-between"><span>👁 Prévisualisation</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById('ebay-preview-box').style.display='none'">✕</button></div>
+        <div id="ebay-preview-content" style="background:var(--bg2);border-radius:8px;padding:18px;font-size:13px;line-height:1.7"></div>
+      </div>
+    </div>
+
+    <!-- GOOGLE ADS -->
+    <div class="page" id="page-googleads">
+      <div class="card">
+        <div class="card-title flex-between"><span>🎯 Google Ads</span><span class="badge b-gray" id="gads-status-badge">Non configuré</span></div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables d'environnement requises côté Worker</div>
+          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">GOOGLE_ADS_CLIENT_ID • GOOGLE_ADS_CLIENT_SECRET • GOOGLE_ADS_REFRESH_TOKEN • GOOGLE_ADS_DEVELOPER_TOKEN • GOOGLE_ADS_CUSTOMER_ID</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="checkGadsStatus()">↺ Vérifier la connexion</button>
+        <div id="gads-status-msg" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <!-- CAMPAGNES -->
+      <div class="card">
+        <div class="card-title flex-between"><span>Campagnes actives</span><button class="btn btn-ghost btn-sm" onclick="loadGadsCampaigns()">↺</button></div>
+        <div id="gads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
+      </div>
+
+      <!-- CRÉER CAMPAGNE -->
+      <div class="card">
+        <div class="card-title">+ Nouvelle campagne Google Ads</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Nom de la campagne *</label><input class="finput" id="gads-name" placeholder="Ex : Voyance Téléphone FR"></div>
+          <div class="fgrp"><label class="flabel">Budget journalier (€) *</label><input type="number" class="finput" id="gads-budget" placeholder="Ex : 10.00" min="1" step="0.01"></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Type de campagne</label><select class="fselect" id="gads-type"><option value="SEARCH">Réseau de recherche</option><option value="DISPLAY">Réseau display</option><option value="PERFORMANCE_MAX">Performance Max</option></select></div>
+          <div class="fgrp"><label class="flabel">Zone géographique</label><input class="finput" id="gads-geo" placeholder="Ex : France, Belgique, Suisse"></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Langue</label><input class="finput" id="gads-lang" placeholder="Ex : fr" value="fr"></div>
+          <div class="fgrp"><label class="flabel">URL finale *</label><input class="finput" id="gads-url" placeholder="https://www.clairvoyancemedium.com/…"></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Mots-clés (un par ligne)</label><textarea class="ftextarea" id="gads-keywords" rows="3" placeholder="voyance par téléphone&#10;medium sérieux&#10;consultation voyance"></textarea></div>
+        <div class="fgrp"><label class="flabel">Titres d'annonce (max 3, un par ligne)</label><textarea class="ftextarea" id="gads-headlines" rows="3" placeholder="Voyance par téléphone&#10;Medium Frederick — 24h/24&#10;Consultation immédiate"></textarea></div>
+        <div class="fgrp"><label class="flabel">Descriptions (max 2, une par ligne)</label><textarea class="ftextarea" id="gads-descs" rows="2" placeholder="Consultation sérieuse et confidentielle avec Frederick, médium reconnu.&#10;Disponible 7j/7 — Appelez maintenant le 06 95 46 89 23."></textarea></div>
+        <div class="flex gap8 flex-wrap mt16">
+          <button class="btn btn-neon" onclick="createGadsCampaign()"><span class="loader" id="gads-create-ldr" style="display:none"></span>✓ Créer la campagne</button>
+          <button class="btn btn-ghost" onclick="resetGadsForm()">↺ Réinitialiser</button>
+        </div>
+        <div id="gads-form-status" style="margin-top:12px;font-size:13px;display:none"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="card">
+        <div class="card-title flex-between"><span>📊 Statistiques</span><button class="btn btn-ghost btn-sm" onclick="loadGadsStats()">↺</button></div>
+        <div id="gads-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px"></div>
+        <div id="gads-stats-detail"><div class="text-muted text-sm">Cliquez sur ↺ pour charger les statistiques.</div></div>
+      </div>
+    </div>
+
+    <!-- MICROSOFT ADS -->
+    <div class="page" id="page-microsoftads">
+      <div class="card">
+        <div class="card-title flex-between"><span>🪟 Microsoft Ads</span><span class="badge b-gray" id="msads-status-badge">Non configuré</span></div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables d'environnement requises côté Worker</div>
+          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">MICROSOFT_ADS_CLIENT_ID • MICROSOFT_ADS_CLIENT_SECRET • MICROSOFT_ADS_REFRESH_TOKEN • MICROSOFT_ADS_DEVELOPER_TOKEN • MICROSOFT_ADS_CUSTOMER_ID • MICROSOFT_ADS_ACCOUNT_ID</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="checkMsadsStatus()">↺ Vérifier la connexion</button>
+        <div id="msads-status-msg" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title flex-between"><span>Campagnes actives</span><button class="btn btn-ghost btn-sm" onclick="loadMsadsCampaigns()">↺</button></div>
+        <div id="msads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">+ Nouvelle campagne Microsoft Ads</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Nom de la campagne *</label><input class="finput" id="msads-name" placeholder="Ex : Voyance Téléphone Bing FR"></div>
+          <div class="fgrp"><label class="flabel">Budget journalier (€) *</label><input type="number" class="finput" id="msads-budget" placeholder="Ex : 5.00" min="1" step="0.01"></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Zone géographique</label><input class="finput" id="msads-geo" placeholder="Ex : France, Belgique"></div>
+          <div class="fgrp"><label class="flabel">Langue</label><input class="finput" id="msads-lang" placeholder="fr" value="fr"></div>
+        </div>
+        <div class="fgrp"><label class="flabel">URL finale *</label><input class="finput" id="msads-url" placeholder="https://www.clairvoyancemedium.com/…"></div>
+        <div class="fgrp"><label class="flabel">Mots-clés (un par ligne)</label><textarea class="ftextarea" id="msads-keywords" rows="3" placeholder="voyance par téléphone&#10;medium sérieux"></textarea></div>
+        <div class="fgrp"><label class="flabel">Titres d'annonce (un par ligne)</label><textarea class="ftextarea" id="msads-headlines" rows="2" placeholder="Voyance par téléphone&#10;Medium Frederick 24h/24"></textarea></div>
+        <div class="fgrp"><label class="flabel">Descriptions (une par ligne)</label><textarea class="ftextarea" id="msads-descs" rows="2" placeholder="Consultation sérieuse avec Frederick, disponible 7j/7."></textarea></div>
+        <div class="flex gap8 flex-wrap mt16">
+          <button class="btn btn-neon" onclick="createMsadsCampaign()"><span class="loader" id="msads-create-ldr" style="display:none"></span>✓ Créer la campagne</button>
+          <button class="btn btn-ghost" onclick="resetMsadsForm()">↺ Réinitialiser</button>
+        </div>
+        <div id="msads-form-status" style="margin-top:12px;font-size:13px;display:none"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title flex-between"><span>📊 Statistiques</span><button class="btn btn-ghost btn-sm" onclick="loadMsadsStats()">↺</button></div>
+        <div id="msads-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px"></div>
+        <div id="msads-stats-detail"><div class="text-muted text-sm">Cliquez sur ↺ pour charger les statistiques.</div></div>
+      </div>
+    </div>
+
+    <!-- META ADS -->
+    <div class="page" id="page-metaads">
+      <div class="card">
+        <div class="card-title flex-between"><span>📣 Meta Ads</span><span class="badge b-gray" id="metaads-status-badge">Non configuré</span></div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables d'environnement requises côté Worker</div>
+          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">META_APP_ID • META_APP_SECRET • META_ACCESS_TOKEN • META_AD_ACCOUNT_ID</div>
+        </div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+          <strong style="color:var(--neon)">Note :</strong> Meta Ads concerne les publicités Facebook / Instagram (pas Facebook Marketplace). Cette section est prête à être connectée une fois les variables d'environnement configurées.
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="checkMetaAdsStatus()">↺ Vérifier la connexion</button>
+        <div id="metaads-status-msg" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title flex-between"><span>Campagnes actives</span><button class="btn btn-ghost btn-sm" onclick="loadMetaAdsCampaigns()">↺</button></div>
+        <div id="metaads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">+ Nouvelle campagne Meta Ads</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Nom de la campagne *</label><input class="finput" id="metaads-name" placeholder="Ex : Voyance FR — Facebook"></div>
+          <div class="fgrp"><label class="flabel">Objectif</label><select class="fselect" id="metaads-objective"><option value="OUTCOME_LEADS">Génération de leads</option><option value="OUTCOME_TRAFFIC">Trafic</option><option value="OUTCOME_AWARENESS">Notoriété</option><option value="OUTCOME_ENGAGEMENT">Engagement</option><option value="OUTCOME_SALES">Ventes</option></select></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Budget journalier (€) *</label><input type="number" class="finput" id="metaads-budget" placeholder="Ex : 5.00" min="1" step="0.01"></div>
+          <div class="fgrp"><label class="flabel">URL finale *</label><input class="finput" id="metaads-url" placeholder="https://www.clairvoyancemedium.com/…"></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Texte de l'annonce</label><textarea class="ftextarea" id="metaads-body" rows="3" placeholder="Vous cherchez des réponses à vos questions sentimentales ? Frederick, médium reconnu, est disponible 24h/24…"></textarea></div>
+        <div class="fgrp"><label class="flabel">Titre de l'annonce</label><input class="finput" id="metaads-headline" placeholder="Ex : Voyance sérieuse par téléphone"></div>
+        <div class="flex gap8 flex-wrap mt16">
+          <button class="btn btn-neon" onclick="createMetaAdsCampaign()"><span class="loader" id="metaads-create-ldr" style="display:none"></span>✓ Créer la campagne</button>
+          <button class="btn btn-ghost" onclick="resetMetaAdsForm()">↺ Réinitialiser</button>
+        </div>
+        <div id="metaads-form-status" style="margin-top:12px;font-size:13px;display:none"></div>
+      </div>
+    </div>
 
     <!-- LOGS -->
     <div class="page" id="page-logs"><div class="card"><div class="card-title flex-between">Logs système<button class="btn btn-ghost btn-sm" onclick="loadLogs()">↺</button></div><div id="logs-out" style="font-family:monospace;font-size:11.5px;color:var(--text2);line-height:1.9;max-height:560px;overflow-y:auto">En attente...</div></div></div>
@@ -589,7 +860,7 @@ const CONN_FIELDS={
   dailymotion:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}]
 };
 
-const PAGE_TITLES={dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Répondre sur les forums',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
+const PAGE_TITLES={ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Répondre sur les forums',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
 
 /* ──── API ──── */
 async function api(path,method='GET',body=null,extraHeaders={}){
@@ -615,7 +886,7 @@ function statusBadge(s){return{published:'b-green',pending_validation:'b-orange'
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('on')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('on')}
 function nav(name){currentPage=name;if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
-function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats()}
+function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();}
 
 /* ──── WORKER ──── */
 function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');refreshCurrent()}
@@ -626,10 +897,78 @@ function setDefaultDate(){const d=new Date();d.setHours(d.getHours()+1);document
 function getReferenceLibrary(){try{return JSON.parse(localStorage.getItem(SK.refLibrary)||'[]')}catch{return[]}}
 function saveReferenceLibrary(list){localStorage.setItem(SK.refLibrary,JSON.stringify(list))}
 async function compressImage(dataUrl,maxW,quality){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const w=Math.min(img.width,maxW||800);const h=Math.round(img.height*(w/img.width));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve(c.toDataURL('image/jpeg',quality||0.72))};img.src=dataUrl})}
-async function syncImagesFromCloud(){if(!WORKER_URL)return;try{const data=await api('/api/images');const cloud=data.images||[];if(cloud.length){saveReferenceLibrary(cloud);renderReferenceLibrary()}}catch(e){}}
+async function syncImagesFromCloud(){
+  if(!WORKER_URL)return;
+  try{
+    const data=await api('/api/images');
+    const cloud=data.images||[];
+    if(cloud.length){
+      // FIX : merger cloud + local pour ne pas écraser les images locales non encore uploadées
+      const local=getReferenceLibrary();
+      const localIds=new Set(local.map(r=>r.id));
+      const cloudOnly=cloud.filter(r=>!localIds.has(r.id));
+      if(cloudOnly.length){
+        // Des images cloud n'existent pas en local — les ajouter
+        const merged=[...local,...cloudOnly];
+        saveReferenceLibrary(merged);
+      } else if(!local.length && cloud.length){
+        // Local vide mais cloud a des images — restaurer depuis cloud
+        saveReferenceLibrary(cloud);
+      }
+      // Si local a tout ce que cloud a, ne rien changer
+    }
+  }catch(e){}
+}
 async function pushImagesToCloud(list){if(!WORKER_URL)return;const slim=list.map(r=>({id:r.id,name:r.name,note:r.note||'',createdAt:r.createdAt,dataUrl:r.dataUrl}));try{await api('/api/images','PUT',{images:slim})}catch(e){}}
-async function addReferenceImages(){const input=document.getElementById('ref-files');const files=[...(input.files||[])];if(!files.length)return notify('Sélectionnez au moins une image.','err');const baseName=document.getElementById('ref-default-name').value.trim();let pending=files.length;files.forEach((file,idx)=>{const reader=new FileReader();reader.onload=async e=>{const compressed=await compressImage(e.target.result,800,0.72);const current=getReferenceLibrary();const n=current.length+1;const id='ref_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);current.push({id,name:baseName?(files.length>1?baseName+' '+(idx+1):baseName):'Image '+n,dataUrl:compressed,createdAt:Date.now(),note:''});saveReferenceLibrary(current);pending--;if(pending===0){input.value='';document.getElementById('ref-default-name').value='';await pushImagesToCloud(getReferenceLibrary());renderReferenceLibrary();notify('Images ajoutées et sauvegardées.','ok')}};reader.readAsDataURL(file)})}
-async function renderReferenceLibrary(){const el=document.getElementById('ref-library');if(!el)return;await syncImagesFromCloud();const refs=getReferenceLibrary();if(!refs.length){el.innerHTML='<div class="text-muted text-sm">Aucune image enregistrée.</div>';return}el.innerHTML=refs.map((ref,index)=>`<div class="ref-card"><div class="ref-id">Image ${index+1} • ${escapeHtml(ref.id)}</div><img class="ref-img" src="${ref.dataUrl}" alt="${escapeHtml(ref.name)}"><div class="ref-name"><label class="flabel">Nom</label><input class="finput" value="${escapeHtml(ref.name)}" onchange="renameRef('${ref.id}',this.value)"></div><div class="fgrp" style="margin-top:8px;margin-bottom:0"><label class="flabel">Note</label><input class="finput" value="${escapeHtml(ref.note||'')}" placeholder="Ex: ambiance amour perdu" onchange="noteRef('${ref.id}',this.value)"></div><div class="ref-actions"><button class="btn btn-ghost btn-sm" onclick="copyRefName('${ref.id}')">Copier nom</button><button class="btn btn-red btn-sm" onclick="deleteRef('${ref.id}')">Supprimer</button></div></div>`).join('')}
+async function addReferenceImages(){
+  const input=document.getElementById('ref-files');
+  const files=[...(input.files||[])];
+  if(!files.length)return notify('Sélectionnez au moins une image.','err');
+  const baseName=document.getElementById('ref-default-name').value.trim();
+  // FIX : lire toutes les images d'abord, accumuler, puis sauvegarder une seule fois
+  const newImages=[];
+  const readAll=files.map((file,idx)=>new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      try{
+        const compressed=await compressImage(e.target.result,800,0.72);
+        const id='ref_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+        newImages.push({
+          id,
+          name:baseName?(files.length>1?baseName+' '+(idx+1):baseName):'Image '+(idx+1),
+          dataUrl:compressed,
+          createdAt:Date.now()+idx,
+          note:''
+        });
+      }catch(e){}
+      resolve();
+    };
+    reader.onerror=()=>resolve();
+    reader.readAsDataURL(file);
+  }));
+  await Promise.all(readAll);
+  if(!newImages.length)return notify('Aucune image valide.','err');
+  // Lire l'état actuel UNE SEULE FOIS après que toutes les images sont prêtes
+  const current=getReferenceLibrary();
+  // Renuméroter correctement selon la bibliothèque existante
+  newImages.forEach((img,i)=>{
+    if(!img.name||img.name.startsWith('Image ')){
+      img.name='Image '+(current.length+i+1);
+    }
+  });
+  const updated=[...current,...newImages];
+  saveReferenceLibrary(updated);
+  input.value='';
+  document.getElementById('ref-default-name').value='';
+  try{await pushImagesToCloud(updated);}catch(e){}
+  renderReferenceLibrary(true);
+  notify(newImages.length+' image(s) ajoutée(s) et sauvegardée(s).','ok');
+}
+
+async function renderReferenceLibrary(skipSync){const el=document.getElementById('ref-library');if(!el)return;
+  // FIX : ne sync depuis le cloud que si demandé explicitement (pas après un ajout local)
+  if(!skipSync)await syncImagesFromCloud();
+  const refs=getReferenceLibrary();if(!refs.length){el.innerHTML='<div class="text-muted text-sm">Aucune image enregistrée.</div>';return}el.innerHTML=refs.map((ref,index)=>`<div class="ref-card"><div class="ref-id">Image ${index+1} • ${escapeHtml(ref.id)}</div><img class="ref-img" src="${ref.dataUrl}" alt="${escapeHtml(ref.name)}"><div class="ref-name"><label class="flabel">Nom</label><input class="finput" value="${escapeHtml(ref.name)}" onchange="renameRef('${ref.id}',this.value)"></div><div class="fgrp" style="margin-top:8px;margin-bottom:0"><label class="flabel">Note</label><input class="finput" value="${escapeHtml(ref.note||'')}" placeholder="Ex: ambiance amour perdu" onchange="noteRef('${ref.id}',this.value)"></div><div class="ref-actions"><button class="btn btn-ghost btn-sm" onclick="copyRefName('${ref.id}')">Copier nom</button><button class="btn btn-red btn-sm" onclick="deleteRef('${ref.id}')">Supprimer</button></div></div>`).join('')}
 function renameRef(id,name){const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(ref){ref.name=name.trim()||ref.name;saveReferenceLibrary(refs);pushImagesToCloud(refs)}}
 function noteRef(id,note){const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(ref){ref.note=note.trim();saveReferenceLibrary(refs);pushImagesToCloud(refs)}}
 function deleteRef(id){if(!confirm('Supprimer cette image ?'))return;const refs=getReferenceLibrary().filter(r=>r.id!==id);saveReferenceLibrary(refs);pushImagesToCloud(refs);renderReferenceLibrary();notify('Image supprimée.','ok')}
@@ -1060,12 +1399,18 @@ const FORUMS_LIST=[
   {id:'predifrance',name:'PrediFrance',icon:'🔮',desc:'Voyance medium predictions France',url:'https://www.predifrance.com/forum',defaultChecked:true},
   {id:'kinthia',name:'Forum Kinthia',icon:'✨',desc:'Voyance esoterisme medium spirituel',url:'https://www.kinthia.com/forum',defaultChecked:true},
   {id:'monsitevoyance',name:'MonSiteVoyance',icon:'🌙',desc:'Voyance medium horoscope rituels',url:'https://www.monsitevoyance.com/forum',defaultChecked:true},
+  {id:'cercledelsvoyants',name:'Le Cercle des Voyants',icon:'🌟',desc:'Forum voyance medium spiritualite',url:'https://www.lecercledesvoyants.com/forum',defaultChecked:true},
+  {id:'spiritualite',name:'Spiritualite.com',icon:'☯',desc:'Spiritualite esoterisme meditation voyance',url:'https://www.spiritualite.com/forum',defaultChecked:true},
   {id:'doctissimo',name:'Doctissimo',icon:'D',desc:'Sante bien-etre amour — tres actif',url:'https://forum.doctissimo.fr/sante',defaultChecked:true},
   {id:'aufeminin',name:'Aufeminin',icon:'F',desc:'Amour couple spiritualite',url:'https://forum.aufeminin.com/forum',defaultChecked:true},
+  {id:'camoIntarot',name:'Camoin Tarot',icon:'🃏',desc:'Tarot voyance cartomancie medium',url:'https://www.camoin.com/forum',defaultChecked:false},
+  {id:'forumSceptique',name:'Forum Sceptique',icon:'🔬',desc:'Debat voyance paranormal esoterisme',url:'https://www.forum-sceptique.com',defaultChecked:false},
+  {id:'reveinterprete',name:'Rêve-Interprète',icon:'💭',desc:'Reves interpretation spirituel medium',url:'https://www.reve-interprete.com/forum',defaultChecked:false},
+  {id:'yabiladi',name:'Yabiladi',icon:'🌍',desc:'Communaute maghrebine voyance sentimental',url:'https://www.yabiladi.com/forum',defaultChecked:false},
+  {id:'madmoizelle',name:'Madmoizelle',icon:'💜',desc:'Amour bien-etre sentimental feministe',url:'https://forum.madmoizelle.com',defaultChecked:false},
   {id:'psychologies',name:'Psychologies Magazine',icon:'P',desc:'Developpement personnel relations',url:'https://www.psychologies.com/Forum',defaultChecked:false},
   {id:'lesensdelavie',name:'Le Sens de la Vie',icon:'S',desc:'Spiritualite voyance esoterisme',url:'https://www.lesensdelavie.net',defaultChecked:false},
   {id:'astrocenter',name:'AstroCenter',icon:'A',desc:'Astrologie horoscope voyance',url:'https://www.astrocenter.fr',defaultChecked:false},
-  {id:'elle',name:'ELLE Forum',icon:'E',desc:'Amour bien-etre feminite',url:'https://www.elle.fr/Forum',defaultChecked:false},
   {id:'magicmaman',name:'Magic Maman',icon:'B',desc:'Famille couple bien-etre',url:'https://www.magicmaman.com/forum',defaultChecked:false},
   {id:'commentcamarche',name:'Comment Ca Marche',icon:'Q',desc:'Generaliste sections relations',url:'https://forums.commentcamarche.net',defaultChecked:false},
   {id:'jeuxvideo',name:'JVC Amour et Psy',icon:'J',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm',defaultChecked:false},
@@ -1334,6 +1679,497 @@ async function loadClickStats(){
 }
 
 /* ──── INIT ──── */
+/* ══════════════════════════════════════════════
+   EBAY — Fonctions
+══════════════════════════════════════════════ */
+let _ebayAiResult = null;
+let _ebayImageUrl = null;
+
+function initEbayPage(){ checkEbayStatus(); loadEbayListings(); }
+
+async function checkEbayStatus(){
+  const msg=document.getElementById('ebay-status-msg');
+  const badge=document.getElementById('ebay-conn-status');
+  try{
+    const d=await api('/api/ebay/status');
+    if(d.configured){
+      if(badge){badge.className='badge b-green';badge.textContent='Connecté';}
+      if(msg)msg.innerHTML='<span style="color:var(--green)">✓ eBay connecté — '+escapeHtml(d.marketplace||'EBAY_FR')+'</span>';
+    } else {
+      if(badge){badge.className='badge b-orange';badge.textContent='Non configuré';}
+      if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'API eBay non configurée.')+'</span>';
+    }
+  }catch(e){
+    if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';
+  }
+}
+
+function onEbayPubModeChange(){
+  const mode=document.getElementById('ebay-pub-mode')?.value;
+  const fields=document.getElementById('ebay-schedule-fields');
+  if(fields)fields.style.display=mode==='scheduled'?'block':'none';
+}
+
+function resetEbayForm(){
+  ['ebay-title','ebay-description','ebay-price','ebay-category','ebay-images','ebay-shipping','ebay-return','ebay-payment'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('ebay-quantity').value='1';
+  document.getElementById('ebay-pub-mode').value='draft';
+  document.getElementById('ebay-schedule-fields').style.display='none';
+  document.getElementById('ebay-form-status').style.display='none';
+  document.getElementById('ebay-preview-box').style.display='none';
+  _ebayImageUrl=null;
+}
+
+function getEbayFormData(){
+  const scheduledAt=document.getElementById('ebay-pub-mode')?.value==='scheduled'?
+    (()=>{const d=document.getElementById('ebay-pub-date')?.value;const t=document.getElementById('ebay-pub-time')?.value||'09:00';return d?new Date(d+'T'+t).getTime():null})():null;
+  return{
+    title:document.getElementById('ebay-title')?.value.trim()||'',
+    description:document.getElementById('ebay-description')?.value.trim()||'',
+    price:parseFloat(document.getElementById('ebay-price')?.value)||0,
+    currency:document.getElementById('ebay-currency')?.value||'EUR',
+    categoryId:document.getElementById('ebay-category')?.value.trim()||'',
+    condition:document.getElementById('ebay-condition')?.value||'NEW',
+    quantity:parseInt(document.getElementById('ebay-quantity')?.value)||1,
+    images:(document.getElementById('ebay-images')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+    marketplace:document.getElementById('ebay-marketplace')?.value||'EBAY_FR',
+    shippingPolicyId:document.getElementById('ebay-shipping')?.value.trim()||'',
+    returnPolicyId:document.getElementById('ebay-return')?.value.trim()||'',
+    paymentPolicyId:document.getElementById('ebay-payment')?.value.trim()||'',
+    pubMode:document.getElementById('ebay-pub-mode')?.value||'draft',
+    scheduledAt,
+    timezone:document.getElementById('ebay-timezone')?.value||'Europe/Paris',
+    imageUrl:_ebayImageUrl||null,
+  };
+}
+
+function previewEbayListing(){
+  const d=getEbayFormData();
+  const box=document.getElementById('ebay-preview-box');
+  const content=document.getElementById('ebay-preview-content');
+  if(!box||!content)return;
+  content.innerHTML=`
+    <div style="margin-bottom:12px"><strong style="color:var(--neon);font-size:16px">${escapeHtml(d.title||'Sans titre')}</strong></div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="badge b-blue">${escapeHtml(d.marketplace)}</span>
+      <span class="badge b-green">${escapeHtml(d.price.toFixed(2))} ${escapeHtml(d.currency)}</span>
+      <span class="badge b-gray">${escapeHtml(d.condition)}</span>
+      <span class="badge b-gray">Qté : ${d.quantity}</span>
+    </div>
+    <div style="white-space:pre-wrap;line-height:1.7;color:var(--text);margin-bottom:12px">${escapeHtml(d.description||'Aucune description.')}</div>
+    ${d.imageUrl?`<img src="${d.imageUrl}" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:12px">`:''}
+    <div style="font-size:11px;color:var(--text3)">Mode : ${escapeHtml(d.pubMode)} ${d.scheduledAt?'• Programmé : '+new Date(d.scheduledAt).toLocaleString('fr-FR'):''}</div>
+  `;
+  box.style.display='block';
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+async function submitEbayListing(){
+  const d=getEbayFormData();
+  if(!d.title)return notify('Le titre est obligatoire.','err');
+  if(!d.description)return notify('La description est obligatoire.','err');
+  if(d.price<=0)return notify('Le prix doit être supérieur à 0.','err');
+  const btn=document.getElementById('ebay-submit-btn');
+  const ldr=document.getElementById('ebay-submit-ldr');
+  const statusEl=document.getElementById('ebay-form-status');
+  if(btn)btn.disabled=true;
+  if(ldr)ldr.style.display='inline-block';
+  if(statusEl){statusEl.style.display='block';statusEl.innerHTML='<span style="color:var(--text2)">Traitement en cours…</span>';}
+  try{
+    const route=d.pubMode==='now'?'/api/ebay/publish':d.pubMode==='scheduled'?'/api/ebay/schedule':'/api/ebay/create-draft';
+    const result=await api(route,'POST',d);
+    if(statusEl)statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(result.message||'Annonce enregistrée.')}</span>`;
+    notify(result.message||'Annonce enregistrée.','ok');
+    loadEbayListings();
+  }catch(e){
+    if(statusEl)statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;
+    notify(e.message,'err');
+  }finally{
+    if(btn)btn.disabled=false;
+    if(ldr)ldr.style.display='none';
+  }
+}
+
+async function loadEbayListings(){
+  const el=document.getElementById('ebay-listings-list');
+  if(!el)return;
+  try{
+    const data=await api('/api/ebay/listings');
+    const items=data.listings||[];
+    if(!items.length){el.innerHTML='<div class="text-muted text-sm">Aucune annonce enregistrée.</div>';return;}
+    el.innerHTML=items.map(item=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(item.title||'Sans titre')}</div>
+          <div class="text-sm text-muted">${escapeHtml(item.marketplace||'')} • ${escapeHtml((item.price||0).toFixed(2))} ${escapeHtml(item.currency||'EUR')}</div>
+          <div style="margin-top:4px"><span class="badge ${statusBadge(item.status)}">${statusLabel(item.status)}</span>${item.scheduledAt?` <span style="font-size:10px;color:var(--text3)">📅 ${new Date(item.scheduledAt).toLocaleString('fr-FR')}</span>`:''}</div>
+          ${item.lastError?`<div style="font-size:11px;color:var(--red);margin-top:4px">⚠ ${escapeHtml(item.lastError)}</div>`:''}
+        </div>
+        <div class="flex gap8 flex-wrap">
+          ${item.status==='draft'||item.status==='scheduled'?`<button class="btn btn-green btn-sm" onclick="ebayPublishNow('${item.id}')">▶ Publier</button>`:''}
+          ${item.status==='scheduled'?`<button class="btn btn-orange btn-sm" onclick="ebayCancelScheduled('${item.id}')">✕ Annuler</button>`:''}
+          <button class="btn btn-red btn-sm" onclick="ebayDeleteListing('${item.id}')">Supprimer</button>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
+}
+
+async function ebayPublishNow(id){
+  try{const d=await api('/api/ebay/scheduled/publish-now','POST',{id});notify(d.message||'Publié.','ok');loadEbayListings();}
+  catch(e){notify(e.message,'err');}
+}
+async function ebayCancelScheduled(id){
+  if(!confirm('Annuler cette programmation ?'))return;
+  try{await api('/api/ebay/scheduled/cancel','POST',{id});notify('Programmation annulée.','ok');loadEbayListings();}
+  catch(e){notify(e.message,'err');}
+}
+async function ebayDeleteListing(id){
+  if(!confirm('Supprimer cette annonce ?'))return;
+  try{await api('/api/ebay/listings/'+id,'DELETE');notify('Annonce supprimée.','ok');loadEbayListings();}
+  catch(e){notify(e.message,'err');}
+}
+
+/* ── eBay IA ── */
+async function generateEbayListing(){
+  const desc=document.getElementById('ebay-ai-desc')?.value.trim();
+  if(!desc)return notify('Décrivez ce que vous voulez vendre.','err');
+  const btn=document.getElementById('ebay-ai-gen-btn');
+  const ldr=document.getElementById('ebay-ai-ldr');
+  if(btn)btn.disabled=true;if(ldr)ldr.style.display='inline-block';
+  try{
+    const data=await api('/api/ai/ebay/generate-listing','POST',{
+      description:desc,
+      target:document.getElementById('ebay-ai-target')?.value.trim()||'',
+      tone:document.getElementById('ebay-ai-tone')?.value||'professionnel',
+      keywords:document.getElementById('ebay-ai-keywords')?.value.trim()||'',
+      goal:document.getElementById('ebay-ai-goal')?.value||'vendre_rapidement',
+      constraints:document.getElementById('ebay-ai-constraints')?.value.trim()||''
+    });
+    _ebayAiResult=data;
+    document.getElementById('ebay-ai-title-out').textContent=data.title||'';
+    document.getElementById('ebay-ai-desc-out').textContent=data.description||'';
+    document.getElementById('ebay-ai-kw-out').textContent=(data.keywords||[]).join(', ');
+    document.getElementById('ebay-ai-args-out').textContent=(data.arguments||[]).map((a,i)=>String(i+1)+'. '+String(a)).join('\n');
+    document.getElementById('ebay-ai-result').style.display='block';
+    document.getElementById('ebay-ai-result').scrollIntoView({behavior:'smooth'});
+    notify("Annonce générée par l'IA.","ok");
+  }catch(e){notify(e.message,'err');}
+  finally{if(btn)btn.disabled=false;if(ldr)ldr.style.display='none';}
+}
+
+async function regenerateEbayListing(){
+  if(!_ebayAiResult)return generateEbayListing();
+  await generateEbayListing();
+}
+
+function useEbayAiText(){
+  const title=document.getElementById('ebay-ai-title-out')?.textContent||'';
+  const desc=document.getElementById('ebay-ai-desc-out')?.textContent||'';
+  if(title)document.getElementById('ebay-title').value=title;
+  if(desc)document.getElementById('ebay-description').value=desc;
+  notify('Texte IA transféré dans le formulaire.','ok');
+  document.getElementById('ebay-title')?.scrollIntoView({behavior:'smooth'});
+}
+
+function toggleEbayImprove(){
+  const p=document.getElementById('ebay-improve-panel');
+  if(p)p.style.display=p.style.display==='none'?'block':'none';
+}
+
+async function improveEbayListing(){
+  const inst=document.getElementById('ebay-improve-inst')?.value.trim();
+  if(!inst)return notify('Décrivez la correction souhaitée.','err');
+  const ldr=document.getElementById('ebay-improve-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  try{
+    const data=await api('/api/ai/ebay/improve-listing','POST',{
+      currentTitle:document.getElementById('ebay-ai-title-out')?.textContent||'',
+      currentDescription:document.getElementById('ebay-ai-desc-out')?.textContent||'',
+      instruction:inst
+    });
+    if(data.title)document.getElementById('ebay-ai-title-out').textContent=data.title;
+    if(data.description)document.getElementById('ebay-ai-desc-out').textContent=data.description;
+    notify('Annonce corrig\u00e9e.','ok');
+    document.getElementById('ebay-improve-panel').style.display='none';
+    document.getElementById('ebay-improve-inst').value='';
+  }catch(e){notify(e.message,'err');}
+  finally{if(ldr)ldr.style.display='none';}
+}
+
+async function generateEbayImage(){
+  const desc=document.getElementById('ebay-img-desc')?.value.trim();
+  const style=document.getElementById('ebay-img-style')?.value||'photorealiste';
+  const ldr=document.getElementById('ebay-img-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  try{
+    const data=await api('/api/ai/ebay/generate-image','POST',{description:desc,style});
+    if(data.imageUrl){
+      _ebayImageUrl=data.imageUrl;
+      const box=document.getElementById('ebay-img-box');
+      if(box)box.innerHTML=`<img src="${data.imageUrl}" alt="Image générée" style="max-width:100%;border-radius:8px">`;
+      document.getElementById('ebay-img-result').style.display='block';
+      notify('Image générée.','ok');
+    } else {
+      notify(data.message||"Génération d'image non disponible.","info");
+    }
+  }catch(e){notify(e.message,'err');}
+  finally{if(ldr)ldr.style.display='none';}
+}
+
+function useEbayImage(){
+  if(!_ebayImageUrl)return;
+  const el=document.getElementById('ebay-images');
+  if(el){
+    const existing=el.value.trim();
+    el.value=existing?existing+'\n'+_ebayImageUrl:_ebayImageUrl;
+  }
+  notify("Image ajoutée aux URLs de l'annonce.","ok");
+}
+
+// Compteur titre eBay
+document.addEventListener('DOMContentLoaded',()=>{
+  const titleEl=document.getElementById('ebay-title');
+  const countEl=document.getElementById('ebay-title-count');
+  if(titleEl&&countEl){
+    titleEl.addEventListener('input',()=>{countEl.textContent=titleEl.value.length+'/80 caractères';});
+  }
+});
+
+/* ══════════════════════════════════════════════
+   GOOGLE ADS — Fonctions
+══════════════════════════════════════════════ */
+function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); }
+
+async function checkGadsStatus(){
+  const msg=document.getElementById('gads-status-msg');
+  const badge=document.getElementById('gads-status-badge');
+  try{
+    const d=await api('/api/google-ads/status');
+    if(d.configured){
+      if(badge){badge.className='badge b-green';badge.textContent='Connecté';}
+      if(msg)msg.innerHTML='<span style="color:var(--green)">✓ Google Ads connecté</span>';
+    } else {
+      if(badge){badge.className='badge b-orange';badge.textContent='Non configuré';}
+      if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Google Ads non configuré.')+'</span>';
+    }
+  }catch(e){if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';}
+}
+
+async function loadGadsCampaigns(){
+  const el=document.getElementById('gads-campaigns-list');
+  if(!el)return;
+  try{
+    const data=await api('/api/google-ads/campaigns');
+    const campaigns=data.campaigns||[];
+    if(!campaigns.length){el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne.')+'</div>';return;}
+    el.innerHTML=campaigns.map(c=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div><div style="font-weight:700">${escapeHtml(c.name||'')}</div>
+        <div class="text-sm text-muted">${escapeHtml(c.type||'')} • Budget : ${escapeHtml(String(c.budget||'—'))}€/j</div></div>
+        <div class="flex gap8">
+          <span class="badge ${c.status==='ENABLED'?'b-green':'b-gray'}">${escapeHtml(c.status||'')}</span>
+          ${c.status==='ENABLED'?`<button class="btn btn-orange btn-sm" onclick="pauseGadsCampaign('${c.id}')">Pause</button>`:`<button class="btn btn-green btn-sm" onclick="enableGadsCampaign('${c.id}')">Activer</button>`}
+          <button class="btn btn-ghost btn-sm" onclick="viewGadsStats('${c.id}')">Stats</button>
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
+}
+
+async function createGadsCampaign(){
+  const name=document.getElementById('gads-name')?.value.trim();
+  const budget=parseFloat(document.getElementById('gads-budget')?.value)||0;
+  const url=document.getElementById('gads-url')?.value.trim();
+  if(!name||!budget||!url)return notify('Nom, budget et URL finale sont obligatoires.','err');
+  const ldr=document.getElementById('gads-create-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  const statusEl=document.getElementById('gads-form-status');
+  try{
+    const data=await api('/api/google-ads/campaigns','POST',{
+      name,budget,
+      type:document.getElementById('gads-type')?.value||'SEARCH',
+      geo:document.getElementById('gads-geo')?.value.trim()||'France',
+      language:document.getElementById('gads-lang')?.value.trim()||'fr',
+      finalUrl:url,
+      keywords:(document.getElementById('gads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      headlines:(document.getElementById('gads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      descriptions:(document.getElementById('gads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)
+    });
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;}
+    notify(data.message||'Campagne créée.','ok');
+    loadGadsCampaigns();
+  }catch(e){
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}
+    notify(e.message,'err');
+  }finally{if(ldr)ldr.style.display='none';}
+}
+
+async function pauseGadsCampaign(id){try{await api('/api/google-ads/campaigns/pause','POST',{id});notify('Campagne mise en pause.','ok');loadGadsCampaigns();}catch(e){notify(e.message,'err');}}
+async function enableGadsCampaign(id){try{await api('/api/google-ads/campaigns/enable','POST',{id});notify('Campagne réactivée.','ok');loadGadsCampaigns();}catch(e){notify(e.message,'err');}}
+async function viewGadsStats(id){try{const d=await api('/api/google-ads/stats?campaignId='+id);loadGadsStats(d);}catch(e){notify(e.message,'err');}}
+function resetGadsForm(){['gads-name','gads-budget','gads-geo','gads-url','gads-keywords','gads-headlines','gads-descs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('gads-form-status').style.display='none';}
+
+async function loadGadsStats(data){
+  const grid=document.getElementById('gads-stats-grid');
+  const detail=document.getElementById('gads-stats-detail');
+  if(!data){
+    try{data=await api('/api/google-ads/stats');}catch(e){if(detail)detail.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';return;}
+  }
+  const stats=data.stats||{};
+  if(grid)grid.innerHTML=[
+    {l:'Impressions',v:stats.impressions??'—'},{l:'Clics',v:stats.clicks??'—'},
+    {l:'Coût',v:stats.cost!=null?(stats.cost.toFixed(2)+'€'):'—'},{l:'CTR',v:stats.ctr!=null?(stats.ctr.toFixed(2)+'%'):'—'},
+    {l:'CPC moyen',v:stats.avgCpc!=null?(stats.avgCpc.toFixed(2)+'€'):'—'},{l:'Conversions',v:stats.conversions??'—'}
+  ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:Cinzel,serif;font-size:22px;color:var(--neon)">${s.v}</div><div style="font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:1px">${s.l}</div></div>`).join('');
+}
+
+/* ══════════════════════════════════════════════
+   MICROSOFT ADS — Fonctions
+══════════════════════════════════════════════ */
+function initMicrosoftAdsPage(){ checkMsadsStatus(); loadMsadsCampaigns(); }
+
+async function checkMsadsStatus(){
+  const msg=document.getElementById('msads-status-msg');
+  const badge=document.getElementById('msads-status-badge');
+  try{
+    const d=await api('/api/microsoft-ads/status');
+    if(d.configured){
+      if(badge){badge.className='badge b-green';badge.textContent='Connecté';}
+      if(msg)msg.innerHTML='<span style="color:var(--green)">✓ Microsoft Ads connecté</span>';
+    } else {
+      if(badge){badge.className='badge b-orange';badge.textContent='Non configuré';}
+      if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Microsoft Ads non configuré.')+'</span>';
+    }
+  }catch(e){if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';}
+}
+
+async function loadMsadsCampaigns(){
+  const el=document.getElementById('msads-campaigns-list');
+  if(!el)return;
+  try{
+    const data=await api('/api/microsoft-ads/campaigns');
+    const campaigns=data.campaigns||[];
+    if(!campaigns.length){el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne.')+'</div>';return;}
+    el.innerHTML=campaigns.map(c=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div><div style="font-weight:700">${escapeHtml(c.name||'')}</div>
+        <div class="text-sm text-muted">Budget : ${escapeHtml(String(c.budget||'—'))}€/j</div></div>
+        <div class="flex gap8">
+          <span class="badge ${c.status==='ENABLED'?'b-green':'b-gray'}">${escapeHtml(c.status||'')}</span>
+          ${c.status==='ENABLED'?`<button class="btn btn-orange btn-sm" onclick="pauseMsadsCampaign('${c.id}')">Pause</button>`:`<button class="btn btn-green btn-sm" onclick="enableMsadsCampaign('${c.id}')">Activer</button>`}
+        </div>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
+}
+
+async function createMsadsCampaign(){
+  const name=document.getElementById('msads-name')?.value.trim();
+  const budget=parseFloat(document.getElementById('msads-budget')?.value)||0;
+  const url=document.getElementById('msads-url')?.value.trim();
+  if(!name||!budget||!url)return notify('Nom, budget et URL finale sont obligatoires.','err');
+  const ldr=document.getElementById('msads-create-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  const statusEl=document.getElementById('msads-form-status');
+  try{
+    const data=await api('/api/microsoft-ads/campaigns','POST',{
+      name,budget,
+      geo:document.getElementById('msads-geo')?.value.trim()||'France',
+      language:document.getElementById('msads-lang')?.value.trim()||'fr',
+      finalUrl:url,
+      keywords:(document.getElementById('msads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      headlines:(document.getElementById('msads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      descriptions:(document.getElementById('msads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)
+    });
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;}
+    notify(data.message||'Campagne créée.','ok');
+    loadMsadsCampaigns();
+  }catch(e){
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}
+    notify(e.message,'err');
+  }finally{if(ldr)ldr.style.display='none';}
+}
+
+async function pauseMsadsCampaign(id){try{await api('/api/microsoft-ads/campaigns/pause','POST',{id});notify('Mise en pause.','ok');loadMsadsCampaigns();}catch(e){notify(e.message,'err');}}
+async function enableMsadsCampaign(id){try{await api('/api/microsoft-ads/campaigns/enable','POST',{id});notify('Réactivée.','ok');loadMsadsCampaigns();}catch(e){notify(e.message,'err');}}
+async function loadMsadsStats(){
+  const grid=document.getElementById('msads-stats-grid');
+  const detail=document.getElementById('msads-stats-detail');
+  try{
+    const data=await api('/api/microsoft-ads/stats');
+    const stats=data.stats||{};
+    if(grid)grid.innerHTML=[
+      {l:'Impressions',v:stats.impressions??'—'},{l:'Clics',v:stats.clicks??'—'},
+      {l:'Coût',v:stats.cost!=null?(stats.cost.toFixed(2)+'€'):'—'},{l:'CTR',v:stats.ctr!=null?(stats.ctr.toFixed(2)+'%'):'—'},
+      {l:'CPC moyen',v:stats.avgCpc!=null?(stats.avgCpc.toFixed(2)+'€'):'—'}
+    ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:Cinzel,serif;font-size:22px;color:var(--neon)">${s.v}</div><div style="font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:1px">${s.l}</div></div>`).join('');
+    if(detail)detail.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'')+'</div>';
+  }catch(e){if(detail)detail.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
+}
+function resetMsadsForm(){['msads-name','msads-budget','msads-geo','msads-url','msads-keywords','msads-headlines','msads-descs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('msads-form-status').style.display='none';}
+
+/* ══════════════════════════════════════════════
+   META ADS — Fonctions
+══════════════════════════════════════════════ */
+function initMetaAdsPage(){ checkMetaAdsStatus(); loadMetaAdsCampaigns(); }
+
+async function checkMetaAdsStatus(){
+  const msg=document.getElementById('metaads-status-msg');
+  const badge=document.getElementById('metaads-status-badge');
+  try{
+    const d=await api('/api/meta-ads/status');
+    if(d.configured){
+      if(badge){badge.className='badge b-green';badge.textContent='Connecté';}
+      if(msg)msg.innerHTML='<span style="color:var(--green)">✓ Meta Ads connecté</span>';
+    } else {
+      if(badge){badge.className='badge b-orange';badge.textContent='Non configuré';}
+      if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Meta Ads non configuré.')+'</span>';
+    }
+  }catch(e){if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';}
+}
+
+async function loadMetaAdsCampaigns(){
+  const el=document.getElementById('metaads-campaigns-list');
+  if(!el)return;
+  try{
+    const data=await api('/api/meta-ads/campaigns');
+    const campaigns=data.campaigns||[];
+    if(!campaigns.length){el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne.')+'</div>';return;}
+    el.innerHTML=campaigns.map(c=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div><div style="font-weight:700">${escapeHtml(c.name||'')}</div>
+        <div class="text-sm text-muted">${escapeHtml(c.objective||'')} • ${escapeHtml(String(c.budget||'—'))}€/j</div></div>
+        <span class="badge ${c.status==='ACTIVE'?'b-green':'b-gray'}">${escapeHtml(c.status||'')}</span>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
+}
+
+async function createMetaAdsCampaign(){
+  const name=document.getElementById('metaads-name')?.value.trim();
+  const budget=parseFloat(document.getElementById('metaads-budget')?.value)||0;
+  const url=document.getElementById('metaads-url')?.value.trim();
+  if(!name||!budget||!url)return notify('Nom, budget et URL finale sont obligatoires.','err');
+  const ldr=document.getElementById('metaads-create-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  const statusEl=document.getElementById('metaads-form-status');
+  try{
+    const data=await api('/api/meta-ads/campaigns','POST',{
+      name,budget,
+      objective:document.getElementById('metaads-objective')?.value||'OUTCOME_LEADS',
+      finalUrl:url,
+      body:document.getElementById('metaads-body')?.value.trim()||'',
+      headline:document.getElementById('metaads-headline')?.value.trim()||''
+    });
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;}
+    notify(data.message||'Campagne créée.','ok');
+    loadMetaAdsCampaigns();
+  }catch(e){
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}
+    notify(e.message,'err');
+  }finally{if(ldr)ldr.style.display='none';}
+}
+function resetMetaAdsForm(){['metaads-name','metaads-budget','metaads-url','metaads-body','metaads-headline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('metaads-form-status').style.display='none';}
+
 window.addEventListener('load',()=>{
   if(WORKER_URL)document.getElementById('worker-url-inp').value=WORKER_URL;
   updateWorkerStatus();
