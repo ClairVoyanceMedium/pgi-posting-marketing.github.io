@@ -409,12 +409,71 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         <div class="card-title">📋 Formulaire de l'annonce eBay</div>
         <div class="grid2">
           <div class="fgrp"><label class="flabel">Titre de l'annonce *</label><input class="finput" id="ebay-title" placeholder="Max 80 caractères" maxlength="80"><div class="fhelp" id="ebay-title-count">0/80 caractères</div></div>
-          <div class="fgrp"><label class="flabel">Marketplace eBay *</label><select class="fselect" id="ebay-marketplace"><option value="EBAY_FR">🇫🇷 France — EBAY_FR</option><option value="EBAY_BE">🇧🇪 Belgique — EBAY_BE</option><option value="EBAY_CH">🇨🇭 Suisse — EBAY_CH</option><option value="EBAY_DE">🇩🇪 Allemagne — EBAY_DE</option><option value="EBAY_ES">🇪🇸 Espagne — EBAY_ES</option><option value="EBAY_IT">🇮🇹 Italie — EBAY_IT</option><option value="EBAY_GB">🇬🇧 Royaume-Uni — EBAY_GB</option><option value="EBAY_US">🇺🇸 États-Unis — EBAY_US</option><option value="EBAY_CA">🇨🇦 Canada — EBAY_CA</option></select></div>
+          <div class="fgrp"><label class="flabel">Marketplace eBay *</label><select class="fselect" id="ebay-marketplace">
+  <optgroup label="── Europe ──">
+    <option value="EBAY_FR">🇫🇷 France — EBAY_FR</option>
+    <option value="EBAY_BE">🇧🇪 Belgique — EBAY_BE</option>
+    <option value="EBAY_CH">🇨🇭 Suisse — EBAY_CH</option>
+    <option value="EBAY_DE">🇩🇪 Allemagne — EBAY_DE</option>
+    <option value="EBAY_AT">🇦🇹 Autriche — EBAY_AT</option>
+    <option value="EBAY_GB">🇬🇧 Royaume-Uni — EBAY_GB</option>
+    <option value="EBAY_IE">🇮🇪 Irlande — EBAY_IE</option>
+    <option value="EBAY_ES">🇪🇸 Espagne — EBAY_ES</option>
+    <option value="EBAY_IT">🇮🇹 Italie — EBAY_IT</option>
+    <option value="EBAY_NL">🇳🇱 Pays-Bas — EBAY_NL</option>
+    <option value="EBAY_PL">🇵🇱 Pologne — EBAY_PL</option>
+    <option value="EBAY_SE">🇸🇪 Suède — EBAY_SE</option>
+    <option value="EBAY_NO">🇳🇴 Norvège — EBAY_NO</option>
+    <option value="EBAY_DK">🇩🇰 Danemark — EBAY_DK</option>
+    <option value="EBAY_FI">🇫🇮 Finlande — EBAY_FI</option>
+    <option value="EBAY_PT">🇵🇹 Portugal — EBAY_PT</option>
+    <option value="EBAY_HU">🇭🇺 Hongrie — EBAY_HU</option>
+    <option value="EBAY_CZ">🇨🇿 Rép. Tchèque — EBAY_CZ</option>
+  </optgroup>
+  <optgroup label="── Amériques ──">
+    <option value="EBAY_US">🇺🇸 États-Unis — EBAY_US</option>
+    <option value="EBAY_CA">🇨🇦 Canada — EBAY_CA</option>
+    <option value="EBAY_MOTORS_US">🇺🇸 eBay Motors US — EBAY_MOTORS_US</option>
+  </optgroup>
+  <optgroup label="── Asie-Pacifique ──">
+    <option value="EBAY_AU">🇦🇺 Australie — EBAY_AU</option>
+    <option value="EBAY_SG">🇸🇬 Singapour — EBAY_SG</option>
+    <option value="EBAY_HK">🇭🇰 Hong Kong — EBAY_HK</option>
+    <option value="EBAY_IN">🇮🇳 Inde — EBAY_IN</option>
+    <option value="EBAY_MY">🇲🇾 Malaisie — EBAY_MY</option>
+    <option value="EBAY_PH">🇵🇭 Philippines — EBAY_PH</option>
+    <option value="EBAY_TH">🇹🇭 Thaïlande — EBAY_TH</option>
+  </optgroup>
+  <optgroup label="── Moyen-Orient ──">
+    <option value="EBAY_IL">🇮🇱 Israël — EBAY_IL</option>
+  </optgroup>
+</select></div>
         </div>
         <div class="fgrp"><label class="flabel">Description *</label><textarea class="ftextarea" id="ebay-description" rows="6" placeholder="Description complète de votre annonce…"></textarea></div>
         <div class="grid2">
           <div class="fgrp"><label class="flabel">Prix *</label><input type="number" class="finput" id="ebay-price" placeholder="Ex : 29.90" min="0" step="0.01"></div>
-          <div class="fgrp"><label class="flabel">Devise</label><select class="fselect" id="ebay-currency"><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Livre sterling</option><option value="USD">USD — Dollar US</option><option value="CAD">CAD — Dollar canadien</option><option value="CHF">CHF — Franc suisse</option></select></div>
+          <div class="fgrp"><label class="flabel">Devise</label><select class="fselect" id="ebay-currency">
+  <option value="AUTO">🤖 Automatique (selon marketplace)</option>
+  <option value="EUR">EUR — Euro</option>
+  <option value="GBP">GBP — Livre sterling</option>
+  <option value="USD">USD — Dollar US</option>
+  <option value="CAD">CAD — Dollar canadien</option>
+  <option value="CHF">CHF — Franc suisse</option>
+  <option value="AUD">AUD — Dollar australien</option>
+  <option value="SEK">SEK — Couronne suédoise</option>
+  <option value="NOK">NOK — Couronne norvégienne</option>
+  <option value="DKK">DKK — Couronne danoise</option>
+  <option value="PLN">PLN — Zloty polonais</option>
+  <option value="HUF">HUF — Forint hongrois</option>
+  <option value="CZK">CZK — Couronne tchèque</option>
+  <option value="SGD">SGD — Dollar de Singapour</option>
+  <option value="HKD">HKD — Dollar de Hong Kong</option>
+  <option value="INR">INR — Roupie indienne</option>
+  <option value="MYR">MYR — Ringgit malaisien</option>
+  <option value="PHP">PHP — Peso philippin</option>
+  <option value="THB">THB — Baht thaïlandais</option>
+  <option value="ILS">ILS — Shekel israélien</option>
+</select></div>
         </div>
         <div class="grid2">
           <div class="fgrp"><label class="flabel">Catégorie eBay</label><input class="finput" id="ebay-category" placeholder="Ex : 15032 (ID catégorie eBay)"><div class="fhelp">Consultez le catalogue eBay pour l'ID de catégorie.</div></div>
@@ -433,13 +492,55 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         <!-- MODE DE PUBLICATION -->
         <div class="divider"></div>
         <div class="card-title" style="margin-top:0">⏱ Mode de publication</div>
-        <div class="fgrp"><label class="flabel">Mode *</label><select class="fselect" id="ebay-pub-mode" onchange="onEbayPubModeChange()"><option value="draft">Enregistrer en brouillon</option><option value="now">Publier maintenant</option><option value="scheduled">Programmer la publication</option></select></div>
+        <div class="fgrp"><label class="flabel">Mode *</label><select class="fselect" id="ebay-pub-mode" onchange="onEbayPubModeChange()"><option value="draft">Enregistrer en brouillon</option><option value="now">Publier maintenant</option><option value="scheduled">Publication unique programmée</option><option value="recurring">Publication automatique récurrente</option></select></div>
+
+        <!-- Champs publication unique programmée -->
         <div id="ebay-schedule-fields" style="display:none">
+          <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+            📅 Choisissez la date et l'heure exactes de publication de cette annonce.
+          </div>
           <div class="grid2">
             <div class="fgrp"><label class="flabel">Date de publication</label><input type="date" class="finput" id="ebay-pub-date"></div>
             <div class="fgrp"><label class="flabel">Heure de publication</label><input type="time" class="finput" id="ebay-pub-time" value="09:00"></div>
           </div>
           <div class="fgrp"><label class="flabel">Fuseau horaire</label><select class="fselect" id="ebay-timezone"><option value="Europe/Paris">Europe/Paris (FR)</option><option value="Europe/London">Europe/London (UK)</option><option value="Europe/Berlin">Europe/Berlin (DE)</option><option value="America/New_York">America/New_York (US-EST)</option><option value="America/Los_Angeles">America/Los_Angeles (US-PST)</option></select></div>
+        </div>
+
+        <!-- Champs automatisation récurrente -->
+        <div id="ebay-recurring-fields" style="display:none">
+          <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+            ⚙ Le Worker publiera automatiquement cette annonce selon la fréquence choisie, via le Cron Trigger Cloudflare.
+          </div>
+          <div class="grid2">
+            <div class="fgrp"><label class="flabel">Fréquence de publication *</label>
+              <select class="fselect" id="ebay-freq">
+                <option value="daily">Tous les jours</option>
+                <option value="2days">Tous les 2 jours</option>
+                <option value="weekly">Toutes les semaines</option>
+                <option value="biweekly">Toutes les 2 semaines</option>
+                <option value="monthly">Tous les mois</option>
+              </select>
+            </div>
+            <div class="fgrp"><label class="flabel">Heure de publication (Paris)</label><input type="time" class="finput" id="ebay-rec-time" value="09:00"></div>
+          </div>
+          <div class="grid2">
+            <div class="fgrp">
+              <label class="flabel" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="ebay-infinite" checked style="width:15px;height:15px;accent-color:var(--neon)"> Campagne infinie (sans date de fin)
+              </label>
+              <div class="fhelp">Si décoché, choisissez une date de fin ci-dessous.</div>
+            </div>
+            <div class="fgrp" id="ebay-enddate-wrap" style="opacity:.35;pointer-events:none">
+              <label class="flabel">Date de fin</label>
+              <input type="date" class="finput" id="ebay-enddate">
+              <div class="fhelp">L'automatisation s'arrête automatiquement après cette date.</div>
+            </div>
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Nombre max de publications</label>
+            <input type="number" class="finput" id="ebay-maxruns" min="1" placeholder="Laisser vide = illimité">
+            <div class="fhelp">Optionnel — ex : 10 publications puis arrêt automatique.</div>
+          </div>
         </div>
 
         <div class="flex gap8 flex-wrap mt16">
@@ -1706,9 +1807,23 @@ async function checkEbayStatus(){
 
 function onEbayPubModeChange(){
   const mode=document.getElementById('ebay-pub-mode')?.value;
-  const fields=document.getElementById('ebay-schedule-fields');
-  if(fields)fields.style.display=mode==='scheduled'?'block':'none';
+  const schedFields=document.getElementById('ebay-schedule-fields');
+  const recurFields=document.getElementById('ebay-recurring-fields');
+  if(schedFields)schedFields.style.display=mode==='scheduled'?'block':'none';
+  if(recurFields)recurFields.style.display=mode==='recurring'?'block':'none';
 }
+
+// Gérer la case "campagne infinie" eBay
+document.addEventListener('DOMContentLoaded',function(){
+  const infiniteCb=document.getElementById('ebay-infinite');
+  const endWrap=document.getElementById('ebay-enddate-wrap');
+  if(infiniteCb&&endWrap){
+    infiniteCb.addEventListener('change',function(){
+      endWrap.style.opacity=infiniteCb.checked?'0.35':'1';
+      endWrap.style.pointerEvents=infiniteCb.checked?'none':'auto';
+    });
+  }
+});
 
 function resetEbayForm(){
   ['ebay-title','ebay-description','ebay-price','ebay-category','ebay-images','ebay-shipping','ebay-return','ebay-payment'].forEach(id=>{
@@ -1717,6 +1832,11 @@ function resetEbayForm(){
   document.getElementById('ebay-quantity').value='1';
   document.getElementById('ebay-pub-mode').value='draft';
   document.getElementById('ebay-schedule-fields').style.display='none';
+  document.getElementById('ebay-recurring-fields').style.display='none';
+  const infCb=document.getElementById('ebay-infinite');if(infCb)infCb.checked=true;
+  const endW=document.getElementById('ebay-enddate-wrap');if(endW){endW.style.opacity='0.35';endW.style.pointerEvents='none';}
+  const endD=document.getElementById('ebay-enddate');if(endD)endD.value='';
+  const maxR=document.getElementById('ebay-maxruns');if(maxR)maxR.value='';
   document.getElementById('ebay-form-status').style.display='none';
   document.getElementById('ebay-preview-box').style.display='none';
   _ebayImageUrl=null;
@@ -1725,11 +1845,13 @@ function resetEbayForm(){
 function getEbayFormData(){
   const scheduledAt=document.getElementById('ebay-pub-mode')?.value==='scheduled'?
     (()=>{const d=document.getElementById('ebay-pub-date')?.value;const t=document.getElementById('ebay-pub-time')?.value||'09:00';return d?new Date(d+'T'+t).getTime():null})():null;
+  const pubMode=document.getElementById('ebay-pub-mode')?.value||'draft';
+  const infinite=document.getElementById('ebay-infinite')?.checked!==false;
   return{
     title:document.getElementById('ebay-title')?.value.trim()||'',
     description:document.getElementById('ebay-description')?.value.trim()||'',
     price:parseFloat(document.getElementById('ebay-price')?.value)||0,
-    currency:document.getElementById('ebay-currency')?.value||'EUR',
+    currency:(document.getElementById('ebay-currency')?.value||'EUR')==='AUTO'?null:(document.getElementById('ebay-currency')?.value||'EUR'),
     categoryId:document.getElementById('ebay-category')?.value.trim()||'',
     condition:document.getElementById('ebay-condition')?.value||'NEW',
     quantity:parseInt(document.getElementById('ebay-quantity')?.value)||1,
@@ -1738,10 +1860,16 @@ function getEbayFormData(){
     shippingPolicyId:document.getElementById('ebay-shipping')?.value.trim()||'',
     returnPolicyId:document.getElementById('ebay-return')?.value.trim()||'',
     paymentPolicyId:document.getElementById('ebay-payment')?.value.trim()||'',
-    pubMode:document.getElementById('ebay-pub-mode')?.value||'draft',
+    pubMode:pubMode,
     scheduledAt,
     timezone:document.getElementById('ebay-timezone')?.value||'Europe/Paris',
     imageUrl:_ebayImageUrl||null,
+    // Champs automatisation récurrente
+    frequency:document.getElementById('ebay-freq')?.value||'daily',
+    recurTime:document.getElementById('ebay-rec-time')?.value||'09:00',
+    infinite:infinite,
+    endDate:(!infinite&&document.getElementById('ebay-enddate')?.value)||null,
+    maxRuns:parseInt(document.getElementById('ebay-maxruns')?.value)||null,
   };
 }
 
@@ -1760,7 +1888,7 @@ function previewEbayListing(){
     </div>
     <div style="white-space:pre-wrap;line-height:1.7;color:var(--text);margin-bottom:12px">${escapeHtml(d.description||'Aucune description.')}</div>
     ${d.imageUrl?`<img src="${d.imageUrl}" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:12px">`:''}
-    <div style="font-size:11px;color:var(--text3)">Mode : ${escapeHtml(d.pubMode)} ${d.scheduledAt?'• Programmé : '+new Date(d.scheduledAt).toLocaleString('fr-FR'):''}</div>
+    <div style="font-size:11px;color:var(--text3)">Mode : ${escapeHtml(d.pubMode==='recurring'?'Récurrent — '+d.frequency+(d.infinite?' (infini)':d.endDate?' jusqu\'au '+d.endDate:''):d.pubMode)} ${d.scheduledAt&&d.pubMode==='scheduled'?'• Programmé : '+new Date(d.scheduledAt).toLocaleString('fr-FR'):''}</div>
   `;
   box.style.display='block';
   box.scrollIntoView({behavior:'smooth'});
@@ -1778,7 +1906,10 @@ async function submitEbayListing(){
   if(ldr)ldr.style.display='inline-block';
   if(statusEl){statusEl.style.display='block';statusEl.innerHTML='<span style="color:var(--text2)">Traitement en cours…</span>';}
   try{
-    const route=d.pubMode==='now'?'/api/ebay/publish':d.pubMode==='scheduled'?'/api/ebay/schedule':'/api/ebay/create-draft';
+    let route='/api/ebay/create-draft';
+    if(d.pubMode==='now')route='/api/ebay/publish';
+    else if(d.pubMode==='scheduled')route='/api/ebay/schedule';
+    else if(d.pubMode==='recurring')route='/api/ebay/recurring';
     const result=await api(route,'POST',d);
     if(statusEl)statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(result.message||'Annonce enregistrée.')}</span>`;
     notify(result.message||'Annonce enregistrée.','ok');
@@ -1796,10 +1927,43 @@ async function loadEbayListings(){
   const el=document.getElementById('ebay-listings-list');
   if(!el)return;
   try{
-    const data=await api('/api/ebay/listings');
+    // Charger annonces ET automatisations récurrentes en parallèle
+    const [data, recData] = await Promise.all([
+      api('/api/ebay/listings'),
+      api('/api/ebay/recurring').catch(()=>({rules:[]}))
+    ]);
     const items=data.listings||[];
-    if(!items.length){el.innerHTML='<div class="text-muted text-sm">Aucune annonce enregistrée.</div>';return;}
-    el.innerHTML=items.map(item=>`
+    const rules=recData.rules||[];
+
+    // Afficher les automatisations récurrentes en premier
+    let html='';
+    if(rules.length){
+      html+='<div style="font-family:Cinzel,serif;font-size:11px;color:var(--neon);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">⚙ Automatisations récurrentes</div>';
+      html+=rules.map(rule=>`
+        <div style="background:linear-gradient(135deg,rgba(0,191,255,.06),rgba(0,0,0,0));border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(rule.title||'Sans titre')}</div>
+            <div class="text-sm text-muted">${escapeHtml(rule.marketplace||'')} • ${escapeHtml(String(rule.price||0))} ${escapeHtml(rule.currency||'EUR')} • <strong style="color:var(--neon)">${escapeHtml(rule.frequency||'')}</strong></div>
+            <div style="margin-top:5px;font-size:11px;color:var(--text3)">
+              Prochain run : <span style="color:var(--gold)">${rule.nextRun?new Date(rule.nextRun).toLocaleString('fr-FR'):'—'}</span>
+              ${rule.endDate?` • Fin : ${escapeHtml(rule.endDate)}`:''}
+              ${rule.maxRuns?` • Max : ${rule.runCount||0}/${rule.maxRuns}`:''}
+            </div>
+            ${rule.lastError?`<div style="font-size:11px;color:var(--red);margin-top:4px">⚠ ${escapeHtml(rule.lastError)}</div>`:''}
+          </div>
+          <div class="flex gap8 flex-wrap">
+            <span class="badge ${rule.active?'b-green':'b-gray'}">${rule.active?'Active':'En pause'}</span>
+            <button class="btn btn-ghost btn-sm" onclick="toggleEbayRecurring('${rule.id}')">${rule.active?'⏸ Pause':'▶ Reprendre'}</button>
+            <button class="btn btn-red btn-sm" onclick="deleteEbayRecurring('${rule.id}')">Supprimer</button>
+          </div>
+        </div>`).join('');
+      html+='<div style="font-family:Cinzel,serif;font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border)">📋 Annonces individuelles</div>';
+    }
+
+    if(!items.length && !rules.length){el.innerHTML='<div class="text-muted text-sm">Aucune annonce enregistrée.</div>';return;}
+    if(!items.length){el.innerHTML=html+'<div class="text-muted text-sm">Aucune annonce individuelle.</div>';return;}
+
+    html+=items.map(item=>`
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(item.title||'Sans titre')}</div>
@@ -1813,8 +1977,21 @@ async function loadEbayListings(){
           <button class="btn btn-red btn-sm" onclick="ebayDeleteListing('${item.id}')">Supprimer</button>
         </div>
       </div>`).join('');
+
+    el.innerHTML=html;
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
 }
+
+async function toggleEbayRecurring(id){
+  try{const d=await api('/api/ebay/recurring/'+id+'/toggle','POST');notify(d.message||'Modifié.','ok');loadEbayListings();}
+  catch(e){notify(e.message,'err');}
+}
+async function deleteEbayRecurring(id){
+  if(!confirm('Supprimer cette automatisation eBay ?'))return;
+  try{await api('/api/ebay/recurring/'+id,'DELETE');notify('Automatisation supprimée.','ok');loadEbayListings();}
+  catch(e){notify(e.message,'err');}
+}
+
 
 async function ebayPublishNow(id){
   try{const d=await api('/api/ebay/scheduled/publish-now','POST',{id});notify(d.message||'Publié.','ok');loadEbayListings();}
