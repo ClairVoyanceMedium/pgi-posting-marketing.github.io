@@ -506,11 +506,40 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           <div class="fgrp"><label class="flabel">Fuseau horaire</label><select class="fselect" id="ebay-timezone"><option value="Europe/Paris">Europe/Paris (FR)</option><option value="Europe/London">Europe/London (UK)</option><option value="Europe/Berlin">Europe/Berlin (DE)</option><option value="America/New_York">America/New_York (US-EST)</option><option value="America/Los_Angeles">America/Los_Angeles (US-PST)</option></select></div>
         </div>
 
-        <!-- Champs automatisation récurrente -->
+        <!-- Champs automatisation récurrente IA -->
         <div id="ebay-recurring-fields" style="display:none">
-          <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
-            ⚙ Le Worker publiera automatiquement cette annonce selon la fréquence choisie, via le Cron Trigger Cloudflare.
+          <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:8px;padding:14px;margin-bottom:16px">
+            <div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:6px">⚡ Publication automatique intelligente</div>
+            <div class="text-sm text-muted">L'IA génère un <strong style="color:var(--text)">titre différent</strong>, une <strong style="color:var(--text)">description différente</strong> et une <strong style="color:var(--text)">image différente</strong> à chaque publication. Vous définissez une consigne générale, l'IA fait le reste — exactement comme les automatisations réseaux sociaux.</div>
           </div>
+
+          <!-- Consigne IA -->
+          <div class="fgrp"><label class="flabel">Consigne IA * <span style="color:var(--text3);font-weight:400;font-size:9px">(L'IA s'en sert pour varier le contenu à chaque run)</span></label>
+            <textarea class="ftextarea" id="ebay-consigne" rows="3" placeholder="Ex : Annonce de consultation de voyance par téléphone avec Frederick, medium sérieux disponible 24h/24 7j/7, confidentiel et professionnel. Mentionner le 06 95 46 89 23."></textarea>
+            <div class="fhelp">Plus la consigne est précise, meilleure est la génération. Chaque publication sera unique.</div>
+          </div>
+
+          <div class="grid2">
+            <div class="fgrp"><label class="flabel">Ton de l'annonce</label>
+              <select class="fselect" id="ebay-rec-tone">
+                <option value="professionnel">Professionnel</option>
+                <option value="rassurant">Rassurant</option>
+                <option value="vendeur">Vendeur</option>
+                <option value="urgent">Urgent</option>
+                <option value="neutre">Neutre</option>
+              </select>
+            </div>
+            <div class="fgrp"><label class="flabel">Mots-clés à inclure</label>
+              <input class="finput" id="ebay-rec-keywords" placeholder="Ex : voyance, médium, téléphone, sérieux, Frederick">
+            </div>
+          </div>
+
+          <div class="fgrp"><label class="flabel">Contraintes / éléments obligatoires</label>
+            <input class="finput" id="ebay-rec-constraints" placeholder="Ex : mentionner 06 95 46 89 23, ne pas promettre de résultats garantis">
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
           <div class="grid2">
             <div class="fgrp"><label class="flabel">Fréquence de publication *</label>
               <select class="fselect" id="ebay-freq">
@@ -521,12 +550,16 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
                 <option value="monthly">Tous les mois</option>
               </select>
             </div>
-            <div class="fgrp"><label class="flabel">Heure de publication (Paris)</label><input type="time" class="finput" id="ebay-rec-time" value="09:00"></div>
+            <div class="fgrp"><label class="flabel">Heure de publication (Paris)</label>
+              <input type="time" class="finput" id="ebay-rec-time" value="09:00">
+            </div>
           </div>
+
           <div class="grid2">
             <div class="fgrp">
               <label class="flabel" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                <input type="checkbox" id="ebay-infinite" checked style="width:15px;height:15px;accent-color:var(--neon)"> Campagne infinie (sans date de fin)
+                <input type="checkbox" id="ebay-infinite" checked style="width:15px;height:15px;accent-color:var(--neon)">
+                Campagne infinie (sans date de fin)
               </label>
               <div class="fhelp">Si décoché, choisissez une date de fin ci-dessous.</div>
             </div>
@@ -536,10 +569,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
               <div class="fhelp">L'automatisation s'arrête automatiquement après cette date.</div>
             </div>
           </div>
+
           <div class="fgrp">
             <label class="flabel">Nombre max de publications</label>
             <input type="number" class="finput" id="ebay-maxruns" min="1" placeholder="Laisser vide = illimité">
-            <div class="fhelp">Optionnel — ex : 10 publications puis arrêt automatique.</div>
+            <div class="fhelp">Optionnel — ex : 30 publications puis arrêt automatique.</div>
           </div>
         </div>
 
@@ -1837,6 +1871,10 @@ function resetEbayForm(){
   const endW=document.getElementById('ebay-enddate-wrap');if(endW){endW.style.opacity='0.35';endW.style.pointerEvents='none';}
   const endD=document.getElementById('ebay-enddate');if(endD)endD.value='';
   const maxR=document.getElementById('ebay-maxruns');if(maxR)maxR.value='';
+  const cons=document.getElementById('ebay-consigne');if(cons)cons.value='';
+  const kw=document.getElementById('ebay-rec-keywords');if(kw)kw.value='';
+  const cst=document.getElementById('ebay-rec-constraints');if(cst)cst.value='';
+  const tone=document.getElementById('ebay-rec-tone');if(tone)tone.value='professionnel';
   document.getElementById('ebay-form-status').style.display='none';
   document.getElementById('ebay-preview-box').style.display='none';
   _ebayImageUrl=null;
@@ -1864,7 +1902,11 @@ function getEbayFormData(){
     scheduledAt,
     timezone:document.getElementById('ebay-timezone')?.value||'Europe/Paris',
     imageUrl:_ebayImageUrl||null,
-    // Champs automatisation récurrente
+    // Champs automatisation récurrente IA
+    consigne:(document.getElementById('ebay-consigne')?.value||'').trim(),
+    tone:document.getElementById('ebay-rec-tone')?.value||'professionnel',
+    keywords:(document.getElementById('ebay-rec-keywords')?.value||'').trim(),
+    constraints:(document.getElementById('ebay-rec-constraints')?.value||'').trim(),
     frequency:document.getElementById('ebay-freq')?.value||'daily',
     recurTime:document.getElementById('ebay-rec-time')?.value||'09:00',
     infinite:infinite,
@@ -1896,9 +1938,14 @@ function previewEbayListing(){
 
 async function submitEbayListing(){
   const d=getEbayFormData();
-  if(!d.title)return notify('Le titre est obligatoire.','err');
-  if(!d.description)return notify('La description est obligatoire.','err');
-  if(d.price<=0)return notify('Le prix doit être supérieur à 0.','err');
+  if(d.pubMode==='recurring'){
+    if(!d.consigne)return notify("La consigne IA est obligatoire pour l'automatisation récurrente.","err");
+    if(d.price<=0)return notify('Le prix doit être supérieur à 0.','err');
+  } else {
+    if(!d.title)return notify('Le titre est obligatoire.','err');
+    if(!d.description)return notify('La description est obligatoire.','err');
+    if(d.price<=0)return notify('Le prix doit être supérieur à 0.','err');
+  }
   const btn=document.getElementById('ebay-submit-btn');
   const ldr=document.getElementById('ebay-submit-ldr');
   const statusEl=document.getElementById('ebay-form-status');
@@ -1942,8 +1989,11 @@ async function loadEbayListings(){
       html+=rules.map(rule=>`
         <div style="background:linear-gradient(135deg,rgba(0,191,255,.06),rgba(0,0,0,0));border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:200px">
-            <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(rule.title||'Sans titre')}</div>
-            <div class="text-sm text-muted">${escapeHtml(rule.marketplace||'')} • ${escapeHtml(String(rule.price||0))} ${escapeHtml(rule.currency||'EUR')} • <strong style="color:var(--neon)">${escapeHtml(rule.frequency||'')}</strong></div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">
+              ${rule.consigne?'⚡ '+escapeHtml(rule.consigne.slice(0,60))+(rule.consigne.length>60?'…':''):escapeHtml(rule.title||'Sans titre')}
+              ${rule.lastGeneratedTitle?`<div style="font-size:11px;color:var(--text3);font-weight:400;margin-top:2px">Dernier titre généré : ${escapeHtml(rule.lastGeneratedTitle.slice(0,60))}</div>`:''}
+            </div>
+            <div class="text-sm text-muted">${escapeHtml(rule.marketplace||'')} • ${escapeHtml(String(rule.price||0))} ${escapeHtml(rule.currency||'AUTO')} • <strong style="color:var(--neon)">${escapeHtml(rule.frequency||'')}</strong>${rule.consigne?' • <span style="color:var(--gold)">IA active</span>':''}</div>
             <div style="margin-top:5px;font-size:11px;color:var(--text3)">
               Prochain run : <span style="color:var(--gold)">${rule.nextRun?new Date(rule.nextRun).toLocaleString('fr-FR'):'—'}</span>
               ${rule.endDate?` • Fin : ${escapeHtml(rule.endDate)}`:''}
