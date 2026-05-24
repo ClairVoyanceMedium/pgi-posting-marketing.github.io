@@ -144,7 +144,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('references')" id="nav-references"><span class="nav-icon">◉</span>Bibliothèque images</div>
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
   <div class="nav-section">Système</div>
-  <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Répondre forums</div>
+  <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Forum pour Publicités</div>
   <div class="nav-item" onclick="nav('horaires')" id="nav-horaires"><span class="nav-icon">🕐</span>Meilleurs horaires</div>
   <div class="nav-item" onclick="nav('forumhistory')" id="nav-forumhistory"><span class="nav-icon">📜</span>Historique forums</div>
   <div class="nav-item" onclick="nav('clicks')" id="nav-clicks"><span class="nav-icon">📊</span>Stats clics</div>
@@ -301,7 +301,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
 
     <!-- FORUMS -->
-    <div class="page" id="page-forums"><div class="card"><div class="card-title flex-between"><span>Répondre sur les forums</span><button class="btn btn-neon" id="btn-forums" onclick="analyzeForums()"><span class="loader" id="forums-ldr" style="display:none"></span>🔍 Analyser les forums</button></div>
+    <div class="page" id="page-forums"><div class="card"><div class="card-title flex-between"><span>Forum pour Publicités</span><button class="btn btn-neon" id="btn-forums" onclick="analyzeForums()"><span class="loader" id="forums-ldr" style="display:none"></span>🔍 Analyser les forums</button></div>
       <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:18px"><div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Comment ça marche</div><div class="text-sm text-muted">Cochez les forums, entrez un thème précis dans la barre de recherche (optionnel) et cliquez sur Analyser. Si un thème est saisi, il prime sur les sujets par défaut et cible exactement ce que vous cherchez.</div></div>
 
       <!-- BARRE DE RECHERCHE THÉMATIQUE -->
@@ -600,55 +600,192 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
     <!-- GOOGLE ADS -->
     <div class="page" id="page-googleads">
+
+      <!-- CONNEXION -->
       <div class="card">
-        <div class="card-title flex-between"><span>🎯 Google Ads</span><span class="badge b-gray" id="gads-status-badge">Non configuré</span></div>
-        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px">
-          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables d'environnement requises côté Worker</div>
-          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">GOOGLE_ADS_CLIENT_ID • GOOGLE_ADS_CLIENT_SECRET • GOOGLE_ADS_REFRESH_TOKEN • GOOGLE_ADS_DEVELOPER_TOKEN • GOOGLE_ADS_CUSTOMER_ID</div>
+        <div class="card-title flex-between">
+          <span>🎯 Google Ads — Panneau de pilotage</span>
+          <span class="badge b-gray" id="gads-conn-badge">Non vérifié</span>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="checkGadsStatus()">↺ Vérifier la connexion</button>
-        <div id="gads-status-msg" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:14px">
+          <div style="font-size:12px;color:var(--orange);font-weight:700;margin-bottom:4px">Variables Cloudflare requises</div>
+          <div class="text-sm text-muted" style="font-family:monospace;line-height:2">GOOGLE_ADS_CLIENT_ID &bull; GOOGLE_ADS_CLIENT_SECRET &bull; GOOGLE_ADS_DEVELOPER_TOKEN &bull; GOOGLE_ADS_CUSTOMER_ID</div>
+        </div>
+        <div id="gads-conn-msg" style="font-size:12px;color:var(--text2);margin-bottom:12px"></div>
+        <div class="flex gap8 flex-wrap">
+          <button class="btn btn-neon btn-sm" onclick="startGadsOAuth()">🔗 Connecter Google Ads</button>
+          <button class="btn btn-ghost btn-sm" onclick="checkGadsStatus()">↺ Vérifier la connexion</button>
+          <button class="btn btn-red btn-sm" onclick="disconnectGads()">Déconnecter</button>
+        </div>
+      </div>
+
+      <!-- STATS GLOBALES -->
+      <div class="card">
+        <div class="card-title flex-between">
+          <span>📊 Statistiques globales</span>
+          <div class="flex gap8">
+            <select class="fselect" id="gads-stats-period" style="width:auto;font-size:11px;padding:5px 28px 5px 10px" onchange="loadGadsStats()">
+              <option value="LAST_7_DAYS">7 derniers jours</option>
+              <option value="LAST_30_DAYS" selected>30 derniers jours</option>
+              <option value="LAST_90_DAYS">90 derniers jours</option>
+              <option value="THIS_MONTH">Ce mois</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadGadsStats()">↺</button>
+          </div>
+        </div>
+        <div id="gads-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:8px">
+          <div class="text-muted text-sm">Cliquez sur ↺ pour charger.</div>
+        </div>
+        <div id="gads-stats-detail" style="font-size:11px;color:var(--text3)"></div>
       </div>
 
       <!-- CAMPAGNES -->
       <div class="card">
-        <div class="card-title flex-between"><span>Campagnes actives</span><button class="btn btn-ghost btn-sm" onclick="loadGadsCampaigns()">↺</button></div>
+        <div class="card-title flex-between">
+          <span>📋 Campagnes</span>
+          <div class="flex gap8">
+            <select class="fselect" id="gads-camp-period" style="width:auto;font-size:11px;padding:5px 28px 5px 10px" onchange="loadGadsCampaigns()">
+              <option value="LAST_7_DAYS">7 jours</option>
+              <option value="LAST_30_DAYS" selected>30 jours</option>
+              <option value="THIS_MONTH">Ce mois</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadGadsCampaigns()">↺</button>
+          </div>
+        </div>
         <div id="gads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
       </div>
 
-      <!-- CRÉER CAMPAGNE -->
-      <div class="card">
-        <div class="card-title">+ Nouvelle campagne Google Ads</div>
-        <div class="grid2">
-          <div class="fgrp"><label class="flabel">Nom de la campagne *</label><input class="finput" id="gads-name" placeholder="Ex : Voyance Téléphone FR"></div>
-          <div class="fgrp"><label class="flabel">Budget journalier (€) *</label><input type="number" class="finput" id="gads-budget" placeholder="Ex : 10.00" min="1" step="0.01"></div>
+      <!-- RÉGLAGES APPAREILS -->
+      <div class="card" id="gads-device-card" style="display:none">
+        <div class="card-title flex-between">
+          <span>📱 Ajustements appareils</span>
+          <span style="font-size:11px;color:var(--text3)" id="gads-device-campaign-name"></span>
         </div>
-        <div class="grid2">
-          <div class="fgrp"><label class="flabel">Type de campagne</label><select class="fselect" id="gads-type"><option value="SEARCH">Réseau de recherche</option><option value="DISPLAY">Réseau display</option><option value="PERFORMANCE_MAX">Performance Max</option></select></div>
-          <div class="fgrp"><label class="flabel">Zone géographique</label><input class="finput" id="gads-geo" placeholder="Ex : France, Belgique, Suisse"></div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+          Valeur en % : +20 = enchères +20%, -50 = enchères -50%, -100 = exclure l'appareil.
         </div>
-        <div class="grid2">
-          <div class="fgrp"><label class="flabel">Langue</label><input class="finput" id="gads-lang" placeholder="Ex : fr" value="fr"></div>
-          <div class="fgrp"><label class="flabel">URL finale *</label><input class="finput" id="gads-url" placeholder="https://www.clairvoyancemedium.com/…"></div>
+        <input type="hidden" id="gads-device-campaign-id">
+        <div class="grid2" style="gap:12px;margin-bottom:14px">
+          <div class="fgrp" style="margin:0"><label class="flabel">🖥 Desktop (%)</label><input type="number" class="finput" id="gads-dev-desktop" placeholder="0" min="-100" max="900" step="1"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">📱 Mobile (%)</label><input type="number" class="finput" id="gads-dev-mobile" placeholder="0" min="-100" max="900" step="1"></div>
         </div>
-        <div class="fgrp"><label class="flabel">Mots-clés (un par ligne)</label><textarea class="ftextarea" id="gads-keywords" rows="3" placeholder="voyance par téléphone&#10;medium sérieux&#10;consultation voyance"></textarea></div>
-        <div class="fgrp"><label class="flabel">Titres d'annonce (max 3, un par ligne)</label><textarea class="ftextarea" id="gads-headlines" rows="3" placeholder="Voyance par téléphone&#10;Medium Frederick — 24h/24&#10;Consultation immédiate"></textarea></div>
-        <div class="fgrp"><label class="flabel">Descriptions (max 2, une par ligne)</label><textarea class="ftextarea" id="gads-descs" rows="2" placeholder="Consultation sérieuse et confidentielle avec Frederick, médium reconnu.&#10;Disponible 7j/7 — Appelez maintenant le 06 95 46 89 23."></textarea></div>
-        <div class="flex gap8 flex-wrap mt16">
-          <button class="btn btn-neon" onclick="createGadsCampaign()"><span class="loader" id="gads-create-ldr" style="display:none"></span>✓ Créer la campagne</button>
-          <button class="btn btn-ghost" onclick="resetGadsForm()">↺ Réinitialiser</button>
+        <div class="fgrp" style="margin-bottom:14px"><label class="flabel">💊 Tablette (%)</label><input type="number" class="finput" id="gads-dev-tablet" placeholder="0" min="-100" max="900" step="1"></div>
+        <div class="flex gap8">
+          <button class="btn btn-neon btn-sm" onclick="saveGadsDeviceBids()">✓ Appliquer</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gads-device-card').style.display='none'">Fermer</button>
         </div>
-        <div id="gads-form-status" style="margin-top:12px;font-size:13px;display:none"></div>
+        <div id="gads-device-msg" style="margin-top:8px;font-size:12px"></div>
       </div>
 
-      <!-- STATS -->
-      <div class="card">
-        <div class="card-title flex-between"><span>📊 Statistiques</span><button class="btn btn-ghost btn-sm" onclick="loadGadsStats()">↺</button></div>
-        <div id="gads-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px"></div>
-        <div id="gads-stats-detail"><div class="text-muted text-sm">Cliquez sur ↺ pour charger les statistiques.</div></div>
+      <!-- RÉGLAGES BUDGET -->
+      <div class="card" id="gads-budget-card" style="display:none">
+        <div class="card-title flex-between">
+          <span>💶 Ajustement budget journalier</span>
+          <span style="font-size:11px;color:var(--text3)" id="gads-budget-campaign-name"></span>
+        </div>
+        <input type="hidden" id="gads-budget-id">
+        <div class="fgrp"><label class="flabel">Nouveau budget (EUR/jour) *</label>
+          <input type="number" class="finput" id="gads-budget-amount" placeholder="Ex : 10.00" min="1" step="0.01">
+          <div class="fhelp">Budget minimum : 1 EUR. Le changement est immédiat.</div>
+        </div>
+        <div class="flex gap8">
+          <button class="btn btn-neon btn-sm" onclick="saveGadsBudget()">✓ Appliquer</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gads-budget-card').style.display='none'">Fermer</button>
+        </div>
+        <div id="gads-budget-msg" style="margin-top:8px;font-size:12px"></div>
       </div>
+
+      <!-- RÉGLAGES DÉMOGRAPHIE -->
+      <div class="card" id="gads-demo-card" style="display:none">
+        <div class="card-title flex-between">
+          <span>👥 Ajustements démographiques</span>
+          <span style="font-size:11px;color:var(--text3)" id="gads-demo-campaign-name"></span>
+        </div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+          Valeur en % : +20 = +20% d'enchères, -100 = exclure ce segment.
+        </div>
+        <input type="hidden" id="gads-demo-campaign-id">
+        <input type="hidden" id="gads-demo-adgroup-id">
+        <div class="card-title" style="font-size:10px;margin-bottom:10px;border:none;padding:0">Tranches d'âge</div>
+        <div class="grid2" style="gap:10px;margin-bottom:14px">
+          <div class="fgrp" style="margin:0"><label class="flabel">18-24 ans (%)</label><input type="number" class="finput" id="gads-age-18" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">25-34 ans (%)</label><input type="number" class="finput" id="gads-age-25" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">35-44 ans (%)</label><input type="number" class="finput" id="gads-age-35" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">45-54 ans (%)</label><input type="number" class="finput" id="gads-age-45" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">55-64 ans (%)</label><input type="number" class="finput" id="gads-age-55" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">65+ ans (%)</label><input type="number" class="finput" id="gads-age-65" placeholder="0" min="-100" max="900"></div>
+        </div>
+        <div class="card-title" style="font-size:10px;margin-bottom:10px;border:none;padding:0">Sexe</div>
+        <div class="grid2" style="gap:10px;margin-bottom:14px">
+          <div class="fgrp" style="margin:0"><label class="flabel">Hommes (%)</label><input type="number" class="finput" id="gads-gender-male" placeholder="0" min="-100" max="900"></div>
+          <div class="fgrp" style="margin:0"><label class="flabel">Femmes (%)</label><input type="number" class="finput" id="gads-gender-female" placeholder="0" min="-100" max="900"></div>
+        </div>
+        <div id="gads-income-note" style="font-size:11px;color:var(--text3);margin-bottom:14px">ℹ Le revenu du foyer n'est disponible qu'en US, CA, AU, JP — non applicable en France.</div>
+        <div class="flex gap8">
+          <button class="btn btn-neon btn-sm" onclick="saveGadsDemographics()">✓ Appliquer</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gads-demo-card').style.display='none'">Fermer</button>
+        </div>
+        <div id="gads-demo-msg" style="margin-top:8px;font-size:12px"></div>
+      </div>
+
+      <!-- IA GOOGLE ADS — ANALYSE -->
+      <div class="card">
+        <div class="card-title">⚡ IA Google Ads — Analyse & Recommandations</div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+          L'IA analyse tes campagnes réelles et te donne des recommandations précises et chiffrées. Si Google Ads n'est pas connecté, elle répond en mode général.
+        </div>
+        <div class="grid2" style="margin-bottom:12px">
+          <div class="fgrp"><label class="flabel">Type d'analyse</label>
+            <select class="fselect" id="gads-ai-type">
+              <option value="general">Analyse globale</option>
+              <option value="targeting">Ciblage géographique &amp; audiences</option>
+              <option value="schedule">Meilleurs créneaux horaires</option>
+              <option value="keywords">Stratégie mots-clés</option>
+              <option value="budget">Répartition budget</option>
+              <option value="demographics">Démographie cible</option>
+              <option value="competition">Analyse concurrentielle</option>
+            </select>
+          </div>
+          <div class="fgrp"><label class="flabel">Campagne concernée (optionnel)</label>
+            <input class="finput" id="gads-ai-campaign" placeholder="Laisser vide = toutes les campagnes">
+          </div>
+        </div>
+        <div class="fgrp"><label class="flabel">Question ou demande précise *</label>
+          <textarea class="ftextarea" id="gads-ai-question" rows="2" placeholder="Ex : Quels sont les meilleurs créneaux horaires pour la voyance par téléphone en France ? Quel budget journalier recommandes-tu ?"></textarea>
+        </div>
+        <div class="flex gap8 flex-wrap mb16">
+          <button class="btn btn-neon" id="gads-ai-analyze-btn" onclick="runGadsAnalysis()">
+            <span class="loader" id="gads-ai-ldr" style="display:none"></span>⚡ Analyser
+          </button>
+        </div>
+        <div id="gads-ai-result" style="display:none;background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+      </div>
+
+      <!-- IA GOOGLE ADS — CHAT EXPERT -->
+      <div class="card">
+        <div class="card-title">💬 Chat — Expert Google Ads IA</div>
+        <div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+          Posez n'importe quelle question Google Ads. L'IA se comporte comme un expert senior spécialisé en voyance et services en ligne.
+        </div>
+        <div id="gads-chat-messages" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:120px;max-height:420px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;color:var(--text3);text-align:center">Posez votre première question ci-dessous.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="finput" id="gads-chat-input" placeholder="Ex : Comment baisser mon CPC pour la voyance ? Quelle stratégie d'enchères recommandes-tu ?" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGadsChat();}">
+          <button class="btn btn-neon" id="gads-chat-btn" onclick="sendGadsChat()" style="flex-shrink:0">
+            <span class="loader" id="gads-chat-ldr" style="display:none"></span>Envoyer
+          </button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quel budget journalier minimum recommandes-tu pour la voyance en France ?')">Budget min</button>
+          <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quels mots-clés sont les plus efficaces pour la voyance par téléphone ?')">Mots-clés</button>
+          <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quelle stratégie d\'enchères recommandes-tu pour maximiser les conversions ?')">Stratégie enchères</button>
+          <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('À quelles heures dois-je activer mes campagnes pour la voyance ?')">Créneaux horaires</button>
+          <button class="btn btn-red btn-sm" onclick="clearGadsChat()">Effacer</button>
+        </div>
+      </div>
+
     </div>
-
     <!-- MICROSOFT ADS -->
     <div class="page" id="page-microsoftads">
       <div class="card">
@@ -995,7 +1132,7 @@ const CONN_FIELDS={
   dailymotion:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}]
 };
 
-const PAGE_TITLES={ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Répondre sur les forums',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
+const PAGE_TITLES={ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
 
 /* ──── API ──── */
 async function api(path,method='GET',body=null,extraHeaders={}){
@@ -1252,7 +1389,7 @@ function getOauthBlock(key,p){
 function toggleConn(key){document.getElementById('connb-'+key).classList.toggle('open')}
 
 function startOAuth(key){
-  if(!WORKER_URL)return notify('Configurez d\'abord l\'URL Worker.','err');
+  if(!WORKER_URL)return notify("Configurez d'abord l'URL Worker.","err");
   const win=window.open(workerBase()+'/auth/'+key+'/start','oauth_'+key,'width=650,height=780,scrollbars=yes');
   // Écoute la fermeture de la fenêtre pour recharger le statut et les boards
   if(win){
@@ -1530,32 +1667,98 @@ async function renderNotes(skipSync){const el=document.getElementById('notes-lis
 
 /* ──── FORUMS ──── */
 const FORUMS_LIST=[
-  {id:'reddit',name:'Reddit FR',icon:'🟠',desc:'r/voyance r/spiritualite r/amour r/relation_de_couple',url:'https://www.reddit.com/r/france',defaultChecked:true},
-  {id:'predifrance',name:'PrediFrance',icon:'🔮',desc:'Voyance medium predictions France',url:'https://www.predifrance.com/forum',defaultChecked:true},
-  {id:'kinthia',name:'Forum Kinthia',icon:'✨',desc:'Voyance esoterisme medium spirituel',url:'https://www.kinthia.com/forum',defaultChecked:true},
-  {id:'monsitevoyance',name:'MonSiteVoyance',icon:'🌙',desc:'Voyance medium horoscope rituels',url:'https://www.monsitevoyance.com/forum',defaultChecked:true},
-  {id:'cercledelsvoyants',name:'Le Cercle des Voyants',icon:'🌟',desc:'Forum voyance medium spiritualite',url:'https://www.lecercledesvoyants.com/forum',defaultChecked:true},
-  {id:'spiritualite',name:'Spiritualite.com',icon:'☯',desc:'Spiritualite esoterisme meditation voyance',url:'https://www.spiritualite.com/forum',defaultChecked:true},
-  {id:'doctissimo',name:'Doctissimo',icon:'D',desc:'Sante bien-etre amour — tres actif',url:'https://forum.doctissimo.fr/sante',defaultChecked:true},
-  {id:'aufeminin',name:'Aufeminin',icon:'F',desc:'Amour couple spiritualite',url:'https://forum.aufeminin.com/forum',defaultChecked:true},
-  {id:'camoIntarot',name:'Camoin Tarot',icon:'🃏',desc:'Tarot voyance cartomancie medium',url:'https://www.camoin.com/forum',defaultChecked:false},
-  {id:'forumSceptique',name:'Forum Sceptique',icon:'🔬',desc:'Debat voyance paranormal esoterisme',url:'https://www.forum-sceptique.com',defaultChecked:false},
-  {id:'reveinterprete',name:'Rêve-Interprète',icon:'💭',desc:'Reves interpretation spirituel medium',url:'https://www.reve-interprete.com/forum',defaultChecked:false},
-  {id:'yabiladi',name:'Yabiladi',icon:'🌍',desc:'Communaute maghrebine voyance sentimental',url:'https://www.yabiladi.com/forum',defaultChecked:false},
-  {id:'madmoizelle',name:'Madmoizelle',icon:'💜',desc:'Amour bien-etre sentimental feministe',url:'https://forum.madmoizelle.com',defaultChecked:false},
-  {id:'psychologies',name:'Psychologies Magazine',icon:'P',desc:'Developpement personnel relations',url:'https://www.psychologies.com/Forum',defaultChecked:false},
-  {id:'lesensdelavie',name:'Le Sens de la Vie',icon:'S',desc:'Spiritualite voyance esoterisme',url:'https://www.lesensdelavie.net',defaultChecked:false},
-  {id:'astrocenter',name:'AstroCenter',icon:'A',desc:'Astrologie horoscope voyance',url:'https://www.astrocenter.fr',defaultChecked:false},
-  {id:'magicmaman',name:'Magic Maman',icon:'B',desc:'Famille couple bien-etre',url:'https://www.magicmaman.com/forum',defaultChecked:false},
-  {id:'commentcamarche',name:'Comment Ca Marche',icon:'Q',desc:'Generaliste sections relations',url:'https://forums.commentcamarche.net',defaultChecked:false},
-  {id:'jeuxvideo',name:'JVC Amour et Psy',icon:'J',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm',defaultChecked:false},
-  {id:'marmiton',name:'Marmiton',icon:'C',desc:'Communaute active sections vie perso',url:'https://www.marmiton.org/forum',defaultChecked:false}
+  /* ── FRANCE — classés par importance ── */
+  {id:'reddit',          name:'Reddit FR',            icon:'🟠', country:'FR', desc:'r/voyance r/spiritualite r/amour r/relation_de_couple',url:'https://www.reddit.com/r/france',             defaultChecked:false},
+  {id:'predifrance',     name:'PrediFrance',           icon:'🔮', country:'FR', desc:'Voyance medium predictions France',                    url:'https://www.predifrance.com/forum',           defaultChecked:false},
+  {id:'kinthia',         name:'Forum Kinthia',         icon:'✨', country:'FR', desc:'Voyance esoterisme medium spirituel',                  url:'https://www.kinthia.com/forum',               defaultChecked:false},
+  {id:'monsitevoyance',  name:'MonSiteVoyance',        icon:'🌙', country:'FR', desc:'Voyance medium horoscope rituels',                     url:'https://www.monsitevoyance.com/forum',        defaultChecked:false},
+  {id:'cercledelsvoyants',name:'Le Cercle des Voyants',icon:'🌟', country:'FR', desc:'Forum voyance medium spiritualite',                    url:'https://www.lecercledesvoyants.com/forum',    defaultChecked:false},
+  {id:'spiritualite',    name:'Spiritualite.com',      icon:'☯',  country:'FR', desc:'Spiritualite esoterisme meditation voyance',           url:'https://www.spiritualite.com/forum',          defaultChecked:false},
+  {id:'doctissimo',      name:'Doctissimo',            icon:'D',  country:'FR', desc:'Sante bien-etre amour — tres actif',                  url:'https://forum.doctissimo.fr/sante',           defaultChecked:false},
+  {id:'aufeminin',       name:'Aufeminin',             icon:'F',  country:'FR', desc:'Amour couple spiritualite',                            url:'https://forum.aufeminin.com/forum',           defaultChecked:false},
+  {id:'camoIntarot',     name:'Camoin Tarot',          icon:'🃏', country:'FR', desc:'Tarot voyance cartomancie medium',                     url:'https://www.camoin.com/forum',                defaultChecked:false},
+  {id:'forumSceptique',  name:'Forum Sceptique',       icon:'🔬', country:'FR', desc:'Debat voyance paranormal esoterisme',                  url:'https://www.forum-sceptique.com',             defaultChecked:false},
+  {id:'reveinterprete',  name:'Rêve-Interprète',       icon:'💭', country:'FR', desc:'Reves interpretation spirituel medium',                url:'https://www.reve-interprete.com/forum',       defaultChecked:false},
+  {id:'yabiladi',        name:'Yabiladi',              icon:'🌍', country:'FR', desc:'Communaute maghrebine voyance sentimental',            url:'https://www.yabiladi.com/forum',              defaultChecked:false},
+  {id:'madmoizelle',     name:'Madmoizelle',           icon:'💜', country:'FR', desc:'Amour bien-etre sentimental feministe',                url:'https://forum.madmoizelle.com',               defaultChecked:false},
+  {id:'psychologies',    name:'Psychologies Magazine', icon:'P',  country:'FR', desc:'Developpement personnel relations',                    url:'https://www.psychologies.com/Forum',          defaultChecked:false},
+  {id:'lesensdelavie',   name:'Le Sens de la Vie',     icon:'S',  country:'FR', desc:'Spiritualite voyance esoterisme',                     url:'https://www.lesensdelavie.net',               defaultChecked:false},
+  {id:'astrocenter',     name:'AstroCenter',           icon:'A',  country:'FR', desc:'Astrologie horoscope voyance',                        url:'https://www.astrocenter.fr',                  defaultChecked:false},
+  {id:'magicmaman',      name:'Magic Maman',           icon:'B',  country:'FR', desc:'Famille couple bien-etre',                             url:'https://www.magicmaman.com/forum',            defaultChecked:false},
+  {id:'commentcamarche', name:'Comment Ca Marche',     icon:'Q',  country:'FR', desc:'Generaliste sections relations',                       url:'https://forums.commentcamarche.net',          defaultChecked:false},
+  {id:'jeuxvideo',       name:'JVC Amour et Psy',      icon:'J',  country:'FR', desc:'Forum tres actif section amour',                      url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm', defaultChecked:false},
+  {id:'marmiton',        name:'Marmiton',              icon:'C',  country:'FR', desc:'Communaute active sections vie perso',                 url:'https://www.marmiton.org/forum',              defaultChecked:false},
+
+  /* ── ÉTATS-UNIS — classés par importance ── */
+  {id:'us_reddit',       name:'Reddit EN (r/psychic)',     icon:'🟠', country:'US', desc:"r/psychic r/spirituality r/astrology r/relationship_advice — très actif",url:'https://www.reddit.com/r/psychic',        defaultChecked:false},
+  {id:'us_quora',        name:'Quora',                     icon:'❓', country:'US', desc:"Questions/réponses voyance medium psychic — immense audience",              url:'https://www.quora.com',                   defaultChecked:false},
+  {id:'us_tapatalk',     name:'Tapatalk Psychic Forums',   icon:'🔮', country:'US', desc:"Réseau de forums spiritualité et psychique — millions d'utilisateurs",     url:'https://psychicforums.tapatalk.com',      defaultChecked:false},
+  {id:'us_psychicworld', name:'Psychic World Forum',       icon:'🌐', country:'US', desc:'Forum anglophone voyance psychique numerologie',                            url:'https://www.psychicworld.com/forum',      defaultChecked:false},
+  {id:'us_aeclectic',    name:'Aeclectic Tarot Forum',     icon:'🃏', country:'US', desc:"Forum tarot cartomancie numérologie — référence mondiale",                  url:'https://www.tarotforum.net',              defaultChecked:false},
+  {id:'us_spiritcommunity',name:'Spirit Community',        icon:'✨', country:'US', desc:"Communauté spiritualité medium channeling",                                 url:'https://www.spiritcommunity.com',         defaultChecked:false},
+  {id:'us_loveadvice',   name:'Love Advice Forum',         icon:'💗', country:'US', desc:'Forum amour relations sentimental — très actif',                           url:'https://www.loveadviceforum.com',         defaultChecked:false},
+  {id:'us_city_data',    name:'City-Data Relationships',   icon:'🏙', country:'US', desc:'Forum généraliste US — section relations et bien-être très fréquentée',    url:'https://www.city-data.com/forum/relationships', defaultChecked:false},
+
+  /* ── ESPAGNE — classés par importance ── */
+  {id:'es_reddit',       name:'Reddit ES (r/tarot)',        icon:'🟠', country:'ES', desc:'r/tarot_hispano r/espiritualidad r/amor — communauté active',    url:'https://www.reddit.com/r/tarot_hispano',   defaultChecked:false},
+  {id:'es_forocoches',   name:'ForoCoches',                 icon:'🚗', country:'ES', desc:"Forum général Espagne — section ésotérisme et relations très active", url:'https://www.forocoches.com',             defaultChecked:false},
+  {id:'es_meristation',  name:'MeriStation Foros',          icon:'🎮', country:'ES', desc:"Forum généraliste — sections vie, amour, spiritualité",            url:'https://www.meristation.com/foros',        defaultChecked:false},
+  {id:'es_mediavida',    name:'Mediavida Foros',            icon:'💻', country:'ES', desc:"Forum généraliste Espagne — sections relations et paranormal",     url:'https://www.mediavida.com/foro',           defaultChecked:false},
+  {id:'es_elsotano',     name:'El Sótano del Tiempo',       icon:'🔮', country:'ES', desc:"Forum ésotérisme numérologie voyance en espagnol",                 url:'https://www.elsotanodelmisterio.com/foro', defaultChecked:false},
+  {id:'es_tarot_hispano',name:'Tarot Hispano',              icon:'🃏', country:'ES', desc:'Forum tarot cartomancie voyance hispanophone',                     url:'https://www.tarothispano.net/foro',        defaultChecked:false},
+  {id:'es_lostulipanes', name:'Los Tulipanes',              icon:'🌷', country:'ES', desc:'Forum amour relations sentimentales en espagnol',                  url:'https://lostulipanes.net/foro',            defaultChecked:false},
+
+  /* ── ITALIE — classés par importance ── */
+  {id:'it_reddit',       name:'Reddit IT (r/Paranormale)',  icon:'🟠', country:'IT', desc:'r/Paranormale r/spiritualita r/amore — communauté active',         url:'https://www.reddit.com/r/italy',           defaultChecked:false},
+  {id:'it_hwupgrade',    name:'HWupgrade Forum',            icon:'💻', country:'IT', desc:'Forum généraliste Italie — sections philosophie et vie très actives',url:'https://forum.hwupgrade.it',              defaultChecked:false},
+  {id:'it_mondodomande', name:'Mondo Domande',              icon:'❓', country:'IT', desc:'Questions/réponses ésotérisme astrologie medium en italien',        url:'https://www.mondodomande.it',              defaultChecked:false},
+  {id:'it_tarocchi',     name:'Forum Tarocchi',             icon:'🃏', country:'IT', desc:'Forum tarot cartomancie numérologie en italien',                   url:'https://www.tarocchi.net/forum',           defaultChecked:false},
+  {id:'it_esoterismo',   name:'Forum Esoterismo',           icon:'🌙', country:'IT', desc:'Forum ésotérisme spiritisme medium en italie',                     url:'https://www.esoterismo.net/forum',         defaultChecked:false},
+  {id:'it_pianeta_donna',name:'Pianeta Donna',              icon:'💜', country:'IT', desc:'Forum femmes amour bien-être en italien — très actif',             url:'https://www.pianetadonna.it/forum',        defaultChecked:false},
+
+  /* ── PORTUGAL — classés par importance ── */
+  {id:'pt_reddit',       name:'Reddit PT (r/portugal)',     icon:'🟠', country:'PT', desc:"r/portugal r/Espiritualidade — communauté active",                 url:'https://www.reddit.com/r/portugal',        defaultChecked:false},
+  {id:'pt_astropt',      name:'AstroPT Forum',              icon:'⭐', country:'PT', desc:"Astrologie numérologie voyance en portugais",                      url:'https://www.astropt.net/forum',            defaultChecked:false},
+  {id:'pt_tarotpt',      name:'TarotPT Forum',              icon:'🃏', country:'PT', desc:"Tarot cartomancie medium en portugais — référence lusophone",       url:'https://www.tarotpt.com/forum',            defaultChecked:false},
+  {id:'pt_forum_psychic',name:'Forum Psíquico Portugal',    icon:'🔮', country:'PT', desc:'Voyance medium ésotérisme en portugal',                            url:'https://www.forumpsiquico.pt',             defaultChecked:false},
+  {id:'pt_sapo',         name:'Sapo Fórum',                 icon:'💻', country:'PT', desc:"Forum généraliste Portugal — sections amour spiritualité",          url:'https://forum.sapo.pt',                    defaultChecked:false},
+
+  /* ── SUÈDE — classés par importance ── */
+  {id:'se_reddit',       name:'Reddit SE (r/sweden)',       icon:'🟠', country:'SE', desc:"r/sweden r/spirituality — communauté active en suédois/anglais",   url:'https://www.reddit.com/r/sweden',          defaultChecked:false},
+  {id:'se_flashback',    name:'Flashback Forum',            icon:'💬', country:'SE', desc:"Plus grand forum Suède — sections ésotérisme et relations très actives", url:'https://www.flashback.org',           defaultChecked:false},
+  {id:'se_hamsterpaj',   name:'Hamsterpaj Forum',           icon:'🐹', country:'SE', desc:'Forum suédois généraliste — sections amour et paranormal',          url:'https://www.hamsterpaj.net/forum',         defaultChecked:false},
+  {id:'se_svensson',     name:'Mystic Sweden Forum',        icon:'🔮', country:'SE', desc:'Forum spiritualité medium voyance en Suède',                       url:'https://www.mysticsweden.se/forum',        defaultChecked:false},
+  {id:'se_familjeliv',   name:'Familjeliv Forum',           icon:'👨‍👩‍👧', country:'SE', desc:"Forum famille relations amour suède — très actif",                 url:'https://www.familjeliv.se/forum',          defaultChecked:false},
+
+  /* ── ALLEMAGNE — classés par importance ── */
+  {id:'de_reddit',       name:'Reddit DE (r/de)',           icon:'🟠', country:'DE', desc:"r/de r/Esoterik r/Astrologie — communauté active en allemand",      url:'https://www.reddit.com/r/de',              defaultChecked:false},
+  {id:'de_gutefrage',    name:'GuteFrage',                  icon:'❓', country:'DE', desc:"Answers.de — voyance ésotérisme amour — très large audience",        url:'https://www.gutefrage.net',                defaultChecked:false},
+  {id:'de_astrowoche',   name:'Astrowoche Forum',           icon:'⭐', country:'DE', desc:"Astrologie horoscope voyance en allemand — référence",               url:'https://forum.astrowoche.de',              defaultChecked:false},
+  {id:'de_tarot_forum',  name:'Tarot Forum DE',             icon:'🃏', country:'DE', desc:'Tarot cartomancie medium en allemand',                              url:'https://www.tarotforum.de',                defaultChecked:false},
+  {id:'de_esoterik',     name:'Esoterik Forum',             icon:'🔮', country:'DE', desc:"Forum ésotérisme spiritualité medium en allemand",                  url:'https://www.esoterik-forum.de',            defaultChecked:false},
+  {id:'de_lovepoint',    name:'LovePoint Forum',            icon:'💗', country:'DE', desc:'Forum amour relations sentimentales en allemand',                   url:'https://www.lovepoint.de/forum',           defaultChecked:false},
+  {id:'de_quora_de',     name:'Quora DE',                   icon:'❓', country:'DE', desc:"Questions/réponses voyance astrologie medium en allemand",           url:'https://de.quora.com',                     defaultChecked:false}
 ];
 
 function buildForumsChecklist(){
   const el=document.getElementById('forums-checklist');
   if(!el)return;
-  el.innerHTML=FORUMS_LIST.map(f=>`<label class="forum-check-label"><input type="checkbox" id="fc-${f.id}" value="${f.id}" ${f.defaultChecked?'checked':''}><span>${f.icon} ${f.name}<br><span style="font-size:10px;color:var(--text3)">${f.desc}</span></span></label>`).join('');
+  const COUNTRY_LABELS={FR:'🇫🇷 France',US:'🇺🇸 États-Unis',ES:'🇪🇸 Espagne',IT:'🇮🇹 Italie',PT:'🇵🇹 Portugal',SE:'🇸🇪 Suède',DE:'🇩🇪 Allemagne'};
+  // Grouper par pays
+  const groups={};
+  FORUMS_LIST.forEach(f=>{
+    const c=f.country||'FR';
+    if(!groups[c])groups[c]=[];
+    groups[c].push(f);
+  });
+  const order=['FR','US','ES','IT','PT','SE','DE'];
+  let html='';
+  order.forEach(country=>{
+    if(!groups[country])return;
+    html+=`<div style="grid-column:1/-1;margin-top:12px;margin-bottom:4px;font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:4px">${COUNTRY_LABELS[country]||country}</div>`;
+    html+=groups[country].map(f=>`<label class="forum-check-label"><input type="checkbox" id="fc-${f.id}" value="${f.id}"><span>${f.icon} ${f.name}<br><span style="font-size:10px;color:var(--text3)">${f.desc}</span></span></label>`).join('');
+  });
+  el.innerHTML=html;
 }
 
 /* ── Barre de recherche thématique forums ── */
@@ -1819,6 +2022,7 @@ async function loadClickStats(){
 ══════════════════════════════════════════════ */
 let _ebayAiResult = null;
 let _ebayImageUrl = null;
+let _ebayRulesCache = [];
 
 function initEbayPage(){ checkEbayStatus(); loadEbayListings(); }
 
@@ -1953,11 +2157,17 @@ async function submitEbayListing(){
   if(ldr)ldr.style.display='inline-block';
   if(statusEl){statusEl.style.display='block';statusEl.innerHTML='<span style="color:var(--text2)">Traitement en cours…</span>';}
   try{
+    // Vérifier si on est en mode édition d'une règle récurrente existante
+    const editId=document.getElementById('ebay-submit-btn')?.dataset?.editRecurringId||'';
     let route='/api/ebay/create-draft';
     if(d.pubMode==='now')route='/api/ebay/publish';
     else if(d.pubMode==='scheduled')route='/api/ebay/schedule';
-    else if(d.pubMode==='recurring')route='/api/ebay/recurring';
-    const result=await api(route,'POST',d);
+    else if(d.pubMode==='recurring'){
+      route=editId?'/api/ebay/recurring/'+editId+'/update':'/api/ebay/recurring';
+    }
+    const result=await api(route,editId&&d.pubMode==='recurring'?'PUT':'POST',d);
+    // Réinitialiser le mode édition
+    if(editId){ delete document.getElementById('ebay-submit-btn').dataset.editRecurringId; document.getElementById('ebay-submit-btn').textContent="✓ Valider l'annonce"; }
     if(statusEl)statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(result.message||'Annonce enregistrée.')}</span>`;
     notify(result.message||'Annonce enregistrée.','ok');
     loadEbayListings();
@@ -1975,12 +2185,14 @@ async function loadEbayListings(){
   if(!el)return;
   try{
     // Charger annonces ET automatisations récurrentes en parallèle
+    _ebayRulesCache=[];
     const [data, recData] = await Promise.all([
       api('/api/ebay/listings'),
       api('/api/ebay/recurring').catch(()=>({rules:[]}))
     ]);
     const items=data.listings||[];
     const rules=recData.rules||[];
+    _ebayRulesCache=rules;
 
     // Afficher les automatisations récurrentes en premier
     let html='';
@@ -2004,6 +2216,7 @@ async function loadEbayListings(){
           <div class="flex gap8 flex-wrap">
             <span class="badge ${rule.active?'b-green':'b-gray'}">${rule.active?'Active':'En pause'}</span>
             <button class="btn btn-ghost btn-sm" onclick="toggleEbayRecurring('${rule.id}')">${rule.active?'⏸ Pause':'▶ Reprendre'}</button>
+            <button class="btn btn-neon btn-sm" onclick="openEditEbayRecurring('${rule.id}')">✏ Modifier</button>
             <button class="btn btn-red btn-sm" onclick="deleteEbayRecurring('${rule.id}')">Supprimer</button>
           </div>
         </div>`).join('');
@@ -2396,6 +2609,357 @@ async function createMetaAdsCampaign(){
   }finally{if(ldr)ldr.style.display='none';}
 }
 function resetMetaAdsForm(){['metaads-name','metaads-budget','metaads-url','metaads-body','metaads-headline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('metaads-form-status').style.display='none';}
+
+/* ══════════════════════════════════════════════
+   GOOGLE ADS — Fonctions
+══════════════════════════════════════════════ */
+let _gadsChatHistory = [];
+let _gadsCampaigns   = [];
+
+function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsStats(); }
+
+function startGadsOAuth(){
+  if(!WORKER_URL) return notify("Configurez d'abord l'URL Worker.","err");
+  const win = window.open(workerBase()+'/auth/google_ads/start','gads_oauth','width=650,height=780,scrollbars=yes');
+  if(win){
+    const t = setInterval(()=>{
+      if(win.closed){ clearInterval(t); setTimeout(()=>{ checkGadsStatus(); loadGadsCampaigns(); },800); }
+    },500);
+  }
+}
+
+async function checkGadsStatus(){
+  const msg   = document.getElementById('gads-conn-msg');
+  const badge = document.getElementById('gads-conn-badge');
+  try{
+    const d = await api('/api/google-ads/status');
+    if(!d.configured){
+      if(badge){ badge.className='badge b-red'; badge.textContent='Non configuré'; }
+      if(msg) msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Variables manquantes.')+'</span>';
+      return;
+    }
+    if(d.oauthConnected){
+      if(badge){ badge.className='badge b-green'; badge.textContent='Connecté'; }
+      if(msg) msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message||'Connecté')+'</span>';
+    } else {
+      if(badge){ badge.className='badge b-orange'; badge.textContent='OAuth requis'; }
+      if(msg) msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Lancez OAuth.')+'</span>';
+    }
+  }catch(e){ if(msg) msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>'; }
+}
+
+async function disconnectGads(){
+  if(!confirm('Déconnecter Google Ads ?')) return;
+  try{ await api('/auth/google_ads/disconnect','POST'); notify('Google Ads déconnecté.','ok'); checkGadsStatus(); }
+  catch(e){ notify(e.message,'err'); }
+}
+
+async function loadGadsCampaigns(){
+  const el     = document.getElementById('gads-campaigns-list');
+  const period = document.getElementById('gads-camp-period')?.value || 'LAST_30_DAYS';
+  if(!el) return;
+  el.innerHTML='<div class="text-muted text-sm">Chargement...</div>';
+  try{
+    const data = await api('/api/google-ads/campaigns?period='+period);
+    _gadsCampaigns = data.campaigns || [];
+    if(!_gadsCampaigns.length){
+      el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne trouvée.')+'</div>';
+      return;
+    }
+    const STATUS_COLOR = { ENABLED:'b-green', PAUSED:'b-orange', REMOVED:'b-red' };
+    const STATUS_LABEL = { ENABLED:'Active', PAUSED:'En pause', REMOVED:'Supprimée' };
+    el.innerHTML = _gadsCampaigns.map(c=>`
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(c.name)}</div>
+            <div class="text-sm text-muted">${escapeHtml(c.type||'')} • Budget : <strong style="color:var(--gold)">${escapeHtml(c.budgetEur)}€/j</strong></div>
+          </div>
+          <div class="flex gap8 flex-wrap" style="align-items:center">
+            <span class="badge ${STATUS_COLOR[c.status]||'b-gray'}">${STATUS_LABEL[c.status]||escapeHtml(c.status)}</span>
+            ${c.status==='PAUSED'||c.status==='REMOVED'
+              ? `<button class="btn btn-green btn-sm" onclick="gadsAction('enable','${c.id}','${escapeHtml(c.name)}')">▶ Activer</button>`
+              : `<button class="btn btn-orange btn-sm" onclick="gadsAction('pause','${c.id}','${escapeHtml(c.name)}')">⏸ Pause</button>`}
+            ${c.status==='ENABLED'
+              ? `<button class="btn btn-ghost btn-sm" onclick="gadsAction('standby','${c.id}','${escapeHtml(c.name)}')">💤 Veille</button>`
+              : ''}
+            <button class="btn btn-ghost btn-sm" onclick="openGadsDeviceCard('${c.id}','${escapeHtml(c.name)}')">📱 Appareils</button>
+            <button class="btn btn-ghost btn-sm" onclick="openGadsBudgetCard('${c.id}','${c.budgetId||''}','${escapeHtml(c.name)}','${c.budgetEur}')">💶 Budget</button>
+            <button class="btn btn-ghost btn-sm" onclick="openGadsDemoCard('${c.id}','','${escapeHtml(c.name)}')">👥 Démographie</button>
+            <a href="${escapeHtml(c.gadsUrl)}" target="_blank" class="btn btn-ghost btn-sm">↗ Google Ads</a>
+          </div>
+        </div>
+        <!-- Stats campagne -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px">
+          ${[
+            {l:'Impressions',v:c.stats.impressions},
+            {l:'Clics',      v:c.stats.clicks},
+            {l:'Coût',       v:c.stats.cost+'€'},
+            {l:'CTR',        v:c.stats.ctr+'%'},
+            {l:'CPC moyen',  v:c.stats.avgCpc+'€'},
+            {l:'Conversions',v:c.stats.conversions}
+          ].map(s=>`<div style="background:rgba(0,0,0,.2);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-family:Cinzel,serif;font-size:16px;color:var(--neon)">${escapeHtml(String(s.v))}</div>
+            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px">${s.l}</div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }catch(e){ el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>'; }
+}
+
+async function gadsAction(action, campaignId, name){
+  const labels = {pause:'Mettre en pause',enable:'Activer',standby:'Mettre en veille'};
+  if(!confirm(labels[action]+'"'+name+'"?')) return;
+  try{
+    await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
+    notify(name+' : '+labels[action]+' effectué.','ok');
+    loadGadsCampaigns();
+  }catch(e){ notify(e.message,'err'); }
+}
+
+async function loadGadsStats(){
+  const grid   = document.getElementById('gads-stats-grid');
+  const detail = document.getElementById('gads-stats-detail');
+  const period = document.getElementById('gads-stats-period')?.value || 'LAST_30_DAYS';
+  if(!grid) return;
+  try{
+    const data  = await api('/api/google-ads/stats?period='+period);
+    const s     = data.stats || {};
+    grid.innerHTML = [
+      {l:'Impressions',v:s.impressions??'—'},
+      {l:'Clics',      v:s.clicks??'—'},
+      {l:'Coût',       v:s.cost!=null?s.cost+'€':'—'},
+      {l:'CTR',        v:s.ctr!=null?s.ctr+'%':'—'},
+      {l:'CPC moyen',  v:s.avgCpc!=null?s.avgCpc+'€':'—'},
+      {l:'Conversions',v:s.conversions??'—'},
+      {l:'Coût/Conv',  v:s.costPerConv!=null?s.costPerConv+'€':'—'}
+    ].map(st=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+      <div style="font-family:Cinzel,serif;font-size:22px;color:var(--neon)">${escapeHtml(String(st.v))}</div>
+      <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:4px">${st.l}</div>
+    </div>`).join('');
+    if(detail) detail.textContent = 'Période : '+escapeHtml(period.replace(/_/g,' ').toLowerCase());
+  }catch(e){
+    if(grid) grid.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';
+  }
+}
+
+/* ── Appareils ── */
+function openGadsDeviceCard(campaignId, name){
+  document.getElementById('gads-device-campaign-id').value  = campaignId;
+  document.getElementById('gads-device-campaign-name').textContent = name;
+  document.getElementById('gads-dev-desktop').value = '';
+  document.getElementById('gads-dev-mobile').value  = '';
+  document.getElementById('gads-dev-tablet').value  = '';
+  document.getElementById('gads-device-msg').textContent = '';
+  document.getElementById('gads-device-card').style.display = 'block';
+  document.getElementById('gads-device-card').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveGadsDeviceBids(){
+  const cid  = document.getElementById('gads-device-campaign-id').value;
+  const msg  = document.getElementById('gads-device-msg');
+  const body = { campaignId: cid };
+  const desktop = document.getElementById('gads-dev-desktop').value;
+  const mobile  = document.getElementById('gads-dev-mobile').value;
+  const tablet  = document.getElementById('gads-dev-tablet').value;
+  if(desktop!=='') body.desktop = parseFloat(desktop);
+  if(mobile!=='')  body.mobile  = parseFloat(mobile);
+  if(tablet!=='')  body.tablet  = parseFloat(tablet);
+  if(!Object.keys(body).filter(k=>k!=='campaignId').length) return notify("Renseignez au moins un appareil.","err");
+  try{
+    const d = await api('/api/google-ads/campaigns/device-bids','POST',body);
+    if(msg) msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message)+'</span>';
+    notify(d.message,'ok');
+  }catch(e){
+    if(msg) msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';
+    notify(e.message,'err');
+  }
+}
+
+/* ── Budget ── */
+function openGadsBudgetCard(campaignId, budgetId, name, currentBudget){
+  document.getElementById('gads-budget-id').value = budgetId;
+  document.getElementById('gads-budget-campaign-name').textContent = name+' — actuel : '+currentBudget+'€/j';
+  document.getElementById('gads-budget-amount').value = currentBudget;
+  document.getElementById('gads-budget-msg').textContent = '';
+  document.getElementById('gads-budget-card').style.display = 'block';
+  document.getElementById('gads-budget-card').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveGadsBudget(){
+  const budgetId = document.getElementById('gads-budget-id').value;
+  const amount   = document.getElementById('gads-budget-amount').value;
+  const msg      = document.getElementById('gads-budget-msg');
+  if(!budgetId) return notify("ID budget manquant. Assurez-vous que la campagne est connectée.","err");
+  if(!amount||parseFloat(amount)<1) return notify("Budget minimum 1 EUR.","err");
+  try{
+    const d = await api('/api/google-ads/campaigns/budget','POST',{budgetId, amountEur: parseFloat(amount)});
+    if(msg) msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message)+'</span>';
+    notify(d.message,'ok'); loadGadsCampaigns();
+  }catch(e){
+    if(msg) msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';
+    notify(e.message,'err');
+  }
+}
+
+/* ── Démographie ── */
+function openGadsDemoCard(campaignId, adGroupId, name){
+  document.getElementById('gads-demo-campaign-id').value = campaignId;
+  document.getElementById('gads-demo-adgroup-id').value  = adGroupId||'';
+  document.getElementById('gads-demo-campaign-name').textContent = name;
+  ['gads-age-18','gads-age-25','gads-age-35','gads-age-45','gads-age-55','gads-age-65',
+   'gads-gender-male','gads-gender-female'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('gads-demo-msg').textContent='';
+  document.getElementById('gads-demo-card').style.display='block';
+  document.getElementById('gads-demo-card').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveGadsDemographics(){
+  const cid     = document.getElementById('gads-demo-campaign-id').value;
+  const adgId   = document.getElementById('gads-demo-adgroup-id').value;
+  const msg     = document.getElementById('gads-demo-msg');
+  if(!adgId) return notify("ID groupe d'annonces requis. Récupérez l'Ad Group ID depuis Google Ads.","err");
+  const ageFields = {
+    '18-24':'gads-age-18','25-34':'gads-age-25','35-44':'gads-age-35',
+    '45-54':'gads-age-45','55-64':'gads-age-55','65+':'gads-age-65'
+  };
+  const genderFields = { male:'gads-gender-male', female:'gads-gender-female' };
+  const ageAdj={}, genderAdj={};
+  Object.entries(ageFields).forEach(([k,id])=>{ const v=document.getElementById(id)?.value; if(v!=='') ageAdj[k]=parseFloat(v); });
+  Object.entries(genderFields).forEach(([k,id])=>{ const v=document.getElementById(id)?.value; if(v!=='') genderAdj[k]=parseFloat(v); });
+  if(!Object.keys(ageAdj).length && !Object.keys(genderAdj).length) return notify("Renseignez au moins un ajustement.","err");
+  try{
+    const d = await api('/api/google-ads/campaigns/demographics','POST',{
+      campaignId:cid, adGroupId:adgId,
+      ageAdjustments:Object.keys(ageAdj).length?ageAdj:undefined,
+      genderAdjustments:Object.keys(genderAdj).length?genderAdj:undefined
+    });
+    if(msg) msg.innerHTML='<span style="color:'+(d.success?'var(--green)':'var(--orange)')+'">'+escapeHtml(d.message)+'</span>';
+    if(d.success) notify(d.message,'ok');
+  }catch(e){
+    if(msg) msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';
+    notify(e.message,'err');
+  }
+}
+
+/* ── IA Google Ads — Analyse ── */
+async function runGadsAnalysis(){
+  const question = document.getElementById('gads-ai-question')?.value.trim();
+  if(!question) return notify("Posez une question.","err");
+  const btn    = document.getElementById('gads-ai-analyze-btn');
+  const ldr    = document.getElementById('gads-ai-ldr');
+  const result = document.getElementById('gads-ai-result');
+  if(btn) btn.disabled=true;
+  if(ldr) ldr.style.display='inline-block';
+  if(result){ result.style.display='none'; result.textContent=''; }
+  try{
+    const d = await api('/api/google-ads/ai/analyze','POST',{
+      question,
+      type:         document.getElementById('gads-ai-type')?.value||'general',
+      campaignName: document.getElementById('gads-ai-campaign')?.value.trim()||''
+    });
+    if(result){ result.textContent=d.answer||''; result.style.display='block'; }
+    notify("Analyse IA terminée.","ok");
+  }catch(e){ notify(e.message,'err'); }
+  finally{ if(btn) btn.disabled=false; if(ldr) ldr.style.display='none'; }
+}
+
+/* ── IA Google Ads — Chat ── */
+async function sendGadsChat(){
+  const input   = document.getElementById('gads-chat-input');
+  const messages= document.getElementById('gads-chat-messages');
+  const btn     = document.getElementById('gads-chat-btn');
+  const ldr     = document.getElementById('gads-chat-ldr');
+  const msg     = (input?.value||'').trim();
+  if(!msg) return;
+  input.value='';
+  // Afficher message utilisateur
+  _addGadsChatBubble(messages, msg, 'user');
+  _gadsChatHistory.push({role:'user',content:msg});
+  if(btn) btn.disabled=true;
+  if(ldr) ldr.style.display='inline-block';
+  try{
+    const d = await api('/api/google-ads/ai/chat','POST',{
+      message: msg,
+      history: _gadsChatHistory.slice(-10) // max 10 échanges en contexte
+    });
+    const answer = d.answer||'';
+    _addGadsChatBubble(messages, answer, 'assistant');
+    _gadsChatHistory.push({role:'assistant',content:answer});
+  }catch(e){
+    _addGadsChatBubble(messages, '⚠ Erreur : '+e.message, 'error');
+  }finally{
+    if(btn) btn.disabled=false;
+    if(ldr) ldr.style.display='none';
+    if(messages) messages.scrollTop=messages.scrollHeight;
+  }
+}
+
+function gadsChatQuick(question){
+  const input = document.getElementById('gads-chat-input');
+  if(input) input.value=question;
+  sendGadsChat();
+}
+
+function clearGadsChat(){
+  _gadsChatHistory=[];
+  const messages=document.getElementById('gads-chat-messages');
+  if(messages) messages.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center">Conversation effacée.</div>';
+}
+
+function _addGadsChatBubble(container, text, role){
+  if(!container) return;
+  const isUser  = role==='user';
+  const isError = role==='error';
+  const bg      = isUser?'rgba(0,191,255,.12)':isError?'rgba(204,34,68,.1)':'rgba(0,0,0,.25)';
+  const color   = isUser?'var(--neon)':isError?'var(--red)':'var(--text)';
+  const align   = isUser?'flex-end':'flex-start';
+  const div     = document.createElement('div');
+  div.style.cssText='display:flex;justify-content:'+align;
+  div.innerHTML=`<div style="max-width:85%;background:${bg};border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.6;color:${color};white-space:pre-wrap">${escapeHtml(text)}</div>`;
+  container.appendChild(div);
+  container.scrollTop=container.scrollHeight;
+}
+
+/* ══════════════════════════════════════════════
+   EBAY — Modal Modifier automatisation récurrente
+══════════════════════════════════════════════ */
+function openEditEbayRecurring(id){
+  const rule = (_ebayRulesCache||[]).find(r=>r.id===id);
+  if(!rule) return notify('Règle introuvable — rechargez la liste.','err');
+  // Remplir le formulaire principal en mode récurrent
+  document.getElementById('ebay-pub-mode').value='recurring';
+  onEbayPubModeChange();
+  // Champs consigne
+  const cons=document.getElementById('ebay-consigne'); if(cons) cons.value=rule.consigne||'';
+  const tone=document.getElementById('ebay-rec-tone'); if(tone) tone.value=rule.tone||'professionnel';
+  const kw=document.getElementById('ebay-rec-keywords'); if(kw) kw.value=rule.keywords||'';
+  const cst=document.getElementById('ebay-rec-constraints'); if(cst) cst.value=rule.constraints||'';
+  // Fréquence
+  const freq=document.getElementById('ebay-freq'); if(freq) freq.value=rule.frequency||'daily';
+  const time=document.getElementById('ebay-rec-time'); if(time) time.value=rule.recurTime||'09:00';
+  // Infini / date de fin
+  const inf=document.getElementById('ebay-infinite'); if(inf){ inf.checked=rule.infinite!==false; inf.dispatchEvent(new Event('change')); }
+  const endD=document.getElementById('ebay-enddate'); if(endD) endD.value=rule.endDate||'';
+  const maxR=document.getElementById('ebay-maxruns'); if(maxR) maxR.value=rule.maxRuns||'';
+  // Prix, marketplace, etc.
+  const price=document.getElementById('ebay-price'); if(price) price.value=rule.price||'';
+  const mkt=document.getElementById('ebay-marketplace'); if(mkt) mkt.value=rule.marketplace||'EBAY_FR';
+  const cond=document.getElementById('ebay-condition'); if(cond) cond.value=rule.condition||'NEW';
+  const qty=document.getElementById('ebay-quantity'); if(qty) qty.value=rule.quantity||1;
+  // Stocker l'ID à modifier
+  document.getElementById('ebay-submit-btn').dataset.editRecurringId=id;
+  document.getElementById('ebay-submit-btn').textContent="✓ Mettre à jour l'automatisation";
+  // Scroller vers le formulaire
+  document.getElementById('page-ebay').scrollIntoView({behavior:'smooth'});
+  notify("Formulaire prérempli — modifiez puis cliquez sur Mettre à jour.","info");
+}
+
+/* ══════════════════════════════════════════════
+   FORUMS INTERNATIONAUX — intégrés dans FORUMS_LIST
+══════════════════════════════════════════════ */
 
 window.addEventListener('load',()=>{
   if(WORKER_URL)document.getElementById('worker-url-inp').value=WORKER_URL;
