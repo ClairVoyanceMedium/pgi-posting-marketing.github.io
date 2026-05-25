@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>PGI • Posting Marketing</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -16,8 +16,8 @@
   --sw:264px; --r:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:'Raleway',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;overscroll-behavior-y:none}
+html,body{height:100%;overscroll-behavior-y:contain}
+body{font-family:'Raleway',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;overscroll-behavior-y:contain}
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1.5px 1.5px at 8% 12%,rgba(0,191,255,.5) 0%,transparent 100%),radial-gradient(1px 1px at 22% 65%,rgba(0,191,255,.35) 0%,transparent 100%),radial-gradient(1px 1px at 38% 28%,rgba(0,191,255,.4) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 55% 80%,rgba(0,191,255,.3) 0%,transparent 100%),radial-gradient(1px 1px at 70% 18%,rgba(0,191,255,.45) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 82% 55%,rgba(0,191,255,.4) 0%,transparent 100%),radial-gradient(1px 1px at 92% 88%,rgba(196,160,68,.4) 0%,transparent 100%),radial-gradient(1px 1px at 15% 90%,rgba(196,160,68,.35) 0%,transparent 100%),radial-gradient(1px 1px at 60% 45%,rgba(196,160,68,.3) 0%,transparent 100%)}
 @keyframes nflicker{0%,91%,93%,95%,100%{text-shadow:var(--glow);opacity:1}92%,94%{text-shadow:none;opacity:.82}}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
