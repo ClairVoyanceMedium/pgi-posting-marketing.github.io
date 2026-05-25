@@ -2795,12 +2795,13 @@ async function toggleGadsCampaignById(action){
   if(!campaignId) return notify('Entrez un ID de campagne.','err');
   const ldr = action==='enable' ? ldrEn : ldrPa;
   if(ldr) ldr.style.display='inline-block';
-  if(msg){ msg.style.display='none'; }
+  if(msg) msg.style.display='none';
   try{
     const data = await api('/api/google-ads/campaigns/toggle','POST',{campaignId, action});
+    if(data.ok===false) throw new Error(data.error||'Erreur inconnue');
     if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(data.message||'OK')+'</span>'; }
     notify(data.message||'Action effectuée.','ok');
-    loadGadsCampaigns();
+    setTimeout(()=>loadGadsCampaigns(),1000);
   }catch(e){
     if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>'; }
     notify(e.message,'err');
@@ -2821,52 +2822,79 @@ async function loadGadsCampaigns(){
     }
     const STATUS_COLOR = { ENABLED:'b-green', PAUSED:'b-orange', REMOVED:'b-red' };
     const STATUS_LABEL = { ENABLED:'Active', PAUSED:'En pause', REMOVED:'Supprimée' };
-    el.innerHTML = _gadsCampaigns.map(c=>`
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+    el.innerHTML = _gadsCampaigns.map(c=>{
+      const isEnabled = c.status==='ENABLED';
+      const isRemoved = c.status==='REMOVED';
+      return `
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px" id="camp-card-${c.id}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-          <div style="flex:1;min-width:200px">
+          <div style="flex:1;min-width:180px">
             <div style="font-weight:700;font-size:13px;margin-bottom:4px">${escapeHtml(c.name)}</div>
             <div class="text-sm text-muted">${escapeHtml(c.type||'')} • Budget : <strong style="color:var(--gold)">${escapeHtml(c.budgetEur)}€/j</strong></div>
           </div>
-          <div class="flex gap8 flex-wrap" style="align-items:center">
-            <span class="badge ${STATUS_COLOR[c.status]||'b-gray'}">${STATUS_LABEL[c.status]||escapeHtml(c.status)}</span>
-            ${c.status==='PAUSED'||c.status==='REMOVED'
-              ? `<button class="btn btn-green btn-sm" onclick="gadsAction('enable','${c.id}','${escapeHtml(c.name)}')">▶ Activer</button>`
-              : `<button class="btn btn-orange btn-sm" onclick="gadsAction('pause','${c.id}','${escapeHtml(c.name)}')">⏸ Pause</button>`}
-            ${c.status==='ENABLED'
-              ? `<button class="btn btn-ghost btn-sm" onclick="gadsAction('standby','${c.id}','${escapeHtml(c.name)}')">💤 Veille</button>`
-              : ''}
-            <button class="btn btn-ghost btn-sm" onclick="openGadsDeviceCard('${c.id}','${escapeHtml(c.name)}')">📱 Appareils</button>
-            <button class="btn btn-ghost btn-sm" onclick="openGadsBudgetCard('${c.id}','${c.budgetId||''}','${escapeHtml(c.name)}','${c.budgetEur}')">💶 Budget</button>
-            <button class="btn btn-ghost btn-sm" onclick="openGadsDemoCard('${c.id}','','${escapeHtml(c.name)}')">👥 Démographie</button>
-            <a href="${escapeHtml(c.gadsUrl)}" target="_blank" class="btn btn-ghost btn-sm">↗ Google Ads</a>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="badge ${STATUS_COLOR[c.status]||'b-gray'}" id="camp-badge-${c.id}">${STATUS_LABEL[c.status]||escapeHtml(c.status)}</span>
+            ${!isRemoved?`
+            <div style="display:flex;align-items:center;gap:6px" title="${isEnabled?'Actif — cliquer pour mettre en pause':'En pause — cliquer pour activer'}">
+              <span style="font-size:10px;color:${!isEnabled?'var(--orange)':'var(--text3)'}">⏸</span>
+              <div id="camp-toggle-${c.id}" onclick="gadsToggleSwitch('${c.id}',${isEnabled})" style="position:relative;width:48px;height:26px;border-radius:13px;cursor:pointer;background:${isEnabled?'var(--green)':'rgba(80,80,100,.5)'};border:2px solid ${isEnabled?'var(--green)':'#445'};transition:background .2s,border-color .2s;flex-shrink:0">
+                <div style="position:absolute;top:3px;left:${isEnabled?'23px':'3px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>
+              </div>
+              <span style="font-size:10px;color:${isEnabled?'var(--green)':'var(--text3)'}">▶</span>
+            </div>`:``}
+            <button class="btn btn-ghost btn-sm" onclick="openGadsDeviceCard('${c.id}','${escapeHtml(c.name)}')">📱</button>
+            <button class="btn btn-ghost btn-sm" onclick="openGadsBudgetCard('${c.id}','${c.budgetId||''}','${escapeHtml(c.name)}','${c.budgetEur}')">💶</button>
+            <button class="btn btn-ghost btn-sm" onclick="openGadsDemoCard('${c.id}','','${escapeHtml(c.name)}')">👥</button>
+            <a href="${escapeHtml(c.gadsUrl)}" target="_blank" class="btn btn-ghost btn-sm">↗</a>
           </div>
         </div>
-        <!-- Stats campagne -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px">
           ${[
             {l:'Impressions',v:c.stats.impressions},
-            {l:'Clics',      v:c.stats.clicks},
-            {l:'Coût',       v:c.stats.cost+'€'},
-            {l:'CTR',        v:c.stats.ctr+'%'},
-            {l:'CPC moyen',  v:c.stats.avgCpc+'€'},
+            {l:'Clics',v:c.stats.clicks},
+            {l:'Coût',v:c.stats.cost+'€'},
+            {l:'CTR',v:c.stats.ctr+'%'},
+            {l:'CPC moyen',v:c.stats.avgCpc+'€'},
             {l:'Conversions',v:c.stats.conversions}
           ].map(s=>`<div style="background:rgba(0,0,0,.2);border-radius:8px;padding:8px;text-align:center">
-            <div style="font-family:Cinzel,serif;font-size:16px;color:var(--neon)">${escapeHtml(String(s.v))}</div>
-            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px">${s.l}</div>
+            <div style="font-family:Cinzel,serif;font-size:15px;color:var(--neon)">${escapeHtml(String(s.v))}</div>
+            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-top:3px">${s.l}</div>
           </div>`).join('')}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }catch(e){ el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>'; }
 }
 
-async function gadsAction(action, campaignId, name){
-  const labels = {pause:'Mettre en pause',enable:'Activer',standby:'Mettre en veille'};
-  if(!confirm(labels[action]+'"'+name+'"?')) return;
+async function gadsToggleSwitch(campaignId, currentlyEnabled){
+  const toggleEl = document.getElementById('camp-toggle-'+campaignId);
+  const badgeEl  = document.getElementById('camp-badge-'+campaignId);
+  const action   = currentlyEnabled ? 'pause' : 'enable';
+  const newStatus= currentlyEnabled ? 'PAUSED' : 'ENABLED';
+  // Feedback visuel immédiat
+  if(toggleEl){
+    toggleEl.style.opacity='0.5';
+    toggleEl.style.pointerEvents='none';
+  }
   try{
-    await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
-    notify(name+' : '+labels[action]+' effectué.','ok');
-    loadGadsCampaigns();
+    const data = await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
+    if(data.ok===false) throw new Error(data.error||'Erreur inconnue');
+    notify((currentlyEnabled?'Campagne mise en pause ⏸':'Campagne activée ▶')+' — rechargement...','ok');
+    // Recharger la liste après 1s pour voir le vrai statut
+    setTimeout(()=>loadGadsCampaigns(), 1000);
+  }catch(e){
+    // Rétablir visuellement en cas d'erreur
+    if(toggleEl){ toggleEl.style.opacity='1'; toggleEl.style.pointerEvents='auto'; }
+    notify('Erreur : '+e.message,'err');
+  }
+}
+
+async function gadsAction(action, campaignId, name){
+  try{
+    const data = await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
+    if(data.ok===false) throw new Error(data.error||'Erreur inconnue');
+    notify(name+' : '+(action==='enable'?'activée ▶':'mise en pause ⏸'),'ok');
+    setTimeout(()=>loadGadsCampaigns(),1000);
   }catch(e){ notify(e.message,'err'); }
 }
 
@@ -3114,9 +3142,21 @@ function openEditEbayRecurring(id){
 /* ══════════════════════════════════════════════
    SMS MARKETING — Fonctions
 ══════════════════════════════════════════════ */
-// Storage clé SMS : localStorage 'pgi_sms_numbers'
-function getSmsNumbers(){ try{return JSON.parse(localStorage.getItem('pgi_sms_numbers')||'[]');}catch{return[];} }
-function saveSmsNumbers(list){ localStorage.setItem('pgi_sms_numbers',JSON.stringify(list)); }
+// Storage SMS — localStorage avec gestion de quota
+// Pour des listes très grandes (>50 000), exporter/importer par chunks CSV
+function getSmsNumbers(){
+  try{ return JSON.parse(localStorage.getItem('pgi_sms_numbers')||'[]'); }
+  catch{ return []; }
+}
+function saveSmsNumbers(list){
+  try{
+    localStorage.setItem('pgi_sms_numbers', JSON.stringify(list));
+  } catch(e) {
+    if(e.name==='QuotaExceededError'){
+      notify('⚠ Stockage local plein (>5 Mo). Exportez vos numéros en CSV et supprimez les validés pour libérer de l\'espace.','err');
+    } else { throw e; }
+  }
+}
 
 function initSmsPage(){ renderSmsNumbers(); renderSmsStats(); }
 
@@ -3134,22 +3174,48 @@ function renderSmsStats(){
   </div>`).join('');
 }
 
-function renderSmsNumbers(){
-  const el=document.getElementById('sms-numbers-list'); if(!el) return;
-  const list=getSmsNumbers();
-  if(!list.length){el.innerHTML='<div class="text-muted text-sm">Aucun numéro. Ajoutez-en ci-dessus.</div>';renderSmsStats();return;}
+let _smsPage = 0;
+const SMS_PAGE_SIZE = 50;
+
+function renderSmsNumbers(page){
+  const el = document.getElementById('sms-numbers-list'); if(!el) return;
+  if(page !== undefined) _smsPage = page;
+  const list   = getSmsNumbers();
+  if(!list.length){ el.innerHTML='<div class="text-muted text-sm">Aucun numéro. Ajoutez-en ci-dessus.</div>'; renderSmsStats(); return; }
   // Tri : non validés d'abord
-  const sorted=[...list.filter(n=>!n.validated),...list.filter(n=>n.validated)];
-  el.innerHTML=sorted.map(n=>`
+  const sorted = [...list.filter(n=>!n.validated),...list.filter(n=>n.validated)];
+  const total  = sorted.length;
+  const pages  = Math.ceil(total/SMS_PAGE_SIZE);
+  if(_smsPage >= pages) _smsPage = pages-1;
+  if(_smsPage < 0) _smsPage = 0;
+  const slice  = sorted.slice(_smsPage*SMS_PAGE_SIZE, (_smsPage+1)*SMS_PAGE_SIZE);
+  const from   = _smsPage*SMS_PAGE_SIZE+1;
+  const to     = Math.min((_smsPage+1)*SMS_PAGE_SIZE, total);
+
+  // Pagination bar
+  const paginationHtml = pages > 1 ? `
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--text2)">
+      <button class="btn btn-ghost btn-sm" onclick="renderSmsNumbers(0)" ${_smsPage===0?'disabled':''}>«</button>
+      <button class="btn btn-ghost btn-sm" onclick="renderSmsNumbers(${_smsPage-1})" ${_smsPage===0?'disabled':''}>‹</button>
+      <span>Page <strong>${_smsPage+1}</strong> / ${pages} — numéros ${from}–${to} sur <strong>${total}</strong></span>
+      <button class="btn btn-ghost btn-sm" onclick="renderSmsNumbers(${_smsPage+1})" ${_smsPage>=pages-1?'disabled':''}>›</button>
+      <button class="btn btn-ghost btn-sm" onclick="renderSmsNumbers(${pages-1})" ${_smsPage>=pages-1?'disabled':''}>»</button>
+      <select onchange="renderSmsNumbers(parseInt(this.value))" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-size:11px;padding:3px 6px;border-radius:6px">
+        ${Array.from({length:pages},(_,i)=>`<option value="${i}" ${i===_smsPage?'selected':''}>Page ${i+1}</option>`).join('')}
+      </select>
+    </div>` : `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${total} numéro(s)</div>`;
+
+  el.innerHTML = paginationHtml + slice.map(n=>`
     <div style="background:${n.validated?'rgba(0,0,0,.15)':'var(--bg2)'};border:1px solid ${n.validated?'var(--border)':'var(--border2)'};border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:10px;opacity:${n.validated?.55:1}">
       <span style="font-family:monospace;font-size:13px;color:${n.validated?'var(--text3)':'var(--text)'};flex:1">${escapeHtml(n.number)}</span>
-      ${n.validated?'<span class="badge b-gray">✓ Utilisé</span>':'<span class="badge b-green">Disponible</span>'}
+      ${n.validated?'<span class="badge b-gray" style="font-size:9px">✓ Utilisé</span>':'<span class="badge b-green" style="font-size:9px">Dispo</span>'}
       <button class="btn btn-ghost btn-sm" onclick="copySmsNumber('${escapeHtml(n.number)}')" title="Copier">📋</button>
       ${n.validated
-        ?`<button class="btn btn-ghost btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',false)">↩ Remettre</button>`
-        :`<button class="btn btn-green btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',true)">✓ Valider</button>`}
-      <button class="btn btn-red btn-sm" onclick="deleteSmsNumber('${escapeHtml(n.number)}')">✕</button>
+        ?`<button class="btn btn-ghost btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',false)" title="Remettre disponible">↩</button>`
+        :`<button class="btn btn-green btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',true)" title="Marquer utilisé">✓</button>`}
+      <button class="btn btn-red btn-sm" onclick="deleteSmsNumber('${escapeHtml(n.number)}')" title="Supprimer">✕</button>
     </div>`).join('');
+
   renderSmsStats();
 }
 
@@ -3161,13 +3227,14 @@ function addSmsNumbers(){
   const list=getSmsNumbers();
   const existing=new Set(list.map(n=>n.number));
   let added=0;
-  incoming.forEach(num=>{
-    if(!existing.has(num)){list.push({number:num,validated:false,addedAt:Date.now()});added++;}
-  });
+  incoming.forEach(num=>{ if(!existing.has(num)){list.push({number:num,validated:false,addedAt:Date.now()});added++;} });
+  // Avertissement taille
+  const totalNow = list.length;
+  if(totalNow > 50000) notify('⚠ '+totalNow.toLocaleString()+' numéros en mémoire. Au-delà de ~80 000 le stockage local peut saturer (5 Mo). Pensez à supprimer les validés régulièrement.','info');
   saveSmsNumbers(list);
   ta.value='';
-  renderSmsNumbers();
-  notify(added+' numéro(s) ajouté(s)'+(incoming.length-added?' ('+( incoming.length-added)+' doublon(s) ignoré(s))':'')+'.' ,'ok');
+  renderSmsNumbers(0);
+  notify(added+' numéro(s) ajouté(s)'+(incoming.length-added?' ('+( incoming.length-added)+' doublon(s) ignoré(s))':'')+('. Total : '+list.length),'ok');
 }
 
 function toggleSmsValidated(number, state){
