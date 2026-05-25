@@ -154,6 +154,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('email')" id="nav-email"><span class="nav-icon">✉</span>Email</div>
   <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span class="nav-icon">▤</span>Logs</div>
   <div class="nav-section">Publicité &amp; Marketplaces</div>
+  <div class="nav-item" onclick="nav('sms')" id="nav-sms"><span class="nav-icon">📱</span>SMS Marketing</div>
   <div class="nav-item" onclick="nav('ebay')" id="nav-ebay"><span class="nav-icon">🛒</span>Annonces eBay</div>
   <div class="nav-item" onclick="nav('googleads')" id="nav-googleads"><span class="nav-icon">🎯</span>Google Ads</div>
   <div class="nav-item" onclick="nav('microsoftads')" id="nav-microsoftads"><span class="nav-icon">🪟</span>Microsoft Ads</div>
@@ -598,6 +599,132 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       </div>
     </div>
 
+    <!-- SMS MARKETING -->
+    <div class="page" id="page-sms">
+
+      <!-- LISTE DE NUMÉROS -->
+      <div class="card">
+        <div class="card-title flex-between">
+          <span>📱 Liste de numéros de téléphone</span>
+          <div class="flex gap8">
+            <button class="btn btn-neon btn-sm" onclick="exportSmsNumbers()">⬇ Exporter CSV</button>
+            <button class="btn btn-ghost btn-sm" onclick="renderSmsNumbers()">↺</button>
+          </div>
+        </div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.15);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+          Ajoutez vos numéros ci-dessous, un par ligne. Demandez-en un certain nombre — ils vous seront distribués dans des compartiments séparés. Validez-les pour les marquer comme utilisés.
+        </div>
+        <!-- Ajout de numéros -->
+        <div class="fgrp">
+          <label class="flabel">Ajouter des numéros (un par ligne)</label>
+          <textarea class="ftextarea" id="sms-numbers-input" rows="5" placeholder="+33612345678&#10;+33698765432&#10;0612345678&#10;…"></textarea>
+        </div>
+        <div class="flex gap8 mb16">
+          <button class="btn btn-neon btn-sm" onclick="addSmsNumbers()">+ Ajouter à la liste</button>
+          <button class="btn btn-red btn-sm" onclick="clearValidatedSmsNumbers()">🗑 Supprimer les validés</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetAllSmsNumbers()">↺ Tout réinitialiser</button>
+        </div>
+        <!-- Stats rapides -->
+        <div id="sms-stats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px"></div>
+        <!-- Distribution -->
+        <div style="background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:10px;padding:14px 18px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">📤 Distribuer des numéros</div>
+          <div class="flex gap8" style="align-items:center;flex-wrap:wrap">
+            <input type="number" class="finput" id="sms-distribute-count" placeholder="Combien ?" min="1" style="width:130px">
+            <button class="btn btn-neon btn-sm" onclick="distributeSmsNumbers()">Distribuer</button>
+          </div>
+        </div>
+        <!-- Numéros distribués -->
+        <div id="sms-distributed-area" style="display:none">
+          <div class="card-title" style="font-size:11px;margin-bottom:10px;padding:0;border:none">Numéros distribués — copiez et validez chacun</div>
+          <div id="sms-distributed-slots" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:14px"></div>
+          <button class="btn btn-green btn-sm" onclick="validateDistributed()">✓ Valider tous les distribués</button>
+        </div>
+        <!-- Liste complète -->
+        <div class="card-title" style="font-size:11px;margin-top:18px;margin-bottom:10px;padding:0;border:none;color:var(--text2)">Liste complète (non validés affichés en premier)</div>
+        <div id="sms-numbers-list" style="max-height:340px;overflow-y:auto;display:grid;gap:6px"></div>
+      </div>
+
+      <!-- GÉNÉRATEUR DE SMS IA -->
+      <div class="card">
+        <div class="card-title">⚡ Générateur de SMS intelligent par IA</div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+          Décrivez ce que vous voulez (voyance téléphone, email, soirée spéciale…) — l'IA rédige un SMS percutant, court et efficace prêt à envoyer.
+        </div>
+        <div class="grid2">
+          <div class="fgrp">
+            <label class="flabel">Type de contact</label>
+            <select class="fselect" id="sms-contact-type">
+              <option value="telephone">Voyance par téléphone</option>
+              <option value="email">Voyance par email</option>
+              <option value="sentimental">Consultation sentimentale</option>
+              <option value="retour">Retour affectif / ex</option>
+              <option value="urgence">Consultation urgente</option>
+              <option value="promotion">Promotion / offre spéciale</option>
+              <option value="rappel">Rappel / relance</option>
+              <option value="autre">Autre (précisez)</option>
+            </select>
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Ton</label>
+            <select class="fselect" id="sms-tone">
+              <option value="chaleureux">Chaleureux &amp; bienveillant</option>
+              <option value="urgent">Urgent / accrocheur</option>
+              <option value="professionnel">Professionnel</option>
+              <option value="mystique">Mystique / ésotérique</option>
+              <option value="intime">Intime / confidentiel</option>
+            </select>
+          </div>
+        </div>
+        <div class="fgrp">
+          <label class="flabel">Votre demande précise *</label>
+          <textarea class="ftextarea" id="sms-request" rows="3" placeholder="Ex : SMS pour relancer des clients qui ont consulté il y a 1 mois, parler de la voyance sentimentale, proposer une offre de 10 minutes offertes. Inclure le lien du site et le numéro de téléphone."></textarea>
+        </div>
+        <div class="grid2">
+          <div class="fgrp">
+            <label class="flabel">Éléments à inclure (optionnel)</label>
+            <input class="finput" id="sms-include" placeholder="Ex : clairvoyancemedium.com, 06 95 46 89 23">
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Longueur cible</label>
+            <select class="fselect" id="sms-length">
+              <option value="court">Court (&lt;160 caractères — 1 SMS)</option>
+              <option value="moyen" selected>Moyen (160-320 — 2 SMS)</option>
+              <option value="long">Long (avec appel à l'action développé)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex gap8 flex-wrap mb16">
+          <button class="btn btn-neon" id="sms-gen-btn" onclick="generateSmsText()">
+            <span class="loader" id="sms-gen-ldr" style="display:none"></span>
+            ⚡ Générer le SMS
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="regenerateSmsText()">⟳ Régénérer</button>
+        </div>
+        <!-- Résultat -->
+        <div id="sms-result-area" style="display:none">
+          <div style="background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <div class="r-lbl">SMS généré</div>
+              <div class="flex gap8 flex-wrap">
+                <span id="sms-char-count" style="font-size:10px;color:var(--text3);align-self:center"></span>
+                <button class="btn btn-neon btn-sm" onclick="copySmsResult()">📋 Copier</button>
+              </div>
+            </div>
+            <div id="sms-result-text" style="font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;border-left:3px solid var(--neon);padding-left:14px;margin-bottom:10px"></div>
+            <div id="sms-result-tips" style="font-size:11px;color:var(--text3);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"></div>
+          </div>
+          <!-- Améliorer -->
+          <div style="background:rgba(0,0,20,.4);border:1px solid var(--border2);border-radius:10px;padding:14px">
+            <div class="flabel">✍ Corriger / améliorer le SMS</div>
+            <textarea class="ftextarea" id="sms-improve-inst" rows="2" placeholder="Ex : rends-le plus court, commence par une question, ajoute le prix, mets l'urgence en avant…" style="min-height:55px;margin-bottom:10px"></textarea>
+            <button class="btn btn-neon btn-sm" onclick="improveSmsText()"><span class="loader" id="sms-improve-ldr" style="display:none"></span>Appliquer</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
     <!-- GOOGLE ADS -->
     <div class="page" id="page-googleads">
 
@@ -652,7 +779,45 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
             <button class="btn btn-ghost btn-sm" onclick="loadGadsCampaigns()">↺</button>
           </div>
         </div>
+        <!-- TOGGLE CAMPAGNE GLOBALE -->
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.18);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--neon);margin-bottom:3px">⏯ Activer / Désactiver une campagne</div>
+            <div style="font-size:11px;color:var(--text3)">Entrez l'ID de campagne puis cliquez sur Activer ou Mettre en pause.</div>
+          </div>
+          <div class="flex gap8 flex-wrap" style="align-items:center">
+            <input class="finput" id="gads-toggle-campaign-id" placeholder="ID de campagne" style="width:180px;padding:7px 12px;font-size:12px">
+            <button class="btn btn-green btn-sm" onclick="toggleGadsCampaignById('enable')"><span class="loader" id="gads-toggle-en-ldr" style="display:none"></span>▶ Activer</button>
+            <button class="btn btn-orange btn-sm" onclick="toggleGadsCampaignById('pause')"><span class="loader" id="gads-toggle-pa-ldr" style="display:none"></span>⏸ Pause</button>
+          </div>
+          <div id="gads-toggle-msg" style="width:100%;font-size:12px;display:none"></div>
+        </div>
         <div id="gads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
+      </div>
+
+      <!-- NOUVELLE CAMPAGNE GOOGLE ADS -->
+      <div class="card">
+        <div class="card-title">+ Nouvelle campagne Google Ads</div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Nom de la campagne *</label><input class="finput" id="gads-name" placeholder="Ex : Voyance Téléphone FR"></div>
+          <div class="fgrp"><label class="flabel">Budget journalier (€) *</label><input type="number" class="finput" id="gads-budget" placeholder="Ex : 5.00" min="1" step="0.01"></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Type</label><select class="fselect" id="gads-type"><option value="SEARCH">Search</option><option value="DISPLAY">Display</option><option value="SMART">Smart</option></select></div>
+          <div class="fgrp"><label class="flabel">Langue</label><input class="finput" id="gads-lang" placeholder="fr" value="fr"></div>
+        </div>
+        <div class="grid2">
+          <div class="fgrp"><label class="flabel">Zone géographique</label><input class="finput" id="gads-geo" placeholder="Ex : France, Belgique"></div>
+          <div class="fgrp"><label class="flabel">URL finale *</label><input class="finput" id="gads-url" placeholder="https://www.clairvoyancemedium.com/…"></div>
+        </div>
+        <div class="fgrp"><label class="flabel">Mots-clés (un par ligne)</label><textarea class="ftextarea" id="gads-keywords" rows="3" placeholder="voyance par téléphone&#10;medium sérieux"></textarea></div>
+        <div class="fgrp"><label class="flabel">Titres d'annonce (un par ligne)</label><textarea class="ftextarea" id="gads-headlines" rows="2" placeholder="Voyance par téléphone&#10;Medium Frederick 24h/24"></textarea></div>
+        <div class="fgrp"><label class="flabel">Descriptions (une par ligne)</label><textarea class="ftextarea" id="gads-descs" rows="2" placeholder="Consultation sérieuse avec Frederick, disponible 7j/7."></textarea></div>
+        <div class="flex gap8 flex-wrap mt16">
+          <button class="btn btn-neon" onclick="createGadsCampaign()"><span class="loader" id="gads-create-ldr" style="display:none"></span>✓ Créer la campagne</button>
+          <button class="btn btn-ghost" onclick="resetGadsForm()">↺ Réinitialiser</button>
+        </div>
+        <div id="gads-form-status" style="margin-top:12px;font-size:13px;display:none"></div>
       </div>
 
       <!-- RÉGLAGES APPAREILS -->
@@ -1132,7 +1297,7 @@ const CONN_FIELDS={
   dailymotion:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}]
 };
 
-const PAGE_TITLES={ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
+const PAGE_TITLES={sms:'SMS Marketing',ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
 
 /* ──── API ──── */
 async function api(path,method='GET',body=null,extraHeaders={}){
@@ -1158,7 +1323,7 @@ function statusBadge(s){return{published:'b-green',pending_validation:'b-orange'
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('on')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('on')}
 function nav(name){currentPage=name;if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
-function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();}
+function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();}
 
 /* ──── WORKER ──── */
 function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');refreshCurrent()}
@@ -1853,11 +2018,26 @@ async function analyzeForums(){
         <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Réponse suggérée <span style="color:var(--gold)">(mots-clés SEO intégrés)</span> :</div>
         <div class="forum-result-reply" id="reply-${escapeHtml(r.id)}">${escapeHtml(r.reply)}</div>
 
-        <!-- BOUTON RÉGÉNÉRER -->
-        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <!-- BOUTON RÉGÉNÉRER + TRADUIRE -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="copyForumReply('${escapeHtml(r.id)}')">📋 Copier</button>
           <button class="btn btn-orange btn-sm" onclick="toggleRegenPanel('${escapeHtml(r.id)}')">⟳ Régénérer</button>
           <button class="btn btn-green btn-sm" onclick="markForumPosted('${escapeHtml(r.id)}','${escapeHtml(r.forum)}','${escapeHtml(r.title)}','${escapeHtml(r.url)}')">✓ Marquée comme postée</button>
+          <!-- Traduction -->
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:10px;color:var(--text3)">🌐 Traduire :</span>
+            <select id="trans-lang-${escapeHtml(r.id)}" style="background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:3px 8px;cursor:pointer;outline:none">
+              <option value="en">🇬🇧 Anglais</option>
+              <option value="es">🇪🇸 Espagnol</option>
+              <option value="it">🇮🇹 Italien</option>
+              <option value="de">🇩🇪 Allemand</option>
+              <option value="pt">🇵🇹 Portugais</option>
+              <option value="nl">🇳🇱 Néerlandais</option>
+              <option value="pl">🇵🇱 Polonais</option>
+              <option value="sv">🇸🇪 Suédois</option>
+            </select>
+            <button class="btn btn-neon btn-sm" onclick="translateForumReply('${escapeHtml(r.id)}',document.getElementById('trans-lang-${escapeHtml(r.id)}').value)">Traduire</button>
+          </div>
         </div>
 
         <!-- PANNEAU RÉGÉNÉRATION -->
@@ -2378,91 +2558,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 /* ══════════════════════════════════════════════
-   GOOGLE ADS — Fonctions
+   GOOGLE ADS — Fonctions (bloc principal ci-dessous)
 ══════════════════════════════════════════════ */
-function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); }
-
-async function checkGadsStatus(){
-  const msg=document.getElementById('gads-status-msg');
-  const badge=document.getElementById('gads-status-badge');
-  try{
-    const d=await api('/api/google-ads/status');
-    if(d.configured){
-      if(badge){badge.className='badge b-green';badge.textContent='Connecté';}
-      if(msg)msg.innerHTML='<span style="color:var(--green)">✓ Google Ads connecté</span>';
-    } else {
-      if(badge){badge.className='badge b-orange';badge.textContent='Non configuré';}
-      if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Google Ads non configuré.')+'</span>';
-    }
-  }catch(e){if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';}
-}
-
-async function loadGadsCampaigns(){
-  const el=document.getElementById('gads-campaigns-list');
-  if(!el)return;
-  try{
-    const data=await api('/api/google-ads/campaigns');
-    const campaigns=data.campaigns||[];
-    if(!campaigns.length){el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne.')+'</div>';return;}
-    el.innerHTML=campaigns.map(c=>`
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-        <div><div style="font-weight:700">${escapeHtml(c.name||'')}</div>
-        <div class="text-sm text-muted">${escapeHtml(c.type||'')} • Budget : ${escapeHtml(String(c.budget||'—'))}€/j</div></div>
-        <div class="flex gap8">
-          <span class="badge ${c.status==='ENABLED'?'b-green':'b-gray'}">${escapeHtml(c.status||'')}</span>
-          ${c.status==='ENABLED'?`<button class="btn btn-orange btn-sm" onclick="pauseGadsCampaign('${c.id}')">Pause</button>`:`<button class="btn btn-green btn-sm" onclick="enableGadsCampaign('${c.id}')">Activer</button>`}
-          <button class="btn btn-ghost btn-sm" onclick="viewGadsStats('${c.id}')">Stats</button>
-        </div>
-      </div>`).join('');
-  }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
-}
-
-async function createGadsCampaign(){
-  const name=document.getElementById('gads-name')?.value.trim();
-  const budget=parseFloat(document.getElementById('gads-budget')?.value)||0;
-  const url=document.getElementById('gads-url')?.value.trim();
-  if(!name||!budget||!url)return notify('Nom, budget et URL finale sont obligatoires.','err');
-  const ldr=document.getElementById('gads-create-ldr');
-  if(ldr)ldr.style.display='inline-block';
-  const statusEl=document.getElementById('gads-form-status');
-  try{
-    const data=await api('/api/google-ads/campaigns','POST',{
-      name,budget,
-      type:document.getElementById('gads-type')?.value||'SEARCH',
-      geo:document.getElementById('gads-geo')?.value.trim()||'France',
-      language:document.getElementById('gads-lang')?.value.trim()||'fr',
-      finalUrl:url,
-      keywords:(document.getElementById('gads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
-      headlines:(document.getElementById('gads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
-      descriptions:(document.getElementById('gads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)
-    });
-    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;}
-    notify(data.message||'Campagne créée.','ok');
-    loadGadsCampaigns();
-  }catch(e){
-    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}
-    notify(e.message,'err');
-  }finally{if(ldr)ldr.style.display='none';}
-}
-
-async function pauseGadsCampaign(id){try{await api('/api/google-ads/campaigns/pause','POST',{id});notify('Campagne mise en pause.','ok');loadGadsCampaigns();}catch(e){notify(e.message,'err');}}
-async function enableGadsCampaign(id){try{await api('/api/google-ads/campaigns/enable','POST',{id});notify('Campagne réactivée.','ok');loadGadsCampaigns();}catch(e){notify(e.message,'err');}}
-async function viewGadsStats(id){try{const d=await api('/api/google-ads/stats?campaignId='+id);loadGadsStats(d);}catch(e){notify(e.message,'err');}}
-function resetGadsForm(){['gads-name','gads-budget','gads-geo','gads-url','gads-keywords','gads-headlines','gads-descs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('gads-form-status').style.display='none';}
-
-async function loadGadsStats(data){
-  const grid=document.getElementById('gads-stats-grid');
-  const detail=document.getElementById('gads-stats-detail');
-  if(!data){
-    try{data=await api('/api/google-ads/stats');}catch(e){if(detail)detail.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';return;}
-  }
-  const stats=data.stats||{};
-  if(grid)grid.innerHTML=[
-    {l:'Impressions',v:stats.impressions??'—'},{l:'Clics',v:stats.clicks??'—'},
-    {l:'Coût',v:stats.cost!=null?(stats.cost.toFixed(2)+'€'):'—'},{l:'CTR',v:stats.ctr!=null?(stats.ctr.toFixed(2)+'%'):'—'},
-    {l:'CPC moyen',v:stats.avgCpc!=null?(stats.avgCpc.toFixed(2)+'€'):'—'},{l:'Conversions',v:stats.conversions??'—'}
-  ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:Cinzel,serif;font-size:22px;color:var(--neon)">${s.v}</div><div style="font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:1px">${s.l}</div></div>`).join('');
-}
 
 /* ══════════════════════════════════════════════
    MICROSOFT ADS — Fonctions
@@ -2620,7 +2717,7 @@ function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsSt
 
 function startGadsOAuth(){
   if(!WORKER_URL) return notify("Configurez d'abord l'URL Worker.","err");
-  const win = window.open(workerBase()+'/auth/google_ads/start','gads_oauth','width=650,height=780,scrollbars=yes');
+  const win = window.open(workerBase()+'/auth/google-ads/start','gads_oauth','width=650,height=780,scrollbars=yes');
   if(win){
     const t = setInterval(()=>{
       if(win.closed){ clearInterval(t); setTimeout(()=>{ checkGadsStatus(); loadGadsCampaigns(); },800); }
@@ -2650,8 +2747,64 @@ async function checkGadsStatus(){
 
 async function disconnectGads(){
   if(!confirm('Déconnecter Google Ads ?')) return;
-  try{ await api('/auth/google_ads/disconnect','POST'); notify('Google Ads déconnecté.','ok'); checkGadsStatus(); }
+  try{ await api('/auth/google-ads/disconnect','POST'); notify('Google Ads déconnecté.','ok'); checkGadsStatus(); }
   catch(e){ notify(e.message,'err'); }
+}
+
+async function createGadsCampaign(){
+  const name  = document.getElementById('gads-name')?.value.trim();
+  const budget= parseFloat(document.getElementById('gads-budget')?.value)||0;
+  const url   = document.getElementById('gads-url')?.value.trim();
+  if(!name||!budget||!url) return notify('Nom, budget et URL finale sont obligatoires.','err');
+  const ldr     = document.getElementById('gads-create-ldr');
+  const statusEl= document.getElementById('gads-form-status');
+  if(ldr) ldr.style.display='inline-block';
+  try{
+    const data = await api('/api/google-ads/campaigns','POST',{
+      name, budget,
+      type:     document.getElementById('gads-type')?.value||'SEARCH',
+      geo:      document.getElementById('gads-geo')?.value.trim()||'France',
+      language: document.getElementById('gads-lang')?.value.trim()||'fr',
+      finalUrl: url,
+      keywords:     (document.getElementById('gads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      headlines:    (document.getElementById('gads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
+      descriptions: (document.getElementById('gads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)
+    });
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;}
+    notify(data.message||'Campagne créée.','ok');
+    loadGadsCampaigns();
+  }catch(e){
+    if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}
+    notify(e.message,'err');
+  }finally{ if(ldr) ldr.style.display='none'; }
+}
+
+function resetGadsForm(){
+  ['gads-name','gads-budget','gads-geo','gads-url','gads-keywords','gads-headlines','gads-descs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const st=document.getElementById('gads-form-status'); if(st) st.style.display='none';
+}
+
+async function toggleGadsCampaignById(action){
+  const idInput = document.getElementById('gads-toggle-campaign-id');
+  const msg     = document.getElementById('gads-toggle-msg');
+  const ldrEn   = document.getElementById('gads-toggle-en-ldr');
+  const ldrPa   = document.getElementById('gads-toggle-pa-ldr');
+  const campaignId = idInput?.value.trim();
+  if(!campaignId) return notify('Entrez un ID de campagne.','err');
+  const ldr = action==='enable' ? ldrEn : ldrPa;
+  if(ldr) ldr.style.display='inline-block';
+  if(msg){ msg.style.display='none'; }
+  try{
+    const data = await api('/api/google-ads/campaigns/toggle','POST',{campaignId, action});
+    if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(data.message||'OK')+'</span>'; }
+    notify(data.message||'Action effectuée.','ok');
+    loadGadsCampaigns();
+  }catch(e){
+    if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>'; }
+    notify(e.message,'err');
+  }finally{ if(ldr) ldr.style.display='none'; }
 }
 
 async function loadGadsCampaigns(){
@@ -2955,6 +3108,255 @@ function openEditEbayRecurring(id){
   // Scroller vers le formulaire
   document.getElementById('page-ebay').scrollIntoView({behavior:'smooth'});
   notify("Formulaire prérempli — modifiez puis cliquez sur Mettre à jour.","info");
+}
+
+/* ══════════════════════════════════════════════
+/* ══════════════════════════════════════════════
+   SMS MARKETING — Fonctions
+══════════════════════════════════════════════ */
+// Storage clé SMS : localStorage 'pgi_sms_numbers'
+function getSmsNumbers(){ try{return JSON.parse(localStorage.getItem('pgi_sms_numbers')||'[]');}catch{return[];} }
+function saveSmsNumbers(list){ localStorage.setItem('pgi_sms_numbers',JSON.stringify(list)); }
+
+function initSmsPage(){ renderSmsNumbers(); renderSmsStats(); }
+
+function renderSmsStats(){
+  const el=document.getElementById('sms-stats'); if(!el) return;
+  const list=getSmsNumbers();
+  const total=list.length, used=list.filter(n=>n.validated).length, avail=total-used;
+  el.innerHTML=[
+    {l:'Total',v:total,c:'var(--neon)'},
+    {l:'Disponibles',v:avail,c:'var(--green)'},
+    {l:'Validés (utilisés)',v:used,c:'var(--gold)'}
+  ].map(s=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 18px;text-align:center;min-width:110px">
+    <div style="font-family:Cinzel,serif;font-size:22px;color:${s.c}">${s.v}</div>
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px">${s.l}</div>
+  </div>`).join('');
+}
+
+function renderSmsNumbers(){
+  const el=document.getElementById('sms-numbers-list'); if(!el) return;
+  const list=getSmsNumbers();
+  if(!list.length){el.innerHTML='<div class="text-muted text-sm">Aucun numéro. Ajoutez-en ci-dessus.</div>';renderSmsStats();return;}
+  // Tri : non validés d'abord
+  const sorted=[...list.filter(n=>!n.validated),...list.filter(n=>n.validated)];
+  el.innerHTML=sorted.map(n=>`
+    <div style="background:${n.validated?'rgba(0,0,0,.15)':'var(--bg2)'};border:1px solid ${n.validated?'var(--border)':'var(--border2)'};border-radius:8px;padding:9px 14px;display:flex;align-items:center;gap:10px;opacity:${n.validated?.55:1}">
+      <span style="font-family:monospace;font-size:13px;color:${n.validated?'var(--text3)':'var(--text)'};flex:1">${escapeHtml(n.number)}</span>
+      ${n.validated?'<span class="badge b-gray">✓ Utilisé</span>':'<span class="badge b-green">Disponible</span>'}
+      <button class="btn btn-ghost btn-sm" onclick="copySmsNumber('${escapeHtml(n.number)}')" title="Copier">📋</button>
+      ${n.validated
+        ?`<button class="btn btn-ghost btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',false)">↩ Remettre</button>`
+        :`<button class="btn btn-green btn-sm" onclick="toggleSmsValidated('${escapeHtml(n.number)}',true)">✓ Valider</button>`}
+      <button class="btn btn-red btn-sm" onclick="deleteSmsNumber('${escapeHtml(n.number)}')">✕</button>
+    </div>`).join('');
+  renderSmsStats();
+}
+
+function addSmsNumbers(){
+  const ta=document.getElementById('sms-numbers-input'); if(!ta) return;
+  const raw=ta.value.trim(); if(!raw) return notify('Entrez au moins un numéro.','err');
+  const incoming=raw.split('\n').map(s=>s.trim()).filter(s=>s.length>4);
+  if(!incoming.length) return notify('Aucun numéro valide détecté.','err');
+  const list=getSmsNumbers();
+  const existing=new Set(list.map(n=>n.number));
+  let added=0;
+  incoming.forEach(num=>{
+    if(!existing.has(num)){list.push({number:num,validated:false,addedAt:Date.now()});added++;}
+  });
+  saveSmsNumbers(list);
+  ta.value='';
+  renderSmsNumbers();
+  notify(added+' numéro(s) ajouté(s)'+(incoming.length-added?' ('+( incoming.length-added)+' doublon(s) ignoré(s))':'')+'.' ,'ok');
+}
+
+function toggleSmsValidated(number, state){
+  const list=getSmsNumbers();
+  const n=list.find(x=>x.number===number); if(!n) return;
+  n.validated=state; n.validatedAt=state?Date.now():null;
+  saveSmsNumbers(list);
+  renderSmsNumbers();
+  // Masquer la zone de distribution si des numéros validés via elle
+  notify(state?number+' marqué comme utilisé.':number+' remis en disponible.','ok');
+}
+
+function deleteSmsNumber(number){
+  const list=getSmsNumbers().filter(n=>n.number!==number);
+  saveSmsNumbers(list); renderSmsNumbers();
+}
+
+function clearValidatedSmsNumbers(){
+  if(!confirm('Supprimer définitivement tous les numéros validés (utilisés) ?')) return;
+  saveSmsNumbers(getSmsNumbers().filter(n=>!n.validated));
+  renderSmsNumbers(); notify('Numéros validés supprimés.','ok');
+}
+
+function resetAllSmsNumbers(){
+  if(!confirm('Remettre TOUS les numéros en statut disponible ?')) return;
+  const list=getSmsNumbers().map(n=>({...n,validated:false,validatedAt:null}));
+  saveSmsNumbers(list); renderSmsNumbers(); notify('Tous les numéros réinitialisés.','ok');
+}
+
+function copySmsNumber(number){
+  if(navigator.clipboard){navigator.clipboard.writeText(number).then(()=>notify('Numéro copié : '+number,'ok'));}
+  else{const ta=document.createElement('textarea');ta.value=number;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);notify('Numéro copié : '+number,'ok');}
+}
+
+let _smsDistributed=[];
+
+function distributeSmsNumbers(){
+  const countEl=document.getElementById('sms-distribute-count');
+  const count=parseInt(countEl?.value)||0;
+  if(count<1) return notify('Indiquez un nombre de numéros à distribuer.','err');
+  const available=getSmsNumbers().filter(n=>!n.validated);
+  if(!available.length) return notify('Aucun numéro disponible. Ajoutez-en ou réinitialisez.','err');
+  if(count>available.length){ notify('Seulement '+available.length+' numéro(s) disponible(s) — distribution de tout le stock.','info'); }
+  _smsDistributed=available.slice(0,count);
+  const area=document.getElementById('sms-distributed-area');
+  const slots=document.getElementById('sms-distributed-slots');
+  if(!area||!slots) return;
+  area.style.display='block';
+  slots.innerHTML=_smsDistributed.map((n,i)=>`
+    <div style="background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--neon);border-radius:10px;padding:14px">
+      <div style="font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Numéro ${i+1}</div>
+      <div style="font-family:monospace;font-size:16px;font-weight:700;color:var(--neon);margin-bottom:10px;letter-spacing:1px">${escapeHtml(n.number)}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-neon btn-sm" onclick="copySmsNumber('${escapeHtml(n.number)}')">📋 Copier</button>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="sms-check-${i}" onchange="onSmsSlotCheck(${i},'${escapeHtml(n.number)}')" style="width:15px;height:15px;accent-color:var(--green)">
+          Validé (utilisé)
+        </label>
+      </div>
+    </div>`).join('');
+  area.scrollIntoView({behavior:'smooth'});
+}
+
+function onSmsSlotCheck(idx, number){
+  const cb=document.getElementById('sms-check-'+idx); if(!cb) return;
+  toggleSmsValidated(number, cb.checked);
+}
+
+function validateDistributed(){
+  if(!_smsDistributed.length) return;
+  _smsDistributed.forEach(n=>toggleSmsValidated(n.number,true));
+  document.getElementById('sms-distributed-area').style.display='none';
+  _smsDistributed=[];
+  notify('Tous les numéros distribués marqués comme validés.','ok');
+}
+
+function exportSmsNumbers(){
+  const list=getSmsNumbers();
+  if(!list.length) return notify('Aucun numéro à exporter.','err');
+  const csv='Numéro,Statut,Ajouté le,Validé le\n'+list.map(n=>
+    `"${n.number}","${n.validated?'Validé':'Disponible'}","${n.addedAt?new Date(n.addedAt).toLocaleString('fr-FR'):''}","${n.validatedAt?new Date(n.validatedAt).toLocaleString('fr-FR'):''}"`
+  ).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='sms_numeros_'+Date.now()+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  notify('Export CSV téléchargé.','ok');
+}
+
+// ── Générateur SMS IA ──
+let _lastSmsRequest=null;
+
+async function generateSmsText(){
+  const request=document.getElementById('sms-request')?.value.trim();
+  if(!request) return notify('Décrivez ce que vous voulez (champ demande précise).','err');
+  _lastSmsRequest={
+    request,
+    type:    document.getElementById('sms-contact-type')?.value||'telephone',
+    tone:    document.getElementById('sms-tone')?.value||'chaleureux',
+    include: document.getElementById('sms-include')?.value.trim()||'',
+    length:  document.getElementById('sms-length')?.value||'moyen'
+  };
+  const ldr=document.getElementById('sms-gen-ldr');
+  const btn=document.getElementById('sms-gen-btn');
+  if(ldr)ldr.style.display='inline-block';
+  if(btn)btn.disabled=true;
+  try{
+    const d=await api('/api/ai/sms/generate','POST',_lastSmsRequest);
+    renderSmsResult(d.sms||'',d.tips||'');
+  }catch(e){notify(e.message,'err');}
+  finally{if(ldr)ldr.style.display='none';if(btn)btn.disabled=false;}
+}
+
+async function regenerateSmsText(){
+  if(!_lastSmsRequest) return notify('Faites d\'abord une génération.','err');
+  const ldr=document.getElementById('sms-gen-ldr');
+  if(ldr)ldr.style.display='inline-block';
+  try{
+    const d=await api('/api/ai/sms/generate','POST',Object.assign({},_lastSmsRequest,{regenerate:true}));
+    renderSmsResult(d.sms||'',d.tips||'');
+  }catch(e){notify(e.message,'err');}
+  finally{if(ldr)ldr.style.display='none';}
+}
+
+async function improveSmsText(){
+  const inst=document.getElementById('sms-improve-inst')?.value.trim();
+  if(!inst) return notify('Entrez une instruction de correction.','err');
+  const current=document.getElementById('sms-result-text')?.textContent||'';
+  const ldr=document.getElementById('sms-improve-ldr'); if(ldr)ldr.style.display='inline-block';
+  try{
+    const d=await api('/api/ai/sms/generate','POST',Object.assign({},_lastSmsRequest||{},{instruction:inst,current_sms:current}));
+    renderSmsResult(d.sms||'',d.tips||'');
+  }catch(e){notify(e.message,'err');}
+  finally{if(ldr)ldr.style.display='none';}
+}
+
+function renderSmsResult(sms,tips){
+  const area=document.getElementById('sms-result-area');
+  const textEl=document.getElementById('sms-result-text');
+  const countEl=document.getElementById('sms-char-count');
+  const tipsEl=document.getElementById('sms-result-tips');
+  if(!area||!textEl) return;
+  textEl.textContent=sms;
+  const chars=sms.length;
+  const smsCount=Math.ceil(chars/160)||1;
+  if(countEl) countEl.textContent=chars+' caractères — '+smsCount+' SMS';
+  if(tipsEl) tipsEl.textContent=tips||'';
+  area.style.display='block';
+  area.scrollIntoView({behavior:'smooth'});
+}
+
+function copySmsResult(){
+  const txt=document.getElementById('sms-result-text')?.textContent||'';
+  if(!txt) return notify('Rien à copier.','err');
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>notify('SMS copié dans le presse-papier !','ok'));}
+  else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);notify('SMS copié.','ok');}
+}
+
+/* ══════════════════════════════════════════════
+   FORUMS — Traduction de réponse
+══════════════════════════════════════════════ */
+async function translateForumReply(id, targetLang){
+  const el=document.getElementById('reply-'+id); if(!el) return;
+  const currentText=el.textContent||el.innerText||'';
+  if(!currentText.trim()) return notify('Pas de texte à traduire.','err');
+  const langNames={'en':'anglais','es':'espagnol','it':'italien','de':'allemand','pt':'portugais','nl':'néerlandais','pl':'polonais','sv':'suédois'};
+  const langName=langNames[targetLang]||targetLang;
+  notify('Traduction en '+langName+'...','info');
+  try{
+    const d=await api('/api/ai/translate','POST',{text:currentText,targetLang,targetLangName:langName});
+    if(d.translated){
+      el.textContent=d.translated;
+      // Marquer comme traduit
+      const card=document.getElementById('fcard-'+id);
+      if(card){
+        const existing=card.querySelector('.translate-badge');
+        if(existing) existing.remove();
+        const badge=document.createElement('span');
+        badge.className='translate-badge badge b-blue';
+        badge.style.cssText='font-size:9px;margin-left:6px';
+        badge.textContent='Traduit → '+langName;
+        const titleEl=card.querySelector('.forum-result-title');
+        if(titleEl) titleEl.appendChild(badge);
+      }
+      notify('Traduction effectuée en '+langName+'.','ok');
+    } else {
+      notify('Traduction non disponible : '+(d.message||'réponse IA vide'),'err');
+    }
+  }catch(e){notify('Erreur traduction : '+e.message,'err');}
 }
 
 /* ══════════════════════════════════════════════
