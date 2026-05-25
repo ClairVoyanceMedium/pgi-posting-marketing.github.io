@@ -780,17 +780,38 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           </div>
         </div>
         <!-- TOGGLE CAMPAGNE GLOBALE -->
-        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.18);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-          <div>
-            <div style="font-size:12px;font-weight:700;color:var(--neon);margin-bottom:3px">⏯ Activer / Désactiver une campagne</div>
-            <div style="font-size:11px;color:var(--text3)">Entrez l'ID de campagne puis cliquez sur Activer ou Mettre en pause.</div>
+        <div style="background:rgba(0,191,255,.05);border:1px solid rgba(0,191,255,.18);border-radius:12px;padding:16px 18px;margin-bottom:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--neon);margin-bottom:10px">⏯ Activer / Désactiver une campagne</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <input class="finput" id="gads-toggle-campaign-id" placeholder="ID de campagne" style="flex:1;min-width:150px;padding:8px 12px;font-size:13px;font-family:monospace" oninput="saveGadsToggleId()" onchange="saveGadsToggleId()">
+            <button class="btn btn-ghost btn-sm" onclick="clearGadsToggleId()" title="Effacer l'ID">✕</button>
           </div>
-          <div class="flex gap8 flex-wrap" style="align-items:center">
-            <input class="finput" id="gads-toggle-campaign-id" placeholder="ID de campagne" style="width:180px;padding:7px 12px;font-size:12px">
-            <button class="btn btn-green btn-sm" onclick="toggleGadsCampaignById('enable')"><span class="loader" id="gads-toggle-en-ldr" style="display:none"></span>▶ Activer</button>
-            <button class="btn btn-orange btn-sm" onclick="toggleGadsCampaignById('pause')"><span class="loader" id="gads-toggle-pa-ldr" style="display:none"></span>⏸ Pause</button>
+          <!-- Toggle switch visuel -->
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:12px;color:var(--text2);min-width:60px;text-align:right" id="gads-sw-label-off">⏸ Pause</span>
+            <div id="gads-main-switch"
+              onclick="gadsMainSwitchClick()"
+              style="
+                position:relative;width:64px;height:34px;border-radius:17px;
+                cursor:pointer;flex-shrink:0;
+                background:var(--sw-bg,#333);
+                border:2px solid var(--sw-border,#555);
+                transition:background .25s,border-color .25s;
+                box-shadow:0 2px 8px rgba(0,0,0,.4)
+              ">
+              <div id="gads-main-switch-knob" style="
+                position:absolute;top:3px;
+                left:var(--sw-knob,3px);
+                width:24px;height:24px;border-radius:50%;
+                background:#fff;
+                transition:left .25s;
+                box-shadow:0 2px 6px rgba(0,0,0,.5)
+              "></div>
+            </div>
+            <span style="font-size:12px;color:var(--text2);min-width:60px" id="gads-sw-label-on">▶ Activer</span>
+            <span class="loader" id="gads-toggle-ldr" style="display:none"></span>
           </div>
-          <div id="gads-toggle-msg" style="width:100%;font-size:12px;display:none"></div>
+          <div id="gads-toggle-msg" style="margin-top:10px;font-size:12px;display:none"></div>
         </div>
         <div id="gads-campaigns-list"><div class="text-muted text-sm">Chargement...</div></div>
       </div>
@@ -2713,7 +2734,7 @@ function resetMetaAdsForm(){['metaads-name','metaads-budget','metaads-url','meta
 let _gadsChatHistory = [];
 let _gadsCampaigns   = [];
 
-function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsStats(); }
+function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsStats(); loadGadsToggleId(); setGadsMainSwitch(false); }
 
 function startGadsOAuth(){
   if(!WORKER_URL) return notify("Configurez d'abord l'URL Worker.","err");
@@ -2786,26 +2807,82 @@ function resetGadsForm(){
   const st=document.getElementById('gads-form-status'); if(st) st.style.display='none';
 }
 
-async function toggleGadsCampaignById(action){
+// ── Toggle switch principal Google Ads ──
+let _gadsMainSwitchState = false; // false = PAUSED, true = ENABLED
+
+function saveGadsToggleId(){
+  const v = document.getElementById('gads-toggle-campaign-id')?.value.trim();
+  if(v) localStorage.setItem('pgi_gads_toggle_id', v);
+}
+function clearGadsToggleId(){
+  const el = document.getElementById('gads-toggle-campaign-id');
+  if(el) el.value='';
+  localStorage.removeItem('pgi_gads_toggle_id');
+  setGadsMainSwitch(false);
+}
+function loadGadsToggleId(){
+  const saved = localStorage.getItem('pgi_gads_toggle_id');
+  const el = document.getElementById('gads-toggle-campaign-id');
+  if(saved && el && !el.value) el.value = saved;
+}
+function setGadsMainSwitch(enabled){
+  _gadsMainSwitchState = enabled;
+  const sw    = document.getElementById('gads-main-switch');
+  const knob  = document.getElementById('gads-main-switch-knob');
+  const lblOn = document.getElementById('gads-sw-label-on');
+  const lblOff= document.getElementById('gads-sw-label-off');
+  if(!sw) return;
+  if(enabled){
+    sw.style.background    = 'var(--green)';
+    sw.style.borderColor   = 'var(--green)';
+    if(knob)  knob.style.left = '33px';
+    if(lblOn) { lblOn.style.color='var(--green)'; lblOn.style.fontWeight='700'; }
+    if(lblOff){ lblOff.style.color='var(--text3)'; lblOff.style.fontWeight='400'; }
+  } else {
+    sw.style.background    = 'rgba(238,119,34,.35)';
+    sw.style.borderColor   = 'var(--orange)';
+    if(knob)  knob.style.left = '3px';
+    if(lblOff){ lblOff.style.color='var(--orange)'; lblOff.style.fontWeight='700'; }
+    if(lblOn) { lblOn.style.color='var(--text3)'; lblOn.style.fontWeight='400'; }
+  }
+}
+async function gadsMainSwitchClick(){
   const idInput = document.getElementById('gads-toggle-campaign-id');
   const msg     = document.getElementById('gads-toggle-msg');
-  const ldrEn   = document.getElementById('gads-toggle-en-ldr');
-  const ldrPa   = document.getElementById('gads-toggle-pa-ldr');
+  const ldr     = document.getElementById('gads-toggle-ldr');
   const campaignId = idInput?.value.trim();
-  if(!campaignId) return notify('Entrez un ID de campagne.','err');
-  const ldr = action==='enable' ? ldrEn : ldrPa;
+  if(!campaignId){ notify('Entrez un ID de campagne d\'abord.','err'); idInput?.focus(); return; }
+  saveGadsToggleId();
+  const newEnabled = !_gadsMainSwitchState;
+  const action     = newEnabled ? 'enable' : 'pause';
+  // Feedback visuel immédiat
+  setGadsMainSwitch(newEnabled);
+  const sw = document.getElementById('gads-main-switch');
+  if(sw){ sw.style.opacity='0.6'; sw.style.pointerEvents='none'; }
   if(ldr) ldr.style.display='inline-block';
   if(msg) msg.style.display='none';
   try{
-    const data = await api('/api/google-ads/campaigns/toggle','POST',{campaignId, action});
+    const data = await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
     if(data.ok===false) throw new Error(data.error||'Erreur inconnue');
-    if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(data.message||'OK')+'</span>'; }
-    notify(data.message||'Action effectuée.','ok');
-    setTimeout(()=>loadGadsCampaigns(),1000);
+    if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--green)">✓ '+(newEnabled?'Campagne activée ▶':'Campagne en pause ⏸')+'</span>'; }
+    notify((newEnabled?'✅ Campagne activée':'⏸ Campagne mise en pause'),'ok');
+    setTimeout(()=>loadGadsCampaigns(),1200);
   }catch(e){
+    // Annuler le flip visuel si erreur
+    setGadsMainSwitch(!newEnabled);
     if(msg){ msg.style.display='block'; msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>'; }
-    notify(e.message,'err');
-  }finally{ if(ldr) ldr.style.display='none'; }
+    notify('Erreur : '+e.message,'err');
+  }finally{
+    if(sw){ sw.style.opacity='1'; sw.style.pointerEvents='auto'; }
+    if(ldr) ldr.style.display='none';
+  }
+}
+// Ancienne fonction gardée pour compatibilité boutons dans la liste
+async function toggleGadsCampaignById(action){
+  const idInput = document.getElementById('gads-toggle-campaign-id');
+  const campaignId = idInput?.value.trim();
+  if(!campaignId) return notify('Entrez un ID de campagne.','err');
+  return gadsMainSwitchClick();
 }
 
 async function loadGadsCampaigns(){
@@ -2868,22 +2945,17 @@ async function loadGadsCampaigns(){
 
 async function gadsToggleSwitch(campaignId, currentlyEnabled){
   const toggleEl = document.getElementById('camp-toggle-'+campaignId);
-  const badgeEl  = document.getElementById('camp-badge-'+campaignId);
   const action   = currentlyEnabled ? 'pause' : 'enable';
-  const newStatus= currentlyEnabled ? 'PAUSED' : 'ENABLED';
-  // Feedback visuel immédiat
-  if(toggleEl){
-    toggleEl.style.opacity='0.5';
-    toggleEl.style.pointerEvents='none';
-  }
+  if(toggleEl){ toggleEl.style.opacity='0.5'; toggleEl.style.pointerEvents='none'; }
   try{
     const data = await api('/api/google-ads/campaigns/'+action,'POST',{campaignId});
     if(data.ok===false) throw new Error(data.error||'Erreur inconnue');
-    notify((currentlyEnabled?'Campagne mise en pause ⏸':'Campagne activée ▶')+' — rechargement...','ok');
-    // Recharger la liste après 1s pour voir le vrai statut
-    setTimeout(()=>loadGadsCampaigns(), 1000);
+    notify((currentlyEnabled?'⏸ Campagne mise en pause':'✅ Campagne activée'),'ok');
+    // Sync le switch principal si même ID
+    const mainId = document.getElementById('gads-toggle-campaign-id')?.value.trim();
+    if(mainId===String(campaignId)) setGadsMainSwitch(!currentlyEnabled);
+    setTimeout(()=>loadGadsCampaigns(),1200);
   }catch(e){
-    // Rétablir visuellement en cas d'erreur
     if(toggleEl){ toggleEl.style.opacity='1'; toggleEl.style.pointerEvents='auto'; }
     notify('Erreur : '+e.message,'err');
   }
