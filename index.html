@@ -2734,7 +2734,22 @@ function resetMetaAdsForm(){['metaads-name','metaads-budget','metaads-url','meta
 let _gadsChatHistory = [];
 let _gadsCampaigns   = [];
 
-function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsStats(); loadGadsToggleId(); setGadsMainSwitch(false); }
+function initGoogleAdsPage(){ checkGadsStatus(); loadGadsCampaigns(); loadGadsStats(); loadGadsToggleId(); syncGadsMainSwitch(); }
+
+// Lit le vrai statut de la campagne sauvegardée et synchronise le switch
+async function syncGadsMainSwitch(){
+  const savedId = localStorage.getItem('pgi_gads_toggle_id');
+  if(!savedId) { setGadsMainSwitch(false); return; }
+  try{
+    const data = await api('/api/google-ads/campaigns?campaignId='+savedId+'&period=LAST_7_DAYS');
+    if(data.ok && data.campaigns && data.campaigns.length > 0){
+      const camp = data.campaigns[0];
+      setGadsMainSwitch(camp.status === 'ENABLED');
+    } else {
+      setGadsMainSwitch(false);
+    }
+  }catch(e){ setGadsMainSwitch(false); }
+}
 
 function startGadsOAuth(){
   if(!WORKER_URL) return notify("Configurez d'abord l'URL Worker.","err");
