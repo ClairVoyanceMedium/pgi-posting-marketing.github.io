@@ -2990,21 +2990,25 @@ async function loadGadsStats(){
   const period = document.getElementById('gads-stats-period')?.value || 'LAST_30_DAYS';
   if(!grid) return;
   try{
-    const data  = await api('/api/google-ads/stats?period='+period);
-    const s     = data.stats || {};
+    const data = await api('/api/google-ads/stats?period='+period);
+    if(data.ok===false) throw new Error(data.error||'Erreur stats');
+    const s = data.stats || {};
+    const fmt = function(v, suffix){ return (v==null||v==='')?'—':(v+''+(suffix||'')); };
     grid.innerHTML = [
-      {l:'Impressions',v:s.impressions??'—'},
-      {l:'Clics',      v:s.clicks??'—'},
-      {l:'Coût',       v:s.cost!=null?s.cost+'€':'—'},
-      {l:'CTR',        v:s.ctr!=null?s.ctr+'%':'—'},
-      {l:'CPC moyen',  v:s.avgCpc!=null?s.avgCpc+'€':'—'},
-      {l:'Conversions',v:s.conversions??'—'},
-      {l:'Coût/Conv',  v:s.costPerConv!=null?s.costPerConv+'€':'—'}
+      {l:'Impressions', v: fmt(s.impressions)},
+      {l:'Clics',       v: fmt(s.clicks)},
+      {l:'Coût',        v: fmt(s.cost,'€')},
+      {l:'CTR',         v: fmt(s.ctr,'%')},
+      {l:'CPC moyen',   v: fmt(s.avgCpc,'€')},
+      {l:'Conversions', v: fmt(s.conversions)},
+      {l:'Coût/Conv',   v: fmt(s.costPerConv,'€')}
     ].map(st=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
       <div style="font-family:Cinzel,serif;font-size:22px;color:var(--neon)">${escapeHtml(String(st.v))}</div>
       <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:4px">${st.l}</div>
     </div>`).join('');
-    if(detail) detail.textContent = 'Période : '+escapeHtml(period.replace(/_/g,' ').toLowerCase());
+    const realPeriod = data.period || period;
+    if(detail) detail.textContent = 'Période : ' + realPeriod.replace(/_/g,' ').toLowerCase()
+      + (realPeriod !== period ? ' (données disponibles les plus récentes)' : '');
   }catch(e){
     if(grid) grid.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';
   }
