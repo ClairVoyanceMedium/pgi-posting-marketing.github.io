@@ -3146,21 +3146,20 @@ async function runGadsAnalysis(){
   const btn    = document.getElementById('gads-ai-analyze-btn');
   const ldr    = document.getElementById('gads-ai-ldr');
   const result = document.getElementById('gads-ai-result');
+  const textEl = document.getElementById('gads-ai-result-text');
   if(btn) btn.disabled=true;
   if(ldr) ldr.style.display='inline-block';
-  if(result){ result.style.display='none'; result.textContent=''; }
+  // Cacher le résultat mais NE PAS effacer les enfants (boutons, textEl)
+  if(result) result.style.display='none';
+  if(textEl) textEl.textContent='';
   try{
     const d = await api('/api/google-ads/ai/analyze','POST',{
       question,
       type:         document.getElementById('gads-ai-type')?.value||'general',
       campaignName: document.getElementById('gads-ai-campaign')?.value.trim()||''
     });
-    const textEl = document.getElementById('gads-ai-result-text');
-    if(result){
-      if(textEl) textEl.textContent = d.answer||'';
-      result.style.display='block';
-      result.scrollIntoView({behavior:'smooth'});
-    }
+    if(textEl) textEl.textContent = d.answer||'Aucune réponse reçue.';
+    if(result){ result.style.display='block'; result.scrollIntoView({behavior:'smooth'}); }
     notify("Analyse IA terminée.","ok");
   }catch(e){ notify(e.message,'err'); }
   finally{ if(btn) btn.disabled=false; if(ldr) ldr.style.display='none'; }
