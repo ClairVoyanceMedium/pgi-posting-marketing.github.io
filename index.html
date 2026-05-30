@@ -955,7 +955,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
               <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard?.writeText(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px">📋 Copier</button>
             </div>
           </div>
-          <div id="gads-ai-result-text"></div>
+          <div id="gads-ai-result-text" style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
         </div>
       </div>
 
@@ -979,6 +979,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quels mots-clés sont les plus efficaces pour la voyance par téléphone ?')">Mots-clés</button>
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quelle stratégie d\'enchères recommandes-tu pour maximiser les conversions ?')">Stratégie enchères</button>
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('À quelles heures dois-je activer mes campagnes pour la voyance ?')">Créneaux horaires</button>
+          <button class="btn btn-ghost btn-sm" onclick="readLastGadsChatMsg()" title="Lire la dernière réponse">🔊 Lire</button>
+          <button class="btn btn-ghost btn-sm" onclick="ttsStop()" title="Arrêter la lecture">■ Stop</button>
           <button class="btn btn-red btn-sm" onclick="clearGadsChat()">Effacer</button>
         </div>
       </div>
@@ -1724,8 +1726,6 @@ function renderResult(content,imageUrl,platforms,postId){
     return`<div class="plat-result"><div class="plat-result-name">${PLATFORMS[key]?.icon||''} ${PLATFORMS[key]?.name||key}</div>${pc.title?`<div style="font-weight:700;color:var(--gold);margin-bottom:6px">${escapeHtml(pc.title)}</div>`:''}<div style="font-size:13px;line-height:1.7">${escapeHtml(pc.text||'').replace(/\n/g,'<br>')}</div>${ht}</div>`;
   }).join('');
   document.getElementById('result-footer').innerHTML=`<div class="flex gap12 flex-wrap"><button class="btn btn-green btn-full" onclick="publishNow('${postId}')">▶ Publier maintenant</button><button class="btn btn-ghost" onclick="resetCreate()">Nouveau post</button></div>`;
-  // TTS — lire l'accroche et le texte principal du post
-  if(content?.hook || content?.mainText) ttsSpeak((content.hook||'') + (content.mainText ? '. ' + content.mainText : ''));
 }
 
 async function publishNow(id){try{const d=await api('/api/posts/'+id+'/publish','POST');notify('Publication terminée : '+d.status,'ok');loadStats()}catch(e){notify(e.message,'err')}}
@@ -2151,7 +2151,6 @@ async function regenForumReply(id){
     if(data.reply){
       replyEl.textContent=data.reply;
       replyEl.style.opacity='1';
-      ttsSpeak(data.reply);
       // Met à jour le résultat stocké
       if(result)result.reply=data.reply;
       notify('Réponse régénérée avec succès.','ok');
@@ -3130,6 +3129,16 @@ async function saveGadsDemographics(){
   }
 }
 
+function readLastGadsChatMsg(){
+  const messages = document.getElementById('gads-chat-messages');
+  if(!messages) return;
+  const bubbles = messages.querySelectorAll('div > div');
+  if(!bubbles.length) return;
+  const last = bubbles[bubbles.length-1];
+  const text = last?.textContent || '';
+  if(text.trim()) ttsSpeak(text);
+}
+
 /* ── IA Google Ads — Analyse ── */
 async function runGadsAnalysis(){
   const question = document.getElementById('gads-ai-question')?.value.trim();
@@ -3152,7 +3161,6 @@ async function runGadsAnalysis(){
       result.style.display='block';
       result.scrollIntoView({behavior:'smooth'});
     }
-    ttsSpeak(d.answer||'');
     notify("Analyse IA terminée.","ok");
   }catch(e){ notify(e.message,'err'); }
   finally{ if(btn) btn.disabled=false; if(ldr) ldr.style.display='none'; }
@@ -3213,8 +3221,6 @@ function _addGadsChatBubble(container, text, role){
   div.innerHTML=`<div style="max-width:85%;background:${bg};border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.6;color:${color};white-space:pre-wrap">${escapeHtml(text)}</div>`;
   container.appendChild(div);
   container.scrollTop=container.scrollHeight;
-  // TTS — lire automatiquement les réponses assistant
-  if(role==='assistant') ttsSpeak(text);
 }
 
 /* ══════════════════════════════════════════════
@@ -3497,8 +3503,6 @@ function renderSmsResult(sms,tips){
   if(tipsEl) tipsEl.textContent=tips||'';
   area.style.display='block';
   area.scrollIntoView({behavior:'smooth'});
-  // TTS
-  ttsSpeak(sms);
 }
 
 function copySmsResult(){
