@@ -2151,7 +2151,7 @@ async function regenForumReply(id){
     if(data.reply){
       replyEl.textContent=data.reply;
       replyEl.style.opacity='1';
-      // Met à jour le résultat stocké
+      if(_ttsEnabled) ttsSpeak(data.reply);
       if(result)result.reply=data.reply;
       notify('Réponse régénérée avec succès.','ok');
       // Ferme le panneau si tout était vide
@@ -3160,6 +3160,7 @@ async function runGadsAnalysis(){
     });
     if(textEl) textEl.textContent = d.answer||'Aucune réponse reçue.';
     if(result){ result.style.display='block'; result.scrollIntoView({behavior:'smooth'}); }
+    if(_ttsEnabled) ttsSpeak(d.answer||'');
     notify("Analyse IA terminée.","ok");
   }catch(e){ notify(e.message,'err'); }
   finally{ if(btn) btn.disabled=false; if(ldr) ldr.style.display='none'; }
@@ -3220,6 +3221,7 @@ function _addGadsChatBubble(container, text, role){
   div.innerHTML=`<div style="max-width:85%;background:${bg};border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.6;color:${color};white-space:pre-wrap">${escapeHtml(text)}</div>`;
   container.appendChild(div);
   container.scrollTop=container.scrollHeight;
+  if(role==='assistant' && _ttsEnabled) ttsSpeak(text);
 }
 
 /* ══════════════════════════════════════════════
@@ -3502,6 +3504,7 @@ function renderSmsResult(sms,tips){
   if(tipsEl) tipsEl.textContent=tips||'';
   area.style.display='block';
   area.scrollIntoView({behavior:'smooth'});
+  if(_ttsEnabled) ttsSpeak(sms);
 }
 
 function copySmsResult(){
