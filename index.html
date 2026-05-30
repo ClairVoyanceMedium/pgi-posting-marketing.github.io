@@ -163,7 +163,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 </aside>
 
 <main class="main">
-  <div class="topbar"><div class="topbar-title" id="page-title">Tableau de bord</div><div class="topbar-right"><button class="btn btn-ghost btn-sm" onclick="refreshCurrent()">↺</button><button class="btn btn-neon btn-sm" onclick="nav('create')">+ Nouveau post</button></div></div>
+  <div class="topbar"><div class="topbar-title" id="page-title">Tableau de bord</div><div class="topbar-right"><button id="tts-global-btn" class="btn btn-ghost btn-sm tts-toggle-btn" onclick="ttsToggle()" title="Activer/désactiver la lecture vocale" style="font-size:12px;padding:5px 10px;border:1px solid var(--border2);border-radius:8px">🔇 Voix</button><button class="btn btn-ghost btn-sm" onclick="refreshCurrent()">↺</button><button class="btn btn-neon btn-sm" onclick="nav('create')">+ Nouveau post</button></div></div>
   <div class="page-content">
 
     <!-- DASHBOARD -->
@@ -3135,6 +3135,7 @@ async function runGadsAnalysis(){
       campaignName: document.getElementById('gads-ai-campaign')?.value.trim()||''
     });
     if(result){ result.textContent=d.answer||''; result.style.display='block'; }
+    ttsSpeak(d.answer||'');
     notify("Analyse IA terminée.","ok");
   }catch(e){ notify(e.message,'err'); }
   finally{ if(btn) btn.disabled=false; if(ldr) ldr.style.display='none'; }
