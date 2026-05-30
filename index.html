@@ -2908,7 +2908,7 @@ async function loadGadsCampaigns(){
     const data = await api('/api/google-ads/campaigns?period='+period);
     _gadsCampaigns = data.campaigns || [];
     if(!_gadsCampaigns.length){
-      el.innerHTML='<div class="text-muted text-sm">'+escapeHtml(data.message||'Aucune campagne trouvée.')+'</div>';
+      el.innerHTML=''; // Pas de message — silence
       return;
     }
     const STATUS_COLOR = { ENABLED:'b-green', PAUSED:'b-orange', REMOVED:'b-red' };
