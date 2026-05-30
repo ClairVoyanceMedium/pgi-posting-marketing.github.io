@@ -943,8 +943,20 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           <button class="btn btn-neon" id="gads-ai-analyze-btn" onclick="runGadsAnalysis()">
             <span class="loader" id="gads-ai-ldr" style="display:none"></span>⚡ Analyser
           </button>
+          <button class="btn tts-toggle-btn btn-sm" onclick="ttsToggle()" style="font-size:11px;padding:5px 10px;border:1px solid var(--border2);border-radius:8px;cursor:pointer">🔇 Voix</button>
         </div>
-        <div id="gads-ai-result" style="display:none;background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)"></div>
+        <div id="gads-ai-result" style="display:none;background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <span style="font-size:10px;color:var(--neon);letter-spacing:1px;text-transform:uppercase">Analyse IA</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn tts-toggle-btn btn-sm" onclick="ttsToggle()" style="font-size:11px;padding:4px 9px;border:1px solid var(--border2);border-radius:7px;cursor:pointer">🔇 Voix</button>
+              <button class="btn btn-ghost btn-sm" onclick="ttsSpeak(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px" title="Relire">▶ Relire</button>
+              <button class="btn btn-ghost btn-sm" onclick="ttsStop()" style="font-size:11px;padding:4px 9px" title="Arrêter">■ Stop</button>
+              <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard?.writeText(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px">📋 Copier</button>
+            </div>
+          </div>
+          <div id="gads-ai-result-text"></div>
+        </div>
       </div>
 
       <!-- IA GOOGLE ADS — CHAT EXPERT -->
@@ -3134,7 +3146,12 @@ async function runGadsAnalysis(){
       type:         document.getElementById('gads-ai-type')?.value||'general',
       campaignName: document.getElementById('gads-ai-campaign')?.value.trim()||''
     });
-    if(result){ result.textContent=d.answer||''; result.style.display='block'; }
+    const textEl = document.getElementById('gads-ai-result-text');
+    if(result){
+      if(textEl) textEl.textContent = d.answer||'';
+      result.style.display='block';
+      result.scrollIntoView({behavior:'smooth'});
+    }
     ttsSpeak(d.answer||'');
     notify("Analyse IA terminée.","ok");
   }catch(e){ notify(e.message,'err'); }
