@@ -145,6 +145,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
   <div class="nav-section">Système</div>
   <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Forum pour Publicités</div>
+  <!-- Lien document forums éditable -->
+  <div style="padding:0 10px 4px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.18);border-radius:8px;padding:6px 10px">
+      <a id="nav-forum-doc-link" href="https://docs.google.com/document/d/1C21PD4dVRVARkU1IcLlXKkoyTkvm_qJO/edit?usp=drivesdk&ouid=105928651377496364202&rtpof=true&sd=true" target="_blank" style="flex:1;font-size:11px;color:var(--neon);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir le document">📄 Document forums</a>
+      <button onclick="editForumDocLink(event)" title="Modifier le lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
   <div class="nav-item" onclick="nav('horaires')" id="nav-horaires"><span class="nav-icon">🕐</span>Meilleurs horaires</div>
   <div class="nav-item" onclick="nav('forumhistory')" id="nav-forumhistory"><span class="nav-icon">📜</span>Historique forums</div>
   <div class="nav-item" onclick="nav('clicks')" id="nav-clicks"><span class="nav-icon">📊</span>Stats clics</div>
@@ -3551,6 +3558,26 @@ async function translateForumReply(id, targetLang){
    FORUMS INTERNATIONAUX — intégrés dans FORUMS_LIST
 ══════════════════════════════════════════════ */
 
+function editForumDocLink(e){
+  if(e) e.stopPropagation();
+  const link = document.getElementById('nav-forum-doc-link');
+  const current = link ? link.href : '';
+  const newUrl = prompt('Modifier le lien du document forums :', current);
+  if(newUrl === null) return; // annulé
+  const url = newUrl.trim() || current;
+  if(link){ link.href = url; }
+  localStorage.setItem('pgi_forum_doc_url', url);
+  notify('Lien du document mis à jour.','ok');
+}
+
+function loadForumDocLink(){
+  const saved = localStorage.getItem('pgi_forum_doc_url');
+  if(saved){
+    const link = document.getElementById('nav-forum-doc-link');
+    if(link) link.href = saved;
+  }
+}
+
 /* ══════════════════════════════════════════════
    TTS — LECTURE VOCALE IA (voix masculine grave, français)
    Fonctionne sur tous les chats et résultats IA de l'app
@@ -3644,6 +3671,7 @@ function ttsButtonHTML(){
 window.addEventListener('load', function(){
   initTTSVoice();
   updateTTSButtons();
+  loadForumDocLink();
 
   // Injecter le bouton TTS dans le chat Google Ads
   const gadsChatCard = document.getElementById('gads-chat-messages');
