@@ -130,7 +130,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="sidebar-head"><div class="logo-block"><div class="neon-title">PGI &bull; POSTING<br>MARKETING</div><div class="logo-sub">Administration</div></div><div class="worker-status"><div class="dot dot-orange" id="ws-dot"></div><span style="color:var(--text3);font-size:10px" id="ws-txt">Non configuré</span></div></div>
   <div class="worker-bar"><input type="url" id="worker-url-inp" placeholder="https://pgi-worker.xxx.workers.dev" title="URL du Cloudflare Worker"><button class="btn btn-neon btn-sm" onclick="saveWorkerUrl()" title="Enregistrer">✓</button></div>
   <div style="padding:0 14px 8px;font-size:9px;color:var(--text3)">URL du Worker Cloudflare</div>
-  <div class="nav-section">Publication</div>
+  <div class="nav-section">Publication automatique</div>
+  <div class="nav-item" onclick="nav('notes')" id="nav-notes"><span class="nav-icon">📝</span>Notes<span class="nav-badge" id="notes-badge" style="display:none">0</span></div>
   <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard"><span class="nav-icon">◈</span>Tableau de bord</div>
   <div class="nav-item" onclick="nav('create')" id="nav-create"><span class="nav-icon">✦</span>Créer un post</div>
   <div class="nav-item" onclick="nav('myposts')" id="nav-myposts"><span class="nav-icon">📋</span>Posts programmés<span class="nav-badge" id="myposts-badge" style="display:none">0</span></div>
@@ -141,21 +142,20 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-section">Connexions</div>
   <div class="nav-item" onclick="nav('connections')" id="nav-connections"><span class="nav-icon">⟳</span>Plateformes</div>
   <div class="nav-item" onclick="nav('platforms')" id="nav-platforms"><span class="nav-icon">⬡</span>Statut plateformes</div>
+  <div class="nav-item" onclick="nav('horaires')" id="nav-horaires"><span class="nav-icon">🕐</span>Meilleurs horaires</div>
   <div class="nav-item" onclick="nav('references')" id="nav-references"><span class="nav-icon">◉</span>Bibliothèque images</div>
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
   <div class="nav-section">Système</div>
   <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Forum pour Publicités</div>
-  <!-- Lien document forums éditable -->
+  <!-- Lien document forums — cliquer pour ouvrir, ✏️ pour modifier nom/lien -->
   <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.18);border-radius:8px;padding:6px 10px">
-      <a id="nav-forum-doc-link" href="https://docs.google.com/document/d/1C21PD4dVRVARkU1IcLlXKkoyTkvm_qJO/edit?usp=drivesdk&ouid=105928651377496364202&rtpof=true&sd=true" target="_blank" style="flex:1;font-size:11px;color:var(--neon);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir le document">📄 Document forums</a>
-      <button onclick="editForumDocLink(event)" title="Modifier le lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <a id="nav-forum-doc-link" href="https://docs.google.com/document/d/1C21PD4dVRVARkU1IcLlXKkoyTkvm_qJO/edit?usp=drivesdk&ouid=105928651377496364202&rtpof=true&sd=true" target="_blank" style="flex:1;font-size:11px;color:var(--neon);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir le document"><span id="nav-forum-doc-name">📄 Document forums</span></a>
+      <button onclick="editForumDocLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
     </div>
   </div>
-  <div class="nav-item" onclick="nav('horaires')" id="nav-horaires"><span class="nav-icon">🕐</span>Meilleurs horaires</div>
   <div class="nav-item" onclick="nav('forumhistory')" id="nav-forumhistory"><span class="nav-icon">📜</span>Historique forums</div>
   <div class="nav-item" onclick="nav('clicks')" id="nav-clicks"><span class="nav-icon">📊</span>Stats clics</div>
-  <div class="nav-item" onclick="nav('notes')" id="nav-notes"><span class="nav-icon">📝</span>Notes<span class="nav-badge" id="notes-badge" style="display:none">0</span></div>
   <div class="nav-item" onclick="nav('guide')" id="nav-guide"><span class="nav-icon">📖</span>Guide plateformes</div>
   <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Configuration AI</div>
   <div class="nav-item" onclick="nav('email')" id="nav-email"><span class="nav-icon">✉</span>Email</div>
@@ -3560,22 +3560,30 @@ async function translateForumReply(id, targetLang){
 
 function editForumDocLink(e){
   if(e) e.stopPropagation();
-  const link = document.getElementById('nav-forum-doc-link');
-  const current = link ? link.href : '';
-  const newUrl = prompt('Modifier le lien du document forums :', current);
-  if(newUrl === null) return; // annulé
-  const url = newUrl.trim() || current;
-  if(link){ link.href = url; }
-  localStorage.setItem('pgi_forum_doc_url', url);
-  notify('Lien du document mis à jour.','ok');
+  const link    = document.getElementById('nav-forum-doc-link');
+  const nameEl  = document.getElementById('nav-forum-doc-name');
+  const curUrl  = link  ? link.href  : '';
+  const curName = nameEl ? nameEl.textContent : '📄 Document forums';
+  const newName = prompt('Nom du document :', curName);
+  if(newName === null) return;
+  const newUrl  = prompt('Lien du document :', curUrl);
+  if(newUrl === null) return;
+  const finalName = newName.trim() || curName;
+  const finalUrl  = newUrl.trim()  || curUrl;
+  if(link)   link.href = finalUrl;
+  if(nameEl) nameEl.textContent = finalName;
+  localStorage.setItem('pgi_forum_doc_url',  finalUrl);
+  localStorage.setItem('pgi_forum_doc_name', finalName);
+  notify('Document mis à jour.','ok');
 }
 
 function loadForumDocLink(){
-  const saved = localStorage.getItem('pgi_forum_doc_url');
-  if(saved){
-    const link = document.getElementById('nav-forum-doc-link');
-    if(link) link.href = saved;
-  }
+  const savedUrl  = localStorage.getItem('pgi_forum_doc_url');
+  const savedName = localStorage.getItem('pgi_forum_doc_name');
+  const link   = document.getElementById('nav-forum-doc-link');
+  const nameEl = document.getElementById('nav-forum-doc-name');
+  if(savedUrl  && link)   link.href = savedUrl;
+  if(savedName && nameEl) nameEl.textContent = savedName;
 }
 
 /* ══════════════════════════════════════════════
