@@ -154,12 +154,21 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <button onclick="editForumDocLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
     </div>
   </div>
+  <div class="nav-item" onclick="nav('forumchat')" id="nav-forumchat"><span class="nav-icon">🧠</span>Expert Forums IA</div>
   <div class="nav-item" onclick="nav('forumhistory')" id="nav-forumhistory"><span class="nav-icon">📜</span>Historique forums</div>
   <div class="nav-item" onclick="nav('clicks')" id="nav-clicks"><span class="nav-icon">📊</span>Stats clics</div>
   <div class="nav-item" onclick="nav('guide')" id="nav-guide"><span class="nav-icon">📖</span>Guide plateformes</div>
   <div class="nav-item" onclick="nav('ai')" id="nav-ai"><span class="nav-icon">⚡</span>Configuration AI</div>
   <div class="nav-item" onclick="nav('email')" id="nav-email"><span class="nav-icon">✉</span>Email</div>
   <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span class="nav-icon">▤</span>Logs</div>
+  <!-- Google My Business -->
+  <div class="nav-section">Google My Business</div>
+  <div style="padding:0 10px 8px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:6px 10px">
+      <a id="nav-gmb-link" href="https://chatgpt.com/share/6a27be5a-6ee0-83eb-8acf-4c1ff2103295" target="_blank" style="flex:1;font-size:11px;color:var(--gold);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir Google My Business"><span id="nav-gmb-name">📍 Google My Business</span></a>
+      <button onclick="editGmbLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
   <div class="nav-section">Publicité &amp; Marketplaces</div>
   <div class="nav-item" onclick="nav('sms')" id="nav-sms"><span class="nav-icon">📱</span>SMS Marketing</div>
   <div class="nav-item" onclick="nav('ebay')" id="nav-ebay"><span class="nav-icon">🛒</span>Annonces eBay</div>
@@ -337,6 +346,46 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
       <div class="fgrp"><label class="flabel">Forums à analyser</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px" id="forums-checklist"></div></div>
       <div id="forums-results" style="margin-top:8px"></div></div></div>
+
+    <!-- CHAT IA EXPERT FORUMS MARKETING — page indépendante -->
+    <div class="page" id="page-forumchat">
+      <div class="card">
+        <div class="card-title flex-between">
+          <span>🧠 Expert Marketing Forums — 30 ans d'expérience</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm tts-lecture-btn" onclick="ttsLecture('forum-chat-messages')" title="Lire la dernière réponse">▶ Lire</button>
+            <button class="btn btn-ghost btn-sm tts-pause-btn" onclick="ttsPause()" title="Pause" style="display:none">⏸ Pause</button>
+            <button class="btn btn-ghost btn-sm" onclick="ttsRelire('forum-chat-messages')" title="Relire depuis le début">↺ Relire</button>
+            <button class="btn btn-ghost btn-sm" onclick="ttsStop()">■ Stop</button>
+            <button class="btn btn-red btn-sm" onclick="clearForumChat()">Effacer</button>
+          </div>
+        </div>
+        <div style="background:rgba(238,119,34,.06);border:1px solid rgba(238,119,34,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+          Expert en marketing sur forums depuis 30 ans. Posez vos questions sur les forums de votre site, la rédaction de messages qui convertissent, les liens cliquables, les stratégies de présence, les règles de chaque forum…
+        </div>
+        <div id="forum-chat-messages" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:120px;max-height:520px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="align-self:flex-start;background:rgba(238,119,34,.08);border:1px solid rgba(238,119,34,.2);border-radius:16px 16px 16px 4px;padding:12px 16px;max-width:92%;font-size:13px;line-height:1.7;color:var(--text)">
+            Bonjour ! Je suis votre expert marketing forums avec 30 ans d'expérience. Je connais parfaitement les forums de votre site et les stratégies pour maximiser vos conversions en voyance.<br><br>
+            Je vous conseille sur : la rédaction de messages percutants, les règles de chaque forum, l'utilisation des liens, les horaires de publication, les signatures, les techniques de conversion, et bien plus.<br><br>
+            Quelle est votre question ?
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('Puis-je mettre des liens cliquables vers mon site dans mes réponses sur ces forums ?')">Liens cliquables ?</button>
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('Quelle est la meilleure façon de rédiger un message qui convertit sur un forum de voyance ?')">Message qui convertit</button>
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('À quels horaires dois-je poster sur les forums pour avoir le plus de visibilité ?')">Meilleurs horaires</button>
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('Comment créer une signature efficace avec mon lien et mon numéro sans me faire bannir ?')">Signature efficace</button>
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('Quelles règles dois-je absolument respecter pour ne pas me faire bannir des forums ?')">Règles anti-ban</button>
+          <button class="btn btn-ghost btn-sm" onclick="forumChatQuick('Comment augmenter mon taux de conversion depuis les forums vers mon site ?')">Augmenter conversion</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="finput" id="forum-chat-input" placeholder="Posez votre question sur les forums, la stratégie, les liens…" style="flex:1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendForumChat();}">
+          <button class="btn btn-neon" onclick="sendForumChat()" id="forum-chat-btn">
+            <span class="loader" id="forum-chat-ldr" style="display:none"></span>Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- NOTES -->
     <div class="page" id="page-notes"><div class="card"><div class="card-title flex-between"><span>Notes personnelles</span><button class="btn btn-neon btn-sm" onclick="addNote()">+ Nouvelle note</button></div><div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Vos notes sont sauvegardées dans le cloud (Worker) — accessibles sur tous vos appareils.</div><div id="notes-list"></div></div></div>
@@ -955,10 +1004,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         <div id="gads-ai-result" style="display:none;background:linear-gradient(135deg,#08082a,#0b0b26);border:1px solid var(--border2);border-radius:10px;padding:18px;white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
             <span style="font-size:10px;color:var(--neon);letter-spacing:1px;text-transform:uppercase">Analyse IA</span>
-            <div style="display:flex;gap:6px">
-              <button class="btn tts-toggle-btn btn-sm" onclick="ttsToggle()" style="font-size:11px;padding:4px 9px;border:1px solid var(--border2);border-radius:7px;cursor:pointer">🔇 Voix</button>
-              <button class="btn btn-ghost btn-sm" onclick="ttsSpeak(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px" title="Relire">▶ Relire</button>
-              <button class="btn btn-ghost btn-sm" onclick="ttsStop()" style="font-size:11px;padding:4px 9px" title="Arrêter">■ Stop</button>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <button class="btn btn-ghost btn-sm" onclick="ttsSpeak(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px">▶ Lire</button>
+              <button class="btn btn-ghost btn-sm" onclick="ttsPause()" style="font-size:11px;padding:4px 9px">⏸ Pause</button>
+              <button class="btn btn-ghost btn-sm" onclick="ttsRelire('gads-ai-result')" style="font-size:11px;padding:4px 9px">↺ Relire</button>
+              <button class="btn btn-ghost btn-sm" onclick="ttsStop()" style="font-size:11px;padding:4px 9px">■ Stop</button>
               <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard?.writeText(document.getElementById('gads-ai-result-text')?.textContent||'')" style="font-size:11px;padding:4px 9px">📋 Copier</button>
             </div>
           </div>
@@ -968,7 +1018,15 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
       <!-- IA GOOGLE ADS — CHAT EXPERT -->
       <div class="card">
-        <div class="card-title">💬 Chat — Expert Google Ads IA</div>
+        <div class="card-title flex-between">
+          <span>💬 Chat — Expert Google Ads IA</span>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" onclick="ttsLecture('gads-chat-messages')">▶ Lire</button>
+            <button class="btn btn-ghost btn-sm" onclick="ttsPause()">⏸ Pause</button>
+            <button class="btn btn-ghost btn-sm" onclick="ttsRelire('gads-chat-messages')">↺ Relire</button>
+            <button class="btn btn-ghost btn-sm" onclick="ttsStop()">■ Stop</button>
+          </div>
+        </div>
         <div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2)">
           Posez n'importe quelle question Google Ads. L'IA se comporte comme un expert senior spécialisé en voyance et services en ligne.
         </div>
@@ -986,8 +1044,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quels mots-clés sont les plus efficaces pour la voyance par téléphone ?')">Mots-clés</button>
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('Quelle stratégie d\'enchères recommandes-tu pour maximiser les conversions ?')">Stratégie enchères</button>
           <button class="btn btn-ghost btn-sm" onclick="gadsChatQuick('À quelles heures dois-je activer mes campagnes pour la voyance ?')">Créneaux horaires</button>
-          <button class="btn btn-ghost btn-sm" onclick="readLastGadsChatMsg()" title="Lire la dernière réponse">🔊 Lire</button>
-          <button class="btn btn-ghost btn-sm" onclick="ttsStop()" title="Arrêter la lecture">■ Stop</button>
           <button class="btn btn-red btn-sm" onclick="clearGadsChat()">Effacer</button>
         </div>
       </div>
@@ -1339,7 +1395,7 @@ const CONN_FIELDS={
   dailymotion:[{k:'note',l:'Mode semi-auto',t:'text',h:'Upload vidéo séparé'}]
 };
 
-const PAGE_TITLES={sms:'SMS Marketing',ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
+const PAGE_TITLES={sms:'SMS Marketing',ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',forumchat:'Expert Marketing Forums IA',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'};
 
 /* ──── API ──── */
 async function api(path,method='GET',body=null,extraHeaders={}){
@@ -3136,14 +3192,77 @@ async function saveGadsDemographics(){
   }
 }
 
-function readLastGadsChatMsg(){
-  const messages = document.getElementById('gads-chat-messages');
-  if(!messages) return;
-  const bubbles = messages.querySelectorAll('div > div');
+// ── Boutons Lecture / Pause / Relire pour tous les chats ──
+let _ttsQueue = [];   // file de textes à lire
+let _ttsPaused = false;
+
+function ttsLecture(containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  // Lire uniquement la dernière réponse assistant
+  const bubbles = container.querySelectorAll('div > div');
   if(!bubbles.length) return;
-  const last = bubbles[bubbles.length-1];
-  const text = last?.textContent || '';
-  if(text.trim()) ttsSpeak(text);
+  const lastText = bubbles[bubbles.length-1]?.textContent || '';
+  if(lastText.trim()) { _ttsPaused=false; ttsSpeak(lastText); }
+}
+
+function ttsPause(){
+  if(!window.speechSynthesis) return;
+  if(_ttsPaused){
+    window.speechSynthesis.resume();
+    _ttsPaused=false;
+    document.querySelectorAll('.tts-pause-btn').forEach(function(b){ b.textContent='⏸ Pause'; });
+  } else {
+    window.speechSynthesis.pause();
+    _ttsPaused=true;
+    document.querySelectorAll('.tts-pause-btn').forEach(function(b){ b.textContent='▶ Reprendre'; });
+  }
+}
+
+function ttsRelire(containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  window.speechSynthesis.cancel();
+  _ttsPaused=false;
+  // Lire tous les messages assistant dans l'ordre
+  const bubbles = Array.from(container.querySelectorAll('div > div'));
+  const texts   = bubbles.map(function(b){ return b.textContent.trim(); }).filter(Boolean);
+  if(!texts.length) return;
+  // Lire les 3 dernières réponses assistant (impairs = assistant si 1er = assistant)
+  const full = texts.join('. ');
+  ttsSpeak(full);
+}
+
+function editGmbLink(e){
+  if(e) e.stopPropagation();
+  const link   = document.getElementById('nav-gmb-link');
+  const nameEl = document.getElementById('nav-gmb-name');
+  const curUrl  = link   ? link.href  : '';
+  const curName = nameEl ? nameEl.textContent : '📍 Google My Business';
+  const newName = prompt('Nom :', curName);
+  if(newName===null) return;
+  const newUrl  = prompt('Lien :', curUrl);
+  if(newUrl===null) return;
+  const finalName = newName.trim() || curName;
+  const finalUrl  = newUrl.trim()  || curUrl;
+  if(link)   link.href = finalUrl;
+  if(nameEl) nameEl.textContent = finalName;
+  localStorage.setItem('pgi_gmb_url',  finalUrl);
+  localStorage.setItem('pgi_gmb_name', finalName);
+  notify('Google My Business mis à jour.','ok');
+}
+
+function loadGmbLink(){
+  const savedUrl  = localStorage.getItem('pgi_gmb_url');
+  const savedName = localStorage.getItem('pgi_gmb_name');
+  const link   = document.getElementById('nav-gmb-link');
+  const nameEl = document.getElementById('nav-gmb-name');
+  if(savedUrl  && link)   link.href = savedUrl;
+  if(savedName && nameEl) nameEl.textContent = savedName;
+}
+
+function readLastGadsChatMsg(){
+  ttsLecture('gads-chat-messages');
 }
 
 /* ── IA Google Ads — Analyse ── */
@@ -3498,20 +3617,30 @@ async function improveSmsText(){
   finally{if(ldr)ldr.style.display='none';}
 }
 
+// Auto-capitalise les débuts de phrases (après . ! ? et en début de texte)
+function capitalizeSentences(text){
+  if(!text) return text;
+  return text
+    .replace(/(^|[.!?…]\s+|[.!?…]\n+)([a-zàâäéèêëîïôùûüçœæ])/g,
+      function(m, sep, letter){ return sep + letter.toUpperCase(); })
+    .replace(/^([a-zàâäéèêëîïôùûüçœæ])/, function(m){ return m.toUpperCase(); });
+}
+
 function renderSmsResult(sms,tips){
   const area=document.getElementById('sms-result-area');
   const textEl=document.getElementById('sms-result-text');
   const countEl=document.getElementById('sms-char-count');
   const tipsEl=document.getElementById('sms-result-tips');
   if(!area||!textEl) return;
-  textEl.textContent=sms;
-  const chars=sms.length;
+  const formatted = capitalizeSentences(sms);
+  textEl.textContent=formatted;
+  const chars=formatted.length;
   const smsCount=Math.ceil(chars/160)||1;
   if(countEl) countEl.textContent=chars+' caractères — '+smsCount+' SMS';
   if(tipsEl) tipsEl.textContent=tips||'';
   area.style.display='block';
   area.scrollIntoView({behavior:'smooth'});
-  if(_ttsEnabled) ttsSpeak(sms);
+  if(_ttsEnabled) ttsSpeak(formatted);
 }
 
 function copySmsResult(){
@@ -3584,6 +3713,73 @@ function loadForumDocLink(){
   const nameEl = document.getElementById('nav-forum-doc-name');
   if(savedUrl  && link)   link.href = savedUrl;
   if(savedName && nameEl) nameEl.textContent = savedName;
+}
+
+/* ══════════════════════════════════════════════
+   CHAT IA EXPERT FORUMS MARKETING
+══════════════════════════════════════════════ */
+let _forumChatHistory = [];
+
+function _addForumChatBubble(container, text, role){
+  if(!container) return;
+  const isUser  = role==='user';
+  const isError = role==='error';
+  const bg    = isUser ? 'rgba(0,191,255,.12)' : isError ? 'rgba(204,34,68,.1)' : 'rgba(238,119,34,.08)';
+  const border= isUser ? '' : isError ? 'border:1px solid var(--red);' : 'border:1px solid rgba(238,119,34,.2);';
+  const color = isUser ? 'var(--neon)' : isError ? 'var(--red)' : 'var(--text)';
+  const align = isUser ? 'flex-end' : 'flex-start';
+  const radius= isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px';
+  const div   = document.createElement('div');
+  div.style.cssText = 'display:flex;justify-content:'+align;
+  div.innerHTML = `<div style="max-width:90%;background:${bg};${border}border-radius:${radius};padding:11px 15px;font-size:13px;line-height:1.7;color:${color};white-space:pre-wrap">${escapeHtml(text)}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  if(role==='assistant' && _ttsEnabled) ttsSpeak(text);
+}
+
+async function sendForumChat(){
+  const inp = document.getElementById('forum-chat-input');
+  const msg = inp?.value.trim();
+  if(!msg) return;
+  const container = document.getElementById('forum-chat-messages');
+  const btn = document.getElementById('forum-chat-btn');
+  const ldr = document.getElementById('forum-chat-ldr');
+  inp.value = '';
+  _addForumChatBubble(container, msg, 'user');
+  _forumChatHistory.push({role:'user', content: msg});
+  if(btn) btn.disabled=true;
+  if(ldr) ldr.style.display='inline-block';
+  try{
+    const d = await api('/api/forums/chat','POST',{ message: msg, history: _forumChatHistory.slice(-12) });
+    const answer = d.answer || d.reply || '';
+    if(!answer) throw new Error('Réponse vide');
+    _addForumChatBubble(container, answer, 'assistant');
+    _forumChatHistory.push({role:'assistant', content: answer});
+  }catch(e){
+    _addForumChatBubble(container, '⚠ Erreur : '+e.message, 'error');
+  }finally{
+    if(btn) btn.disabled=false;
+    if(ldr) ldr.style.display='none';
+  }
+}
+
+function forumChatQuick(msg){
+  const inp = document.getElementById('forum-chat-input');
+  if(inp){ inp.value = msg; sendForumChat(); }
+}
+
+function clearForumChat(){
+  _forumChatHistory = [];
+  const c = document.getElementById('forum-chat-messages');
+  if(c) c.innerHTML = `<div style="align-self:flex-start;background:rgba(238,119,34,.08);border:1px solid rgba(238,119,34,.2);border-radius:16px 16px 16px 4px;padding:12px 16px;max-width:90%;font-size:13px;line-height:1.7;color:var(--text)">Conversation effacée. Posez votre question !</div>`;
+}
+
+function readLastForumChatMsg(){
+  const c = document.getElementById('forum-chat-messages');
+  if(!c) return;
+  const bubbles = c.querySelectorAll('div > div');
+  if(!bubbles.length) return;
+  ttsSpeak(bubbles[bubbles.length-1]?.textContent||'');
 }
 
 /* ══════════════════════════════════════════════
@@ -3680,6 +3876,7 @@ window.addEventListener('load', function(){
   initTTSVoice();
   updateTTSButtons();
   loadForumDocLink();
+  loadGmbLink();
 
   // Injecter le bouton TTS dans le chat Google Ads
   const gadsChatCard = document.getElementById('gads-chat-messages');
