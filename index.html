@@ -163,10 +163,16 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span class="nav-icon">▤</span>Logs</div>
   <!-- Google My Business -->
   <div class="nav-section">Google My Business</div>
-  <div style="padding:0 10px 8px 10px">
+  <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-gmb-link" href="https://chatgpt.com/share/6a27be5a-6ee0-83eb-8acf-4c1ff2103295" target="_blank" style="flex:1;font-size:11px;color:var(--gold);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir Google My Business"><span id="nav-gmb-name">📍 Google My Business</span></a>
       <button onclick="editGmbLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
+  <div style="padding:0 10px 8px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:6px 10px">
+      <a id="nav-gmb2-link" href="https://www.google.com/search?q=ClairVoyance+Medium&stick=H4sIAAAAAAAA_-NgU1I1qEg0NDBONE1KsTQysTBINTW1MqgwNzFNtDS2MDQ0SDYyM0gxXcQq7JyTmFkUll-ZmJecquCbmpJZmgsAjCM5Bz8AAAA&hl=fr&mat=CTRskacAt9EVElYBTVDHnti0Fg-ZFBN9z0xUEEiZeNYOCsgyPLh0zGAjh4TOX9S8L6wgOHSbwkhcP5C0nHyguun2eIqpGC9zw6hb2MGBjFfU7DsrQgchuOKX2Tzi5xrbuw&authuser=0" target="_blank" style="flex:1;font-size:11px;color:var(--gold);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ma fiche My business"><span id="nav-gmb2-name">📋 Ma fiche My business</span></a>
+      <button onclick="editGmb2Link(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
     </div>
   </div>
   <div class="nav-section">Publicité &amp; Marketplaces</div>
@@ -3252,11 +3258,39 @@ function editGmbLink(e){
   notify('Google My Business mis à jour.','ok');
 }
 
+function editGmb2Link(e){
+  if(e) e.stopPropagation();
+  const link   = document.getElementById('nav-gmb2-link');
+  const nameEl = document.getElementById('nav-gmb2-name');
+  const curUrl  = link   ? link.href  : '';
+  const curName = nameEl ? nameEl.textContent : '📋 Ma fiche My business';
+  const newName = prompt('Nom :', curName);
+  if(newName===null) return;
+  const newUrl  = prompt('Lien :', curUrl);
+  if(newUrl===null) return;
+  const finalName = newName.trim() || curName;
+  const finalUrl  = newUrl.trim()  || curUrl;
+  if(link)   link.href = finalUrl;
+  if(nameEl) nameEl.textContent = finalName;
+  localStorage.setItem('pgi_gmb2_url',  finalUrl);
+  localStorage.setItem('pgi_gmb2_name', finalName);
+  notify('Ma fiche My business mis à jour.','ok');
+}
+
 function loadGmbLink(){
   const savedUrl  = localStorage.getItem('pgi_gmb_url');
   const savedName = localStorage.getItem('pgi_gmb_name');
   const link   = document.getElementById('nav-gmb-link');
   const nameEl = document.getElementById('nav-gmb-name');
+  if(savedUrl  && link)   link.href = savedUrl;
+  if(savedName && nameEl) nameEl.textContent = savedName;
+}
+
+function loadGmb2Link(){
+  const savedUrl  = localStorage.getItem('pgi_gmb2_url');
+  const savedName = localStorage.getItem('pgi_gmb2_name');
+  const link   = document.getElementById('nav-gmb2-link');
+  const nameEl = document.getElementById('nav-gmb2-name');
   if(savedUrl  && link)   link.href = savedUrl;
   if(savedName && nameEl) nameEl.textContent = savedName;
 }
@@ -3877,6 +3911,7 @@ window.addEventListener('load', function(){
   updateTTSButtons();
   loadForumDocLink();
   loadGmbLink();
+  loadGmb2Link();
 
   // Injecter le bouton TTS dans le chat Google Ads
   const gadsChatCard = document.getElementById('gads-chat-messages');
