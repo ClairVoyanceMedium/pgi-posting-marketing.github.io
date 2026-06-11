@@ -175,6 +175,26 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       <button onclick="editGmb2Link(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
     </div>
   </div>
+  <!-- LIENS UTILES -->
+  <div class="nav-section">Liens utiles</div>
+  <div style="padding:0 10px 4px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
+      <a id="nav-util1-link" href="https://www.facebook.com/share/1D5UBKzQBv/" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util1-name">📘 Ma page Facebook</span></a>
+      <button onclick="editUtilLink(event,'util1','Ma page Facebook')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
+  <div style="padding:0 10px 4px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
+      <a id="nav-util2-link" href="https://www.linkedin.com/in/clairvoyance-medium-7574b4132" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util2-name">💼 Ma page LinkedIn</span></a>
+      <button onclick="editUtilLink(event,'util2','Ma page LinkedIn')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
+  <div style="padding:0 10px 8px 10px">
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
+      <a id="nav-util3-link" href="https://www.threads.com/@clairvoyancemedium_com" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util3-name">🧵 Ma page Threads</span></a>
+      <button onclick="editUtilLink(event,'util3','Ma page Threads')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+    </div>
+  </div>
   <div class="nav-section">Publicité &amp; Marketplaces</div>
   <div class="nav-item" onclick="nav('sms')" id="nav-sms"><span class="nav-icon">📱</span>SMS Marketing</div>
   <div class="nav-item" onclick="nav('ebay')" id="nav-ebay"><span class="nav-icon">🛒</span>Annonces eBay</div>
@@ -1426,7 +1446,7 @@ function statusBadge(s){return{published:'b-green',pending_validation:'b-orange'
 /* ──── NAV ──── */
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('on')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('on')}
-function nav(name){currentPage=name;if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
+function nav(name){currentPage=name;localStorage.setItem('pgi_last_page',name);if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
 function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();}
 
 /* ──── WORKER ──── */
@@ -3239,6 +3259,36 @@ function ttsRelire(containerId){
   ttsSpeak(full);
 }
 
+function editUtilLink(e, key, defaultName){
+  if(e) e.stopPropagation();
+  const link   = document.getElementById('nav-'+key+'-link');
+  const nameEl = document.getElementById('nav-'+key+'-name');
+  const curUrl  = link   ? link.href  : '';
+  const curName = nameEl ? nameEl.textContent : defaultName;
+  const newName = prompt('Nom :', curName);
+  if(newName===null) return;
+  const newUrl  = prompt('Lien :', curUrl);
+  if(newUrl===null) return;
+  const finalName = newName.trim() || curName;
+  const finalUrl  = newUrl.trim()  || curUrl;
+  if(link)   link.href = finalUrl;
+  if(nameEl) nameEl.textContent = finalName;
+  localStorage.setItem('pgi_'+key+'_url',  finalUrl);
+  localStorage.setItem('pgi_'+key+'_name', finalName);
+  notify('Lien mis à jour.','ok');
+}
+
+function loadUtilLinks(){
+  ['util1','util2','util3'].forEach(function(key){
+    const savedUrl  = localStorage.getItem('pgi_'+key+'_url');
+    const savedName = localStorage.getItem('pgi_'+key+'_name');
+    const link   = document.getElementById('nav-'+key+'-link');
+    const nameEl = document.getElementById('nav-'+key+'-name');
+    if(savedUrl  && link)   link.href = savedUrl;
+    if(savedName && nameEl) nameEl.textContent = savedName;
+  });
+}
+
 function editGmbLink(e){
   if(e) e.stopPropagation();
   const link   = document.getElementById('nav-gmb-link');
@@ -3348,6 +3398,7 @@ async function sendGadsChat(){
     const answer = d.answer||'';
     _addGadsChatBubble(messages, answer, 'assistant');
     _gadsChatHistory.push({role:'assistant',content:answer});
+    saveChatHistories();
   }catch(e){
     _addGadsChatBubble(messages, '⚠ Erreur : '+e.message, 'error');
   }finally{
@@ -3365,6 +3416,7 @@ function gadsChatQuick(question){
 
 function clearGadsChat(){
   _gadsChatHistory=[];
+  localStorage.removeItem('pgi_gads_chat_history');
   const messages=document.getElementById('gads-chat-messages');
   if(messages) messages.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center">Conversation effacée.</div>';
 }
@@ -3749,6 +3801,42 @@ function loadForumDocLink(){
   if(savedName && nameEl) nameEl.textContent = savedName;
 }
 
+// ── Persistence des chats et de la page courante ──
+function saveChatHistories(){
+  try{
+    localStorage.setItem('pgi_gads_chat_history',  JSON.stringify(_gadsChatHistory));
+    localStorage.setItem('pgi_forum_chat_history', JSON.stringify(_forumChatHistory));
+  }catch(e){}
+}
+
+function restoreChatHistories(){
+  try{
+    const gc = localStorage.getItem('pgi_gads_chat_history');
+    if(gc){ _gadsChatHistory = JSON.parse(gc); restoreChatUI('gads-chat-messages', _gadsChatHistory, 'rgba(0,191,255,.12)', 'var(--neon)', 'rgba(0,0,0,.25)', 'var(--text)'); }
+    const fc = localStorage.getItem('pgi_forum_chat_history');
+    if(fc){ _forumChatHistory = JSON.parse(fc); restoreChatUI('forum-chat-messages', _forumChatHistory, 'rgba(0,191,255,.12)', 'var(--neon)', 'rgba(238,119,34,.08)', 'var(--text)'); }
+  }catch(e){}
+}
+
+function restoreChatUI(containerId, history, userBg, userColor, aiBg, aiColor){
+  if(!history || !history.length) return;
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML = '';
+  history.forEach(function(m){
+    const isUser = m.role==='user';
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;justify-content:'+(isUser?'flex-end':'flex-start');
+    const radius = isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px';
+    const bg     = isUser ? userBg  : aiBg;
+    const color  = isUser ? userColor : aiColor;
+    const border = isUser ? '' : containerId==='forum-chat-messages' ? 'border:1px solid rgba(238,119,34,.2);' : 'border:1px solid var(--border);';
+    div.innerHTML = `<div style="max-width:90%;background:${bg};${border}border-radius:${radius};padding:11px 15px;font-size:13px;line-height:1.7;color:${color};white-space:pre-wrap">${escapeHtml(m.content)}</div>`;
+    c.appendChild(div);
+  });
+  c.scrollTop = c.scrollHeight;
+}
+
 /* ══════════════════════════════════════════════
    CHAT IA EXPERT FORUMS MARKETING
 ══════════════════════════════════════════════ */
@@ -3789,6 +3877,7 @@ async function sendForumChat(){
     if(!answer) throw new Error('Réponse vide');
     _addForumChatBubble(container, answer, 'assistant');
     _forumChatHistory.push({role:'assistant', content: answer});
+    saveChatHistories();
   }catch(e){
     _addForumChatBubble(container, '⚠ Erreur : '+e.message, 'error');
   }finally{
@@ -3804,6 +3893,7 @@ function forumChatQuick(msg){
 
 function clearForumChat(){
   _forumChatHistory = [];
+  localStorage.removeItem('pgi_forum_chat_history');
   const c = document.getElementById('forum-chat-messages');
   if(c) c.innerHTML = `<div style="align-self:flex-start;background:rgba(238,119,34,.08);border:1px solid rgba(238,119,34,.2);border-radius:16px 16px 16px 4px;padding:12px 16px;max-width:90%;font-size:13px;line-height:1.7;color:var(--text)">Conversation effacée. Posez votre question !</div>`;
 }
@@ -3912,6 +4002,13 @@ window.addEventListener('load', function(){
   loadForumDocLink();
   loadGmbLink();
   loadGmb2Link();
+  loadUtilLinks();
+  restoreChatHistories();
+  // Restaurer la dernière page visitée
+  const lastPage = localStorage.getItem('pgi_last_page');
+  if(lastPage && document.getElementById('page-'+lastPage)){
+    nav(lastPage);
+  }
 
   // Injecter le bouton TTS dans le chat Google Ads
   const gadsChatCard = document.getElementById('gads-chat-messages');
