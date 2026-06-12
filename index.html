@@ -147,11 +147,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="nav-item" onclick="nav('links')" id="nav-links"><span class="nav-icon">⬢</span>Liens du site</div>
   <div class="nav-section">Système</div>
   <div class="nav-item" onclick="nav('forums')" id="nav-forums"><span class="nav-icon">💬</span>Forum pour Publicités</div>
-  <!-- Lien document forums — cliquer pour ouvrir, ✏️ pour modifier nom/lien -->
+  <!-- Lien document forums — cliquer pour ouvrir, 🔗 pour modifier nom/lien -->
   <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.18);border-radius:8px;padding:6px 10px">
       <a id="nav-forum-doc-link" href="https://docs.google.com/document/d/1C21PD4dVRVARkU1IcLlXKkoyTkvm_qJO/edit?usp=drivesdk&ouid=105928651377496364202&rtpof=true&sd=true" target="_blank" style="flex:1;font-size:11px;color:var(--neon);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir le document"><span id="nav-forum-doc-name">📄 Document forums</span></a>
-      <button onclick="editForumDocLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editForumDocLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <div class="nav-item" onclick="nav('forumchat')" id="nav-forumchat"><span class="nav-icon">🧠</span>Expert Forums IA</div>
@@ -166,13 +166,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-gmb-link" href="https://chatgpt.com/share/6a27be5a-6ee0-83eb-8acf-4c1ff2103295" target="_blank" style="flex:1;font-size:11px;color:var(--gold);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ouvrir Google My Business"><span id="nav-gmb-name">📍 Google My Business</span></a>
-      <button onclick="editGmbLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editGmbLink(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <div style="padding:0 10px 8px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(196,160,68,.06);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-gmb2-link" href="https://www.google.com/search?q=ClairVoyance+Medium&stick=H4sIAAAAAAAA_-NgU1I1qEg0NDBONE1KsTQysTBINTW1MqgwNzFNtDS2MDQ0SDYyM0gxXcQq7JyTmFkUll-ZmJecquCbmpJZmgsAjCM5Bz8AAAA&hl=fr&mat=CTRskacAt9EVElYBTVDHnti0Fg-ZFBN9z0xUEEiZeNYOCsgyPLh0zGAjh4TOX9S8L6wgOHSbwkhcP5C0nHyguun2eIqpGC9zw6hb2MGBjFfU7DsrQgchuOKX2Tzi5xrbuw&authuser=0" target="_blank" style="flex:1;font-size:11px;color:var(--gold);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Ma fiche My business"><span id="nav-gmb2-name">📋 Ma fiche My business</span></a>
-      <button onclick="editGmb2Link(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editGmb2Link(event)" title="Modifier nom et lien" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <!-- LIENS UTILES -->
@@ -180,19 +180,19 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-util1-link" href="https://www.facebook.com/share/1D5UBKzQBv/" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util1-name">📘 Ma page Facebook</span></a>
-      <button onclick="editUtilLink(event,'util1','Ma page Facebook')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editUtilLink(event,'util1','Ma page Facebook')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <div style="padding:0 10px 4px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-util2-link" href="https://www.linkedin.com/in/clairvoyance-medium-7574b4132" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util2-name">💼 Ma page LinkedIn</span></a>
-      <button onclick="editUtilLink(event,'util2','Ma page LinkedIn')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editUtilLink(event,'util2','Ma page LinkedIn')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <div style="padding:0 10px 8px 10px">
     <div style="display:flex;align-items:center;gap:5px;background:rgba(0,187,136,.06);border:1px solid rgba(0,187,136,.2);border-radius:8px;padding:6px 10px">
       <a id="nav-util3-link" href="https://www.threads.com/@clairvoyancemedium_com" target="_blank" style="flex:1;font-size:11px;color:#00bb88;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span id="nav-util3-name">🧵 Ma page Threads</span></a>
-      <button onclick="editUtilLink(event,'util3','Ma page Threads')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="editUtilLink(event,'util3','Ma page Threads')" title="Modifier" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:0;line-height:1;flex-shrink:0">🔗</button>
     </div>
   </div>
   <div class="nav-section">Publicité &amp; Marketplaces</div>
