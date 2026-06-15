@@ -1447,7 +1447,7 @@ function statusBadge(s){return{published:'b-green',pending_validation:'b-orange'
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('on')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('on')}
 function nav(name){currentPage=name;localStorage.setItem('pgi_last_page',name);if(window.innerWidth<=900)closeSidebar();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+name)?.classList.add('active');document.getElementById('nav-'+name)?.classList.add('active');document.getElementById('page-title').textContent=PAGE_TITLES[name]||name;refreshCurrent()}
-function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums')buildForumsChecklist();if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();}
+function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums'){buildForumsChecklist();restoreForumResults();}if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();}
 
 /* ──── WORKER ──── */
 function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');refreshCurrent()}
@@ -2124,71 +2124,75 @@ async function analyzeForums(){
     });
     const results=data.results||[];
     if(!results.length){el.innerHTML='<div class="text-muted text-sm" style="padding:12px 0">Aucun sujet trouvé.</div>';return}
-    // Stocker les résultats pour la régénération
+    // Stocker les résultats pour la régénération + persistence
     window._forumResults = results;
-    el.innerHTML=results.map(r=>{
-      const modeBadge=r.searchMode==='web'?'<span class="badge b-green" style="font-size:9px;margin-left:6px">Fil réel</span>':'<span class="badge b-gray" style="font-size:9px;margin-left:6px">IA générée</span>';
-      const seoUsed=r.seoKeywordsUsed&&r.seoKeywordsUsed.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${r.seoKeywordsUsed.map(k=>`<span style="background:rgba(196,160,68,.12);border:1px solid rgba(196,160,68,.3);border-radius:10px;padding:1px 7px;font-size:9px;color:var(--gold)">${escapeHtml(k)}</span>`).join('')}</div>`:'';
-      return `<div class="forum-result-card" id="fcard-${escapeHtml(r.id)}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-          <div style="flex:1">
-            <div class="forum-result-title">${escapeHtml(r.title)}${modeBadge}</div>
-            <div class="forum-result-meta">${escapeHtml(r.forum)} — ${escapeHtml(r.topic||'')} — <span style="color:var(--gold)">${escapeHtml(r.impactReason||'')}</span></div>
-            ${r.audienceProfile?`<div style="font-size:10px;color:var(--text3);margin-top:4px">Profil : ${escapeHtml(r.audienceProfile)}</div>`:''}
-            ${seoUsed}
-          </div>
-          <a href="${escapeHtml(r.url)}" target="_blank" class="btn btn-neon btn-sm" style="flex-shrink:0">Aller poster</a>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Réponse suggérée <span style="color:var(--gold)">(mots-clés SEO intégrés)</span> :</div>
-        <div class="forum-result-reply" id="reply-${escapeHtml(r.id)}">${escapeHtml(r.reply)}</div>
-
-        <!-- BOUTON RÉGÉNÉRER + TRADUIRE -->
-        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="copyForumReply('${escapeHtml(r.id)}')">📋 Copier</button>
-          <button class="btn btn-orange btn-sm" onclick="toggleRegenPanel('${escapeHtml(r.id)}')">⟳ Régénérer</button>
-          <button class="btn btn-green btn-sm" onclick="markForumPosted('${escapeHtml(r.id)}','${escapeHtml(r.forum)}','${escapeHtml(r.title)}','${escapeHtml(r.url)}')">✓ Marquée comme postée</button>
-          <!-- Traduction -->
-          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span style="font-size:10px;color:var(--text3)">🌐 Traduire :</span>
-            <select id="trans-lang-${escapeHtml(r.id)}" style="background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:3px 8px;cursor:pointer;outline:none">
-              <option value="en">🇬🇧 Anglais</option>
-              <option value="es">🇪🇸 Espagnol</option>
-              <option value="it">🇮🇹 Italien</option>
-              <option value="de">🇩🇪 Allemand</option>
-              <option value="pt">🇵🇹 Portugais</option>
-              <option value="nl">🇳🇱 Néerlandais</option>
-              <option value="pl">🇵🇱 Polonais</option>
-              <option value="sv">🇸🇪 Suédois</option>
-            </select>
-            <button class="btn btn-neon btn-sm" onclick="translateForumReply('${escapeHtml(r.id)}',document.getElementById('trans-lang-${escapeHtml(r.id)}').value)">Traduire</button>
-          </div>
-        </div>
-
-        <!-- PANNEAU RÉGÉNÉRATION -->
-        <div class="regen-panel" id="regen-${escapeHtml(r.id)}">
-          <div class="regen-row">
-            <div>
-              <div class="regen-lbl">✍️ Instruction (optionnel)</div>
-              <input class="regen-input" id="regen-inst-${escapeHtml(r.id)}" placeholder="Ex : plus court, commence par une question, plus émotionnel…">
-            </div>
-            <div>
-              <div class="regen-lbl">➕ Éléments à inclure (optionnel)</div>
-              <input class="regen-input" id="regen-include-${escapeHtml(r.id)}" placeholder="Ex : 06 95 46 89 23, voyance par email, disponible ce soir…">
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-neon btn-sm" id="regen-btn-${escapeHtml(r.id)}" onclick="regenForumReply('${escapeHtml(r.id)}')">
-              <span id="regen-ldr-${escapeHtml(r.id)}" class="regen-loader" style="display:none"></span>
-              ⟳ Lancer la régénération
-            </button>
-            <span style="font-size:10px;color:var(--text3)">Laissez vide pour une nouvelle version automatique</span>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+    try{ localStorage.setItem('pgi_forum_results', JSON.stringify(results)); }catch(e){}
+    renderForumResultsHTML(results);
     notify(results.length+' sujet(s) trouvé(s) avec SEO intégré.','ok');
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';}
   finally{btn.disabled=false;ldr.style.display='none'}
+}
+
+function renderForumResultsHTML(results){
+  const el=document.getElementById('forums-results');
+  if(!el||!results||!results.length) return;
+  el.innerHTML=results.map(r=>{
+    const modeBadge=r.searchMode==='web'?'<span class="badge b-green" style="font-size:9px;margin-left:6px">Fil réel</span>':'<span class="badge b-gray" style="font-size:9px;margin-left:6px">IA générée</span>';
+    const seoUsed=r.seoKeywordsUsed&&r.seoKeywordsUsed.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${r.seoKeywordsUsed.map(k=>`<span style="background:rgba(196,160,68,.12);border:1px solid rgba(196,160,68,.3);border-radius:10px;padding:1px 7px;font-size:9px;color:var(--gold)">${escapeHtml(k)}</span>`).join('')}</div>`:'';
+    return `<div class="forum-result-card" id="fcard-${escapeHtml(r.id)}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="flex:1">
+          <div class="forum-result-title">${escapeHtml(r.title)}${modeBadge}</div>
+          <div class="forum-result-meta">${escapeHtml(r.forum)} — ${escapeHtml(r.topic||'')} — <span style="color:var(--gold)">${escapeHtml(r.impactReason||'')}</span></div>
+          ${r.audienceProfile?`<div style="font-size:10px;color:var(--text3);margin-top:4px">Profil : ${escapeHtml(r.audienceProfile)}</div>`:''}
+          ${seoUsed}
+        </div>
+        <a href="${escapeHtml(r.url)}" target="_blank" class="btn btn-neon btn-sm" style="flex-shrink:0">Aller poster</a>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Réponse suggérée <span style="color:var(--gold)">(mots-clés SEO intégrés)</span> :</div>
+      <div class="forum-result-reply" id="reply-${escapeHtml(r.id)}">${escapeHtml(r.reply)}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="copyForumReply('${escapeHtml(r.id)}')">📋 Copier</button>
+        <button class="btn btn-orange btn-sm" onclick="toggleRegenPanel('${escapeHtml(r.id)}')">⟳ Régénérer</button>
+        <button class="btn btn-green btn-sm" onclick="markForumPosted('${escapeHtml(r.id)}','${escapeHtml(r.forum)}','${escapeHtml(r.title)}','${escapeHtml(r.url)}')">✓ Marquée comme postée</button>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--text3)">🌐 Traduire :</span>
+          <select id="trans-lang-${escapeHtml(r.id)}" style="background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:3px 8px;cursor:pointer;outline:none">
+            <option value="en">🇬🇧 Anglais</option><option value="es">🇪🇸 Espagnol</option><option value="it">🇮🇹 Italien</option><option value="de">🇩🇪 Allemand</option><option value="pt">🇵🇹 Portugais</option><option value="nl">🇳🇱 Néerlandais</option><option value="pl">🇵🇱 Polonais</option><option value="sv">🇸🇪 Suédois</option>
+          </select>
+          <button class="btn btn-neon btn-sm" onclick="translateForumReply('${escapeHtml(r.id)}',document.getElementById('trans-lang-${escapeHtml(r.id)}').value)">Traduire</button>
+        </div>
+      </div>
+      <div class="regen-panel" id="regen-${escapeHtml(r.id)}">
+        <div class="regen-row">
+          <div><div class="regen-lbl">✍️ Instruction (optionnel)</div><input class="regen-input" id="regen-inst-${escapeHtml(r.id)}" placeholder="Ex : plus court, commence par une question, plus émotionnel…"></div>
+          <div><div class="regen-lbl">➕ Éléments à inclure (optionnel)</div><input class="regen-input" id="regen-include-${escapeHtml(r.id)}" placeholder="Ex : 06 95 46 89 23, voyance par email, disponible ce soir…"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-neon btn-sm" id="regen-btn-${escapeHtml(r.id)}" onclick="regenForumReply('${escapeHtml(r.id)}')">
+            <span id="regen-ldr-${escapeHtml(r.id)}" class="regen-loader" style="display:none"></span>⟳ Lancer la régénération
+          </button>
+          <span style="font-size:10px;color:var(--text3)">Laissez vide pour une nouvelle version automatique</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function restoreForumResults(){
+  try{
+    const saved=localStorage.getItem('pgi_forum_results');
+    if(!saved) return;
+    const results=JSON.parse(saved);
+    if(!results||!results.length) return;
+    window._forumResults=results;
+    renderForumResultsHTML(results);
+    const el=document.getElementById('forums-results');
+    if(el&&el.innerHTML&&el.innerHTML.length>10){
+      // Ajouter bandeau "résultats précédents"
+      el.insertAdjacentHTML('afterbegin','<div style="background:rgba(196,160,68,.08);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--gold);display:flex;justify-content:space-between;align-items:center"><span>📋 Résultats précédents restaurés</span><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'forums-results\').innerHTML=\'\';localStorage.removeItem(\'pgi_forum_results\')">Effacer</button></div>');
+    }
+  }catch(e){}
 }
 
 function copyForumReply(id){
@@ -2242,6 +2246,8 @@ async function regenForumReply(id){
       replyEl.style.opacity='1';
       if(_ttsEnabled) ttsSpeak(data.reply);
       if(result)result.reply=data.reply;
+      // Persister les résultats mis à jour
+      try{ localStorage.setItem('pgi_forum_results', JSON.stringify(window._forumResults||[])); }catch(e){}
       notify('Réponse régénérée avec succès.','ok');
       // Ferme le panneau si tout était vide
       if(!instruction&&!includeWords){
