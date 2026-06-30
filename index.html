@@ -1874,7 +1874,32 @@ async function analyzeForums(){
     window._forumResults = results; 
     try{ localStorage.setItem('pgi_forum_results', JSON.stringify(results)); }catch(e){} 
     renderForumResultsHTML(results); 
-    notify(results.length+' sujet(s) trouvé(s) avec SEO intégré.','ok'); 
+    // Afficher le résumé réel vs généré par forum 
+    if(data.summary){ 
+      const summaryEntries=Object.values(data.summary); 
+      const totalReal=summaryEntries.reduce((a,s)=>a+s.realFound,0); 
+      const totalGen=summaryEntries.reduce((a,s)=>a+s.generated,0); 
+      const summaryHtml=`<div style="background:rgba(0,0,20,.4);border:1px solid var(--border2);border-radius:10px;padding:14px 18px;margin-bottom:14px"> 
+        <div style="font-size:11px;font-weight:700;color:var(--neon);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Bilan de la recherche</div> 
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px"> 
+          <span style="font-size:12px;color:var(--green)">✅ ${totalReal} post(s) réels vérifiés</span> 
+          <span style="font-size:12px;color:var(--orange)">⚠ ${totalGen} post(s) générés (non vérifiés)</span> 
+        </div> 
+        <div style="display:flex;flex-direction:column;gap:5px"> 
+          ${summaryEntries.map(s=>{ 
+            const color=s.realFound===s.requested?'var(--green)':s.realFound>0?'var(--orange)':'var(--red)'; 
+            return `<div style="font-size:11px;display:flex;align-items:center;gap:8px"> 
+              <span style="color:${color};font-weight:700">${s.realFound}/${s.requested}</span> 
+              <span style="color:var(--text2)">${escapeHtml(s.forum)}</span> 
+              ${s.realFound<s.requested?`<span style="color:var(--text3);font-size:10px">(${s.generated} généré${s.generated>1?'s':''})</span>`:''} 
+            </div>`; 
+          }).join('')} 
+        </div> 
+      </div>`; 
+      const el2=document.getElementById('forums-results'); 
+      if(el2)el2.insertAdjacentHTML('afterbegin',summaryHtml); 
+    } 
+    notify(results.length+' résultat(s) — '+Object.values(data.summary||{}).reduce((a,s)=>a+s.realFound,0)+' vérifiés, '+Object.values(data.summary||{}).reduce((a,s)=>a+s.generated,0)+' générés.','ok'); 
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';} 
   finally{btn.disabled=false;ldr.style.display='none'} 
 } 
@@ -1883,7 +1908,13 @@ function renderForumResultsHTML(results){
   const el=document.getElementById('forums-results'); 
   if(!el||!results||!results.length) return; 
   el.innerHTML=results.map(r=>{ 
-    const modeBadge=r.searchMode==='web'?'<span class="badge b-green" style="font-size:9px;margin-left:6px">Fil réel</span>':'<span class="badge b-gray" style="font-size:9px;margin-left:6px">IA générée</span>'; 
+    const modeBadge=r.verified===true 
+      ?'<span class="badge b-green" style="font-size:9px;margin-left:6px">✅ Post réel vérifié</span>' 
+      :r.verified===false 
+        ?'<span class="badge b-orange" style="font-size:9px;margin-left:6px">⚠ Généré — non vérifié</span>' 
+        :r.searchMode==='web' 
+          ?'<span class="badge b-blue" style="font-size:9px;margin-left:6px">Web</span>' 
+          :'<span class="badge b-gray" style="font-size:9px;margin-left:6px">IA</span>'; 
     const seoUsed=r.seoKeywordsUsed&&r.seoKeywordsUsed.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${r.seoKeywordsUsed.map(k=>`<span style="background:rgba(196,160,68,.12);border:1px solid rgba(196,160,68,.3);border-radius:10px;padding:1px 7px;font-size:9px;color:var(--gold)">${escapeHtml(k)}</span>`).join('')}</div>`:''; 
     const recencyBadge=r.recencySignal?`<span style="font-size:9px;color:var(--green);margin-left:6px">🕐 ${escapeHtml(r.recencySignal)}</span>`:''; 
     return `<div class="forum-result-card" id="fcard-${escapeHtml(r.id)}"> 
