@@ -116,7 +116,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.stat-card{min-height:132px;padding:14px}.stat-num{font-size:28px}.stat-lbl{font-size:9px}.plat-grid{grid-template-columns:1fr!important}.topbar-title{font-size:11px}.page-content{padding:10px}.card{padding:12px}.topbar-right .btn-neon{display:none}.ref-grid{grid-template-columns:1fr}.ref-select-list{grid-template-columns:1fr}.flex-between{flex-wrap:wrap;gap:6px}.card-title.flex-between{flex-direction:column;align-items:flex-start;gap:8px}.btn-sm{font-size:10px;padding:4px 8px}.finput,.fselect,.ftextarea{font-size:13px;padding:9px 12px}#forum-chat-messages{max-height:340px}#gads-chat-messages{max-height:300px}} 
 </style> 
 </head>
-
 <body> 
 <div class="notif" id="notif"></div> 
 <div style="display:flex;height:100vh"> 
@@ -299,7 +298,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div class="sidebar-footer"><div style="margin-bottom:4px">clairvoyancemedium.com</div><div>06 95 46 89 23</div><div style="margin-top:4px;color:var(--text3)">chicsensation@gmail.com</div></div> 
 </aside>
 
-
 <main class="main"> 
   <div class="topbar"><div class="topbar-title" id="page-title">Tableau de bord</div><div class="topbar-right"><button id="tts-global-btn" class="btn btn-ghost btn-sm tts-toggle-btn" onclick="ttsToggle()" title="Activer/désactiver la lecture vocale" style="font-size:12px;padding:5px 10px;border:1px solid var(--border2);border-radius:8px">🔇 Voix</button><button class="btn btn-ghost btn-sm" onclick="refreshCurrent()">↺</button><button class="btn btn-neon btn-sm" onclick="nav('create')">+ Nouveau post</button></div></div> 
   <div class="page-content"> 
@@ -389,7 +387,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     <div class="page" id="page-references"> 
       <div class="card"> 
         <div class="card-title flex-between"><span>Bibliothèque de références visuelles</span><button class="btn btn-ghost btn-sm" onclick="renderReferenceLibrary()">↺</button></div> 
-        <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px 18px;margin-bottom:18px"><div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:5px">Images de référence persistantes</div><div class="text-sm text-muted">Ajoutez vos images, nommez-les. Dans chaque post ou automatisation, cochez <strong style="color:var(--neon)">Inclure une image</strong> puis tapez le nom pour sélectionner une référence.</div></div> 
+        <div style="background:rgba(0,191,255,.06);border:1px solid rgba(0,191,255,.2);border-radius:10px;padding:14px 18px;margin-bottom:18px"><div style="font-size:12px;color:var(--neon);font-weight:700;margin-bottom:5px">Images de référence persistantes — synchronisées sur tous vos appareils</div><div class="text-sm text-muted">Ajoutez vos images, nommez-les. Chaque image ajoutée ou supprimée est immédiatement sauvegardée sur votre Worker et visible sur tous vos appareils. Dans chaque post ou automatisation, cochez <strong style="color:var(--neon)">Inclure une image</strong> puis tapez le nom pour sélectionner une référence.</div></div> 
         <div class="grid2"> 
           <div class="fgrp"><label class="flabel">Ajouter des images</label><input type="file" class="finput" id="ref-files" accept="image/*" multiple style="padding:9px"><div class="fhelp">Sélectionnez plusieurs fichiers à la fois.</div></div> 
           <div class="fgrp"><label class="flabel">Nom commun optionnel</label><input class="finput" id="ref-default-name" placeholder="Ex: amour perdu, retour affectif, ambiance bleue"><div class="fhelp">Un numéro sera ajouté si plusieurs images.</div></div> 
@@ -507,7 +505,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
     <!-- NOTES --> 
     <div class="page" id="page-notes"><div class="card"><div class="card-title flex-between"><span>Notes personnelles</span><button class="btn btn-neon btn-sm" onclick="addNote()">+ Nouvelle note</button></div><div style="background:rgba(196,160,68,.05);border:1px solid rgba(196,160,68,.2);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:11px;color:var(--text3)">Vos notes sont sauvegardées dans le cloud (Worker) — accessibles sur tous vos appareils.</div><div id="notes-list"></div></div></div> 
-
 
     <!-- ANNONCES EBAY --> 
     <div class="page" id="page-ebay"> 
@@ -999,11 +996,30 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 <script> 
 const STORAGE_PREFIX='pgi_fredericandco_'; 
 const SK={workerUrl:STORAGE_PREFIX+'worker_url',refLibrary:STORAGE_PREFIX+'reference_library_v1',notes:STORAGE_PREFIX+'notes_v1'}; 
+const SK_CLOUD_KEYS=['pgi_gmb_url','pgi_gmb_name','pgi_gmb2_url','pgi_gmb2_name','pgi_gmb3_url','pgi_gmb3_name','pgi_gmb4_url','pgi_gmb4_name','pgi_gmb5_url','pgi_gmb5_name','pgi_gmb6_url','pgi_gmb6_name','pgi_gmb7_url','pgi_gmb7_name','pgi_gmb8_url','pgi_gmb8_name','pgi_gmb9_url','pgi_gmb9_name','pgi_gmb10_url','pgi_gmb10_name','pgi_util1_url','pgi_util1_name','pgi_util2_url','pgi_util2_name','pgi_util3_url','pgi_util3_name','pgi_util4_url','pgi_util4_name','pgi_util5_url','pgi_util5_name','pgi_util6_url','pgi_util6_name','pgi_util7_url','pgi_util7_name','pgi_util8_url','pgi_util8_name','pgi_util9_url','pgi_util9_name','pgi_util10_url','pgi_util10_name','pgi_util11_url','pgi_util11_name','pgi_forum_doc_url','pgi_forum_doc_name','pgi_forum_settings','pgi_gads_toggle_id']; 
 const ADMIN_TOKEN='pgi_direct_access_2024'; 
 let WORKER_URL=localStorage.getItem(SK.workerUrl)||''; 
 let currentPage='dashboard'; 
 let _notifTimer; 
 let calYear,calMonth,calPosts=[]; 
+
+/* ──── Réglages synchronisés multi-appareils (Worker = source de vérité) ──── */ 
+async function pushSettingsToCloud(){ 
+  if(!WORKER_URL)return; 
+  const payload={}; 
+  SK_CLOUD_KEYS.forEach(function(k){const v=localStorage.getItem(k);if(v!==null)payload[k]=v;}); 
+  try{await api('/api/settings','PUT',payload);}catch(e){} 
+} 
+async function syncSettingsFromCloud(){ 
+  if(!WORKER_URL)return; 
+  try{ 
+    const data=await api('/api/settings'); 
+    const settings=data.settings||{}; 
+    Object.keys(settings).forEach(function(k){ 
+      if(SK_CLOUD_KEYS.indexOf(k)!==-1 && settings[k]!=null) localStorage.setItem(k,settings[k]); 
+    }); 
+  }catch(e){} 
+} 
 
 /* ──── Image block ──── */ 
 const _libSelected={create:[],auto:[],sched:[]}; 
@@ -1179,34 +1195,23 @@ function nav(name){currentPage=name;localStorage.setItem('pgi_last_page',name);i
 function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums'){buildForumsChecklist();restoreForumResults();}if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();} 
 
 /* ──── WORKER ──── */ 
-function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');refreshCurrent()} 
+function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');syncSettingsFromCloud().then(()=>refreshCurrent());refreshCurrent()} 
 function updateWorkerStatus(){const dot=document.getElementById('ws-dot');const txt=document.getElementById('ws-txt');if(WORKER_URL){dot.className='dot dot-green';try{txt.textContent=new URL(WORKER_URL).hostname}catch{txt.textContent='Worker configuré'}}else{dot.className='dot dot-orange';txt.textContent='Non configuré'}} 
 function setDefaultDate(){const d=new Date();d.setHours(d.getHours()+1);document.getElementById('c-date').value=d.toISOString().slice(0,16)} 
 
-/* ──── BIBLIOTHÈQUE ──── */ 
+/* ──── BIBLIOTHÈQUE (synchronisée cloud — le Worker est la seule source de vérité) ──── */ 
 function getReferenceLibrary(){try{return JSON.parse(localStorage.getItem(SK.refLibrary)||'[]')}catch{return[]}} 
 function saveReferenceLibrary(list){localStorage.setItem(SK.refLibrary,JSON.stringify(list))} 
 async function compressImage(dataUrl,maxW,quality){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const w=Math.min(img.width,maxW||800);const h=Math.round(img.height*(w/img.width));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve(c.toDataURL('image/jpeg',quality||0.72))};img.src=dataUrl})} 
-async function syncImagesFromCloud(){ 
-  if(!WORKER_URL)return; 
-  try{ 
-    const data=await api('/api/images'); 
-    const cloud=data.images||[]; 
-    if(cloud.length){ 
-      const local=getReferenceLibrary(); 
-      const localIds=new Set(local.map(r=>r.id)); 
-      const cloudOnly=cloud.filter(r=>!localIds.has(r.id)); 
-      if(cloudOnly.length){ 
-        const merged=[...local,...cloudOnly]; 
-        saveReferenceLibrary(merged); 
-      } else if(!local.length && cloud.length){ 
-        saveReferenceLibrary(cloud); 
-      } 
-    } 
-  }catch(e){} 
+
+async function pushImagesToCloud(list){ 
+  if(!WORKER_URL)throw new Error("URL du Worker non configurée."); 
+  const slim=list.map(r=>({id:r.id,name:r.name,note:r.note||'',createdAt:r.createdAt,dataUrl:r.dataUrl})); 
+  await api('/api/images','PUT',{images:slim}); 
 } 
-async function pushImagesToCloud(list){if(!WORKER_URL)return;const slim=list.map(r=>({id:r.id,name:r.name,note:r.note||'',createdAt:r.createdAt,dataUrl:r.dataUrl}));try{await api('/api/images','PUT',{images:slim})}catch(e){}} 
+
 async function addReferenceImages(){ 
+  if(!WORKER_URL)return notify('Configurez d\'abord l\'URL du Worker pour sauvegarder vos images sur tous vos appareils.','err'); 
   const input=document.getElementById('ref-files'); 
   const files=[...(input.files||[])]; 
   if(!files.length)return notify('Sélectionnez au moins une image.','err'); 
@@ -1243,18 +1248,72 @@ async function addReferenceImages(){
   saveReferenceLibrary(updated); 
   input.value=''; 
   document.getElementById('ref-default-name').value=''; 
-  try{await pushImagesToCloud(updated);}catch(e){} 
+  try{ 
+    await pushImagesToCloud(updated); 
+  }catch(e){ 
+    notify('⚠ Échec de la sauvegarde cloud : '+e.message+' — l\'image n\'est PAS synchronisée sur vos autres appareils.','err'); 
+    renderReferenceLibrary(true); 
+    return; 
+  } 
   renderReferenceLibrary(true); 
-  notify(newImages.length+' image(s) ajoutée(s) et sauvegardée(s).','ok'); 
+  notify(newImages.length+' image(s) ajoutée(s) et sauvegardée(s) sur tous vos appareils.','ok'); 
 } 
 
-async function renderReferenceLibrary(skipSync){const el=document.getElementById('ref-library');if(!el)return; 
-  if(!skipSync)await syncImagesFromCloud(); 
-  const refs=getReferenceLibrary();if(!refs.length){el.innerHTML='<div class="text-muted text-sm">Aucune image enregistrée.</div>';return}el.innerHTML=refs.map((ref,index)=>`<div class="ref-card"><div class="ref-id">Image ${index+1} • ${escapeHtml(ref.id)}</div><img class="ref-img" src="${ref.dataUrl}" alt="${escapeHtml(ref.name)}"><div class="ref-name"><label class="flabel">Nom</label><input class="finput" value="${escapeHtml(ref.name)}" onchange="renameRef('${ref.id}',this.value)"></div><div class="fgrp" style="margin-top:8px;margin-bottom:0"><label class="flabel">Note</label><input class="finput" value="${escapeHtml(ref.note||'')}" placeholder="Ex: ambiance amour perdu" onchange="noteRef('${ref.id}',this.value)"></div><div class="ref-actions"><button class="btn btn-ghost btn-sm" onclick="copyRefName('${ref.id}')">Copier nom</button><button class="btn btn-red btn-sm" onclick="deleteRef('${ref.id}')">Supprimer</button></div></div>`).join('')} 
-function renameRef(id,name){const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(ref){ref.name=name.trim()||ref.name;saveReferenceLibrary(refs);pushImagesToCloud(refs)}} 
-function noteRef(id,note){const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(ref){ref.note=note.trim();saveReferenceLibrary(refs);pushImagesToCloud(refs)}} 
-function deleteRef(id){if(!confirm('Supprimer cette image ?'))return;const refs=getReferenceLibrary().filter(r=>r.id!==id);saveReferenceLibrary(refs);pushImagesToCloud(refs);renderReferenceLibrary();notify('Image supprimée.','ok')} 
-function clearReferenceLibrary(){if(!confirm('Vider toute la bibliothèque ?'))return;saveReferenceLibrary([]);pushImagesToCloud([]);renderReferenceLibrary();notify('Bibliothèque vidée.','ok')} 
+async function renderReferenceLibrary(skipSync){ 
+  const el=document.getElementById('ref-library');if(!el)return; 
+  if(!skipSync){ 
+    if(!WORKER_URL){el.innerHTML='<div class="text-muted text-sm">⚠ Configurez d\'abord l\'URL du Worker (en haut de la barre latérale) pour activer la bibliothèque partagée entre appareils.</div>';return;} 
+    el.innerHTML='<div class="text-muted text-sm">Chargement...</div>'; 
+    try{ 
+      const data=await api('/api/images'); 
+      saveReferenceLibrary(data.images||[]); 
+    }catch(e){ 
+      el.innerHTML='<div class="text-red text-sm">Erreur de synchronisation : '+escapeHtml(e.message)+'</div>'; 
+      return; 
+    } 
+  } 
+  const refs=getReferenceLibrary(); 
+  if(!refs.length){el.innerHTML='<div class="text-muted text-sm">Aucune image enregistrée.</div>';return} 
+  el.innerHTML=refs.map((ref,index)=>`<div class="ref-card"> 
+    <div class="ref-id">Image ${index+1} • ${escapeHtml(ref.id)}</div> 
+    <div style="position:relative"> 
+      <img class="ref-img" src="${ref.dataUrl}" alt="${escapeHtml(ref.name)}"> 
+      <button onclick="deleteRef('${ref.id}')" title="Supprimer cette image sur tous vos appareils" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(204,34,68,.92);border:1px solid var(--red);color:#fff;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button> 
+    </div> 
+    <div class="ref-name"><label class="flabel">Nom</label><input class="finput" value="${escapeHtml(ref.name)}" onchange="renameRef('${ref.id}',this.value)"></div> 
+    <div class="fgrp" style="margin-top:8px;margin-bottom:0"><label class="flabel">Note</label><input class="finput" value="${escapeHtml(ref.note||'')}" placeholder="Ex: ambiance amour perdu" onchange="noteRef('${ref.id}',this.value)"></div> 
+    <div class="ref-actions"><button class="btn btn-ghost btn-sm" onclick="copyRefName('${ref.id}')">Copier nom</button><button class="btn btn-red btn-sm" onclick="deleteRef('${ref.id}')">Supprimer</button></div> 
+  </div>`).join(''); 
+} 
+
+async function renameRef(id,name){ 
+  const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(!ref)return; 
+  ref.name=name.trim()||ref.name;saveReferenceLibrary(refs); 
+  try{await pushImagesToCloud(refs);notify('Nom mis à jour sur tous vos appareils.','ok');}catch(e){notify('Erreur de sauvegarde : '+e.message,'err');} 
+} 
+async function noteRef(id,note){ 
+  const refs=getReferenceLibrary();const ref=refs.find(r=>r.id===id);if(!ref)return; 
+  ref.note=note.trim();saveReferenceLibrary(refs); 
+  try{await pushImagesToCloud(refs);}catch(e){notify('Erreur de sauvegarde : '+e.message,'err');} 
+} 
+async function deleteRef(id){ 
+  if(!confirm('Supprimer cette image ? Elle sera retirée sur tous vos appareils.'))return; 
+  const refs=getReferenceLibrary().filter(r=>r.id!==id); 
+  saveReferenceLibrary(refs); 
+  try{ 
+    await pushImagesToCloud(refs); 
+  }catch(e){ 
+    notify('Erreur de suppression cloud : '+e.message,'err'); 
+    return; 
+  } 
+  renderReferenceLibrary(true); 
+  notify('Image supprimée sur tous vos appareils.','ok'); 
+} 
+function clearReferenceLibrary(){ 
+  if(!confirm('Vider toute la bibliothèque sur tous vos appareils ?'))return; 
+  saveReferenceLibrary([]); 
+  pushImagesToCloud([]).then(()=>{renderReferenceLibrary(true);notify('Bibliothèque vidée sur tous vos appareils.','ok');}).catch(e=>notify('Erreur : '+e.message,'err')); 
+} 
 function copyRefName(id){const refs=getReferenceLibrary();const idx=refs.findIndex(r=>r.id===id);const ref=refs[idx];if(!ref)return;const txt='Image '+(idx+1)+' : '+ref.name;navigator.clipboard?.writeText(txt);notify(txt,'info')} 
 
 /* ──── PLATEFORMES ──── */ 
@@ -1675,7 +1734,7 @@ const FORUMS_LIST=[
   {id:'astrocenter',name:'AstroCenter',icon:'A',country:'FR',desc:'Astrologie horoscope voyance',url:'https://www.astrocenter.fr',defaultChecked:false}, 
   {id:'magicmaman',name:'Magic Maman',icon:'B',country:'FR',desc:'Famille couple bien-etre',url:'https://www.magicmaman.com',defaultChecked:false}, 
   {id:'commentcamarche',name:'Comment Ca Marche',icon:'Q',country:'FR',desc:'Generaliste sections relations',url:'https://forums.commentcamarche.net',defaultChecked:false}, 
-  {id:'jeuxvideo',name:'JVC Amour et Psy',icon:'J',country:'FR',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm',defaultChecked:false}, 
+  {id:'jeuxvideo',name:'jeuxvideo.com',icon:'J',country:'FR',desc:'Forum tres actif section amour',url:'https://www.jeuxvideo.com/forums/0-68-0-1-0-1-0-amour-et-psychologie.htm',defaultChecked:false}, 
   {id:'marmiton',name:'Marmiton',icon:'C',country:'FR',desc:'Communaute active sections vie perso',url:'https://www.marmiton.org/forum',defaultChecked:false}, 
   {id:'us_reddit',name:'Reddit EN (r/psychic)',icon:'🟠',country:'US',desc:"r/psychic r/spirituality r/astrology r/relationship_advice — très actif",url:'https://www.reddit.com/r/psychic',defaultChecked:false}, 
   {id:'us_quora',name:'Quora',icon:'❓',country:'US',desc:"Questions/réponses voyance medium psychic — immense audience",url:'https://www.quora.com',defaultChecked:false}, 
@@ -1732,6 +1791,7 @@ function saveForumSetting(forumId,key,value){
   if(!all[forumId])all[forumId]=Object.assign({},FORUM_SETTINGS_DEFAULT); 
   all[forumId][key]=value; 
   localStorage.setItem('pgi_forum_settings',JSON.stringify(all)); 
+  pushSettingsToCloud(); 
 } 
 function onForumCountChange(forumId,val){saveForumSetting(forumId,'count',parseInt(val)||5)} 
 function onForumDateFilterChange(forumId,val){saveForumSetting(forumId,'dateFilter',val)} 
@@ -1781,7 +1841,6 @@ function buildForumsChecklist(){
   }); 
   el.innerHTML=html; 
   el.style.gridTemplateColumns='repeat(auto-fill,minmax(240px,1fr))'; 
-  // Réafficher les réglages des forums déjà cochés (ex: après ré-render) 
   FORUMS_LIST.forEach(f=>{ 
     const cb=document.getElementById('fc-'+f.id); 
     if(cb&&cb.checked)onForumCheckToggle(f.id,true); 
@@ -1874,7 +1933,6 @@ async function analyzeForums(){
     window._forumResults = results; 
     try{ localStorage.setItem('pgi_forum_results', JSON.stringify(results)); }catch(e){} 
     renderForumResultsHTML(results); 
-    // Afficher le résumé réel vs généré par forum 
     if(data.summary){ 
       const summaryEntries=Object.values(data.summary); 
       const totalReal=summaryEntries.reduce((a,s)=>a+s.realFound,0); 
@@ -2095,7 +2153,7 @@ async function loadClickStats(){
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>';sumEl.innerHTML=''} 
 } 
 
-/* ──── GMB / UTIL LINKS ──── */ 
+/* ──── GMB / UTIL LINKS (synchronisés cloud) ──── */ 
 function editUtilLink(e, key, defaultName){ 
   if(e) e.stopPropagation(); 
   const link   = document.getElementById('nav-'+key+'-link'); 
@@ -2112,10 +2170,10 @@ function editUtilLink(e, key, defaultName){
   if(nameEl) nameEl.textContent = finalName; 
   localStorage.setItem('pgi_'+key+'_url',  finalUrl); 
   localStorage.setItem('pgi_'+key+'_name', finalName); 
+  pushSettingsToCloud(); 
   notify('Lien mis à jour.','ok'); 
 } 
 
-/* ── MODIFIÉ : util1..6 (au lieu de util1..3) ── */ 
 function loadUtilLinks(){ 
   ['util1','util2','util3','util4','util5','util6','util7','util8','util9','util10','util11'].forEach(function(key){ 
     const savedUrl  = localStorage.getItem('pgi_'+key+'_url'); 
@@ -2136,6 +2194,7 @@ function editGmbLink(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_gmb_url',fu);localStorage.setItem('pgi_gmb_name',fn); 
+  pushSettingsToCloud(); 
   notify('Google My Business mis à jour.','ok'); 
 } 
 
@@ -2148,6 +2207,7 @@ function editGmb2Link(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_gmb2_url',fu);localStorage.setItem('pgi_gmb2_name',fn); 
+  pushSettingsToCloud(); 
   notify('Ma fiche My business mis à jour.','ok'); 
 } 
 
@@ -2163,7 +2223,6 @@ function loadGmb2Link(){
   if(u&&l)l.href=u;if(n&&e)e.textContent=n; 
 } 
 
-/* ── NOUVEAU : GMB 3/4/5 ── */ 
 function editGmb3Link(e){ 
   if(e) e.stopPropagation(); 
   const link=document.getElementById('nav-gmb3-link'),nameEl=document.getElementById('nav-gmb3-name'); 
@@ -2173,6 +2232,7 @@ function editGmb3Link(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_gmb3_url',fu);localStorage.setItem('pgi_gmb3_name',fn); 
+  pushSettingsToCloud(); 
   notify('Lien mis à jour.','ok'); 
 } 
 function loadGmb3Link(){ 
@@ -2189,6 +2249,7 @@ function editGmb4Link(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_gmb4_url',fu);localStorage.setItem('pgi_gmb4_name',fn); 
+  pushSettingsToCloud(); 
   notify('Lien mis à jour.','ok'); 
 } 
 function loadGmb4Link(){ 
@@ -2205,6 +2266,7 @@ function editGmb5Link(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_gmb5_url',fu);localStorage.setItem('pgi_gmb5_name',fn); 
+  pushSettingsToCloud(); 
   notify('Lien mis à jour.','ok'); 
 } 
 function loadGmb5Link(){ 
@@ -2213,7 +2275,6 @@ function loadGmb5Link(){
   if(u&&l)l.href=u;if(n&&e)e.textContent=n; 
 } 
 
-/* ── NOUVEAU : GMB 6/7/8/9/10 — génériques factorisés ── */ 
 function editGmbExtraLink(e,key,defaultName){ 
   if(e) e.stopPropagation(); 
   const link=document.getElementById('nav-'+key+'-link'),nameEl=document.getElementById('nav-'+key+'-name'); 
@@ -2223,6 +2284,7 @@ function editGmbExtraLink(e,key,defaultName){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_'+key+'_url',fu);localStorage.setItem('pgi_'+key+'_name',fn); 
+  pushSettingsToCloud(); 
   notify('Lien mis à jour.','ok'); 
 } 
 function loadGmbExtraLink(key){ 
@@ -2250,6 +2312,7 @@ function editForumDocLink(e){
   const fn=newName.trim()||curName,fu=newUrl.trim()||curUrl; 
   if(link)link.href=fu;if(nameEl)nameEl.textContent=fn; 
   localStorage.setItem('pgi_forum_doc_url',fu);localStorage.setItem('pgi_forum_doc_name',fn); 
+  pushSettingsToCloud(); 
   notify('Document mis à jour.','ok'); 
 } 
 
@@ -2400,8 +2463,8 @@ async function createGadsCampaign(){
 function resetGadsForm(){['gads-name','gads-budget','gads-geo','gads-url','gads-keywords','gads-headlines','gads-descs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const st=document.getElementById('gads-form-status');if(st)st.style.display='none';} 
 
 let _gadsMainSwitchState=false; 
-function saveGadsToggleId(){const v=document.getElementById('gads-toggle-campaign-id')?.value.trim();if(v)localStorage.setItem('pgi_gads_toggle_id',v);} 
-function clearGadsToggleId(){const el=document.getElementById('gads-toggle-campaign-id');if(el)el.value='';localStorage.removeItem('pgi_gads_toggle_id');setGadsMainSwitch(false);} 
+function saveGadsToggleId(){const v=document.getElementById('gads-toggle-campaign-id')?.value.trim();if(v){localStorage.setItem('pgi_gads_toggle_id',v);pushSettingsToCloud();}} 
+function clearGadsToggleId(){const el=document.getElementById('gads-toggle-campaign-id');if(el)el.value='';localStorage.removeItem('pgi_gads_toggle_id');pushSettingsToCloud();setGadsMainSwitch(false);} 
 function loadGadsToggleId(){const saved=localStorage.getItem('pgi_gads_toggle_id');const el=document.getElementById('gads-toggle-campaign-id');if(saved&&el&&!el.value)el.value=saved;} 
 function setGadsMainSwitch(enabled){ 
   _gadsMainSwitchState=enabled; 
@@ -2877,7 +2940,8 @@ function renderSmsResult(sms,tips){const area=document.getElementById('sms-resul
 function copySmsResult(){const txt=document.getElementById('sms-result-text')?.textContent||'';if(!txt)return notify('Rien à copier.','err');if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>notify('SMS copié dans le presse-papier !','ok'));}else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);notify('SMS copié.','ok');}} 
 
 /* ──── INIT WINDOW.LOAD ──── */ 
-window.addEventListener('load', function(){ 
+window.addEventListener('load', async function(){ 
+  if(WORKER_URL) await syncSettingsFromCloud(); 
   initTTSVoice(); 
   updateTTSButtons(); 
   loadForumDocLink(); 
