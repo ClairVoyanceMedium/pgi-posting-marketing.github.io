@@ -1195,7 +1195,7 @@ function nav(name){currentPage=name;localStorage.setItem('pgi_last_page',name);i
 function refreshCurrent(){if(currentPage==='dashboard')loadStats();if(currentPage==='connections')loadConnectionStatuses();if(currentPage==='platforms')loadPlatStatus();if(currentPage==='queue')loadQueue();if(currentPage==='history')loadHistory();if(currentPage==='myposts')loadMyPosts();if(currentPage==='automation')loadAutomations();if(currentPage==='ai')loadAiConfig();if(currentPage==='email')loadEmailConfig();if(currentPage==='logs')loadLogs();if(currentPage==='calendar')initCalendar();if(currentPage==='links')buildLinksTable();if(currentPage==='references')renderReferenceLibrary();if(currentPage==='notes')renderNotes();if(currentPage==='forums'){buildForumsChecklist();restoreForumResults();}if(currentPage==='horaires')renderHoraires();if(currentPage==='forumhistory')loadForumHistory();if(currentPage==='clicks')loadClickStats();if(currentPage==='ebay')initEbayPage();if(currentPage==='googleads')initGoogleAdsPage();if(currentPage==='microsoftads')initMicrosoftAdsPage();if(currentPage==='metaads')initMetaAdsPage();if(currentPage==='sms')initSmsPage();} 
 
 /* ──── WORKER ──── */ 
-function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée.','ok');syncSettingsFromCloud().then(()=>refreshCurrent());refreshCurrent()} 
+function saveWorkerUrl(){const v=document.getElementById('worker-url-inp').value.trim();if(!v)return notify('Entrez une URL Worker valide.','err');WORKER_URL=v;localStorage.setItem(SK.workerUrl,v);updateWorkerStatus();notify('URL Worker sauvegardée. Récupération de vos réglages...','ok');syncSettingsFromCloud().then(()=>{applyAllPersonalLinks();refreshCurrent();notify('Réglages et liens synchronisés depuis le cloud.','ok');});refreshCurrent()} 
 function updateWorkerStatus(){const dot=document.getElementById('ws-dot');const txt=document.getElementById('ws-txt');if(WORKER_URL){dot.className='dot dot-green';try{txt.textContent=new URL(WORKER_URL).hostname}catch{txt.textContent='Worker configuré'}}else{dot.className='dot dot-orange';txt.textContent='Non configuré'}} 
 function setDefaultDate(){const d=new Date();d.setHours(d.getHours()+1);document.getElementById('c-date').value=d.toISOString().slice(0,16)} 
 
@@ -2316,6 +2316,21 @@ function editForumDocLink(e){
   notify('Document mis à jour.','ok'); 
 } 
 
+function applyAllPersonalLinks(){ 
+  loadForumDocLink(); 
+  loadGmbLink(); 
+  loadGmb2Link(); 
+  loadGmb3Link(); 
+  loadGmb4Link(); 
+  loadGmb5Link(); 
+  loadGmb6Link(); 
+  loadGmb7Link(); 
+  loadGmb8Link(); 
+  loadGmb9Link(); 
+  loadGmb10Link(); 
+  loadUtilLinks(); 
+} 
+
 function loadForumDocLink(){ 
   const u=localStorage.getItem('pgi_forum_doc_url'),n=localStorage.getItem('pgi_forum_doc_name'); 
   const l=document.getElementById('nav-forum-doc-link'),e=document.getElementById('nav-forum-doc-name'); 
@@ -2944,18 +2959,7 @@ window.addEventListener('load', async function(){
   if(WORKER_URL) await syncSettingsFromCloud(); 
   initTTSVoice(); 
   updateTTSButtons(); 
-  loadForumDocLink(); 
-  loadGmbLink(); 
-  loadGmb2Link(); 
-  loadGmb3Link(); 
-  loadGmb4Link(); 
-  loadGmb5Link(); 
-  loadGmb6Link(); 
-  loadGmb7Link(); 
-  loadGmb8Link(); 
-  loadGmb9Link(); 
-  loadGmb10Link(); 
-  loadUtilLinks(); 
+  applyAllPersonalLinks(); 
   restoreChatHistories(); 
   const lastPage=localStorage.getItem('pgi_last_page'); 
   if(lastPage&&document.getElementById('page-'+lastPage)){ 
