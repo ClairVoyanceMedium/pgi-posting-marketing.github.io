@@ -2435,7 +2435,7 @@ async function syncGadsMainSwitch(){
   const savedId=localStorage.getItem('pgi_gads_toggle_id'); 
   if(!savedId){setGadsMainSwitch(false);return;} 
   try{ 
-    const data=await api('/api/google-ads/campaign-status?campaignId='+savedId); 
+    const data=await api('/api/promo/campaign-status?campaignId='+savedId); 
     if(data.ok&&data.status){setGadsMainSwitch(data.status==='ENABLED');}else{setGadsMainSwitch(false);} 
   }catch(e){setGadsMainSwitch(false);} 
 } 
@@ -2453,7 +2453,7 @@ function startGadsOAuth(){
 async function checkGadsStatus(){ 
   const msg=document.getElementById('gads-conn-msg'),badge=document.getElementById('gads-conn-badge'); 
   try{ 
-    const d=await api('/api/google-ads/status'); 
+    const d=await api('/api/promo/status'); 
     if(!d.configured){if(badge){badge.className='badge b-red';badge.textContent='Non configuré';}if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Variables manquantes.')+'</span>';return;} 
     if(d.oauthConnected){if(badge){badge.className='badge b-green';badge.textContent='Connecté';}if(msg)msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message||'Connecté')+'</span>';}else{if(badge){badge.className='badge b-orange';badge.textContent='OAuth requis';}if(msg)msg.innerHTML='<span style="color:var(--orange)">'+escapeHtml(d.message||'Lancez OAuth.')+'</span>';} 
   }catch(e){if(msg)msg.innerHTML='<span style="color:var(--text3)">'+escapeHtml(e.message)+'</span>';} 
@@ -2469,7 +2469,7 @@ async function createGadsCampaign(){
   const ldr=document.getElementById('gads-create-ldr'),statusEl=document.getElementById('gads-form-status'); 
   if(ldr)ldr.style.display='inline-block'; 
   try{ 
-    const data=await api('/api/google-ads/campaigns','POST',{name,budget,type:document.getElementById('gads-type')?.value||'SEARCH',geo:document.getElementById('gads-geo')?.value.trim()||'France',language:document.getElementById('gads-lang')?.value.trim()||'fr',finalUrl:url,keywords:(document.getElementById('gads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),headlines:(document.getElementById('gads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),descriptions:(document.getElementById('gads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)}); 
+    const data=await api('/api/promo/campaigns','POST',{name,budget,type:document.getElementById('gads-type')?.value||'SEARCH',geo:document.getElementById('gads-geo')?.value.trim()||'France',language:document.getElementById('gads-lang')?.value.trim()||'fr',finalUrl:url,keywords:(document.getElementById('gads-keywords')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),headlines:(document.getElementById('gads-headlines')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),descriptions:(document.getElementById('gads-descs')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean)}); 
     if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--green)">✓ ${escapeHtml(data.message||'Campagne créée.')}</span>`;} 
     notify(data.message||'Campagne créée.','ok');loadGadsCampaigns(); 
   }catch(e){if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<span style="color:var(--red)">✕ ${escapeHtml(e.message)}</span>`;}notify(e.message,'err');}finally{if(ldr)ldr.style.display='none';} 
@@ -2500,7 +2500,7 @@ async function gadsMainSwitchClick(){
   if(ldr)ldr.style.display='inline-block'; 
   if(msg)msg.style.display='none'; 
   try{ 
-    const data=await api('/api/google-ads/campaigns/'+action,'POST',{campaignId}); 
+    const data=await api('/api/promo/campaigns/'+action,'POST',{campaignId}); 
     if(data.ok===false)throw new Error(data.error||'Erreur inconnue'); 
     if(msg){msg.style.display='block';msg.innerHTML='<span style="color:var(--green)">✓ '+(newEnabled?'Campagne activée ▶':'Campagne en pause ⏸')+'</span>';} 
     notify((newEnabled?'✅ Campagne activée':'⏸ Campagne mise en pause'),'ok'); 
@@ -2518,7 +2518,7 @@ async function loadGadsCampaigns(){
   if(!el)return; 
   el.innerHTML='<div class="text-muted text-sm">Chargement...</div>'; 
   try{ 
-    const data=await api('/api/google-ads/campaigns?period='+period); 
+    const data=await api('/api/promo/campaigns?period='+period); 
     _gadsCampaigns=data.campaigns||[]; 
     if(!_gadsCampaigns.length){el.innerHTML='';return;} 
     const STATUS_COLOR={ENABLED:'b-green',PAUSED:'b-orange',REMOVED:'b-red'}; 
@@ -2550,7 +2550,7 @@ async function gadsToggleSwitch(campaignId,currentlyEnabled){
   const action=currentlyEnabled?'pause':'enable'; 
   if(toggleEl){toggleEl.style.opacity='0.5';toggleEl.style.pointerEvents='none';} 
   try{ 
-    const data=await api('/api/google-ads/campaigns/'+action,'POST',{campaignId}); 
+    const data=await api('/api/promo/campaigns/'+action,'POST',{campaignId}); 
     if(data.ok===false)throw new Error(data.error||'Erreur inconnue'); 
     notify((currentlyEnabled?'⏸ Campagne mise en pause':'✅ Campagne activée'),'ok'); 
     const mainId=document.getElementById('gads-toggle-campaign-id')?.value.trim(); 
@@ -2567,7 +2567,7 @@ async function loadGadsStats(){
   const period=document.getElementById('gads-stats-period')?.value||'LAST_30_DAYS'; 
   if(!grid)return; 
   try{ 
-    const data=await api('/api/google-ads/stats?period='+period); 
+    const data=await api('/api/promo/stats?period='+period); 
     if(data.ok===false)throw new Error(data.error||'Erreur stats'); 
     const s=data.stats||{}; 
     const fmt=function(v,suffix){return(v==null||v==='')?'—':(v+''+(suffix||''));}; 
@@ -2577,11 +2577,11 @@ async function loadGadsStats(){
 } 
 
 function openGadsDeviceCard(campaignId,name){document.getElementById('gads-device-campaign-id').value=campaignId;document.getElementById('gads-device-campaign-name').textContent=name;['gads-dev-desktop','gads-dev-mobile','gads-dev-tablet'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('gads-device-msg').textContent='';document.getElementById('gads-device-card').style.display='block';document.getElementById('gads-device-card').scrollIntoView({behavior:'smooth'});} 
-async function saveGadsDeviceBids(){const cid=document.getElementById('gads-device-campaign-id').value,msg=document.getElementById('gads-device-msg'),body={campaignId:cid};const d=document.getElementById('gads-dev-desktop').value,m=document.getElementById('gads-dev-mobile').value,t=document.getElementById('gads-dev-tablet').value;if(d!=='')body.desktop=parseFloat(d);if(m!=='')body.mobile=parseFloat(m);if(t!=='')body.tablet=parseFloat(t);if(!Object.keys(body).filter(k=>k!=='campaignId').length)return notify("Renseignez au moins un appareil.","err");try{const d2=await api('/api/google-ads/campaigns/device-bids','POST',body);if(msg)msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d2.message)+'</span>';notify(d2.message,'ok');}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
+async function saveGadsDeviceBids(){const cid=document.getElementById('gads-device-campaign-id').value,msg=document.getElementById('gads-device-msg'),body={campaignId:cid};const d=document.getElementById('gads-dev-desktop').value,m=document.getElementById('gads-dev-mobile').value,t=document.getElementById('gads-dev-tablet').value;if(d!=='')body.desktop=parseFloat(d);if(m!=='')body.mobile=parseFloat(m);if(t!=='')body.tablet=parseFloat(t);if(!Object.keys(body).filter(k=>k!=='campaignId').length)return notify("Renseignez au moins un appareil.","err");try{const d2=await api('/api/promo/campaigns/device-bids','POST',body);if(msg)msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d2.message)+'</span>';notify(d2.message,'ok');}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
 function openGadsBudgetCard(campaignId,budgetId,name,currentBudget){document.getElementById('gads-budget-id').value=budgetId;document.getElementById('gads-budget-campaign-name').textContent=name+' — actuel : '+currentBudget+'€/j';document.getElementById('gads-budget-amount').value=currentBudget;document.getElementById('gads-budget-msg').textContent='';document.getElementById('gads-budget-card').style.display='block';document.getElementById('gads-budget-card').scrollIntoView({behavior:'smooth'});} 
-async function saveGadsBudget(){const budgetId=document.getElementById('gads-budget-id').value,amount=document.getElementById('gads-budget-amount').value,msg=document.getElementById('gads-budget-msg');if(!budgetId)return notify("ID budget manquant.","err");if(!amount||parseFloat(amount)<1)return notify("Budget minimum 1 EUR.","err");try{const d=await api('/api/google-ads/campaigns/budget','POST',{budgetId,amountEur:parseFloat(amount)});if(msg)msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message)+'</span>';notify(d.message,'ok');loadGadsCampaigns();}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
+async function saveGadsBudget(){const budgetId=document.getElementById('gads-budget-id').value,amount=document.getElementById('gads-budget-amount').value,msg=document.getElementById('gads-budget-msg');if(!budgetId)return notify("ID budget manquant.","err");if(!amount||parseFloat(amount)<1)return notify("Budget minimum 1 EUR.","err");try{const d=await api('/api/promo/campaigns/budget','POST',{budgetId,amountEur:parseFloat(amount)});if(msg)msg.innerHTML='<span style="color:var(--green)">✓ '+escapeHtml(d.message)+'</span>';notify(d.message,'ok');loadGadsCampaigns();}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
 function openGadsDemoCard(campaignId,adGroupId,name){document.getElementById('gads-demo-campaign-id').value=campaignId;document.getElementById('gads-demo-adgroup-id').value=adGroupId||'';document.getElementById('gads-demo-campaign-name').textContent=name;['gads-age-18','gads-age-25','gads-age-35','gads-age-45','gads-age-55','gads-age-65','gads-gender-male','gads-gender-female'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('gads-demo-msg').textContent='';document.getElementById('gads-demo-card').style.display='block';document.getElementById('gads-demo-card').scrollIntoView({behavior:'smooth'});} 
-async function saveGadsDemographics(){const cid=document.getElementById('gads-demo-campaign-id').value,adgId=document.getElementById('gads-demo-adgroup-id').value,msg=document.getElementById('gads-demo-msg');if(!adgId)return notify("ID groupe d'annonces requis.","err");const AGE_MAP={'18-24':'gads-age-18','25-34':'gads-age-25','35-44':'gads-age-35','45-54':'gads-age-45','55-64':'gads-age-55','65+':'gads-age-65'},GENDER_MAP={male:'gads-gender-male',female:'gads-gender-female'};const ageAdj={},genderAdj={};Object.entries(AGE_MAP).forEach(([k,id])=>{const v=document.getElementById(id)?.value;if(v!=='')ageAdj[k]=parseFloat(v);});Object.entries(GENDER_MAP).forEach(([k,id])=>{const v=document.getElementById(id)?.value;if(v!=='')genderAdj[k]=parseFloat(v);});if(!Object.keys(ageAdj).length&&!Object.keys(genderAdj).length)return notify("Renseignez au moins un ajustement.","err");try{const d=await api('/api/google-ads/campaigns/demographics','POST',{campaignId:cid,adGroupId:adgId,ageAdjustments:Object.keys(ageAdj).length?ageAdj:undefined,genderAdjustments:Object.keys(genderAdj).length?genderAdj:undefined});if(msg)msg.innerHTML='<span style="color:'+(d.success?'var(--green)':'var(--orange)')+'">'+escapeHtml(d.message)+'</span>';if(d.success)notify(d.message,'ok');}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
+async function saveGadsDemographics(){const cid=document.getElementById('gads-demo-campaign-id').value,adgId=document.getElementById('gads-demo-adgroup-id').value,msg=document.getElementById('gads-demo-msg');if(!adgId)return notify("ID groupe d'annonces requis.","err");const AGE_MAP={'18-24':'gads-age-18','25-34':'gads-age-25','35-44':'gads-age-35','45-54':'gads-age-45','55-64':'gads-age-55','65+':'gads-age-65'},GENDER_MAP={male:'gads-gender-male',female:'gads-gender-female'};const ageAdj={},genderAdj={};Object.entries(AGE_MAP).forEach(([k,id])=>{const v=document.getElementById(id)?.value;if(v!=='')ageAdj[k]=parseFloat(v);});Object.entries(GENDER_MAP).forEach(([k,id])=>{const v=document.getElementById(id)?.value;if(v!=='')genderAdj[k]=parseFloat(v);});if(!Object.keys(ageAdj).length&&!Object.keys(genderAdj).length)return notify("Renseignez au moins un ajustement.","err");try{const d=await api('/api/promo/campaigns/demographics','POST',{campaignId:cid,adGroupId:adgId,ageAdjustments:Object.keys(ageAdj).length?ageAdj:undefined,genderAdjustments:Object.keys(genderAdj).length?genderAdj:undefined});if(msg)msg.innerHTML='<span style="color:'+(d.success?'var(--green)':'var(--orange)')+'">'+escapeHtml(d.message)+'</span>';if(d.success)notify(d.message,'ok');}catch(e){if(msg)msg.innerHTML='<span style="color:var(--red)">✕ '+escapeHtml(e.message)+'</span>';notify(e.message,'err');}} 
 
 async function runGadsAnalysis(){ 
   const question=document.getElementById('gads-ai-question')?.value.trim(); 
@@ -2589,7 +2589,7 @@ async function runGadsAnalysis(){
   const btn=document.getElementById('gads-ai-analyze-btn'),ldr=document.getElementById('gads-ai-ldr'),result=document.getElementById('gads-ai-result'),textEl=document.getElementById('gads-ai-result-text'); 
   if(btn)btn.disabled=true;if(ldr)ldr.style.display='inline-block';if(result)result.style.display='none';if(textEl)textEl.textContent=''; 
   try{ 
-    const d=await api('/api/google-ads/ai/analyze','POST',{question,type:document.getElementById('gads-ai-type')?.value||'general',campaignName:document.getElementById('gads-ai-campaign')?.value.trim()||''}); 
+    const d=await api('/api/promo/ai/analyze','POST',{question,type:document.getElementById('gads-ai-type')?.value||'general',campaignName:document.getElementById('gads-ai-campaign')?.value.trim()||''}); 
     if(textEl)textEl.textContent=d.answer||'Aucune réponse reçue.'; 
     if(result){result.style.display='block';result.scrollIntoView({behavior:'smooth'});} 
     if(_ttsEnabled)ttsSpeak(d.answer||''); 
@@ -2603,7 +2603,7 @@ async function sendGadsChat(){
   _addGadsChatBubble(messages,msg,'user');_gadsChatHistory.push({role:'user',content:msg}); 
   if(btn)btn.disabled=true;if(ldr)ldr.style.display='inline-block'; 
   try{ 
-    const d=await api('/api/google-ads/ai/chat','POST',{message:msg,history:_gadsChatHistory.slice(-10)}); 
+    const d=await api('/api/promo/ai/chat','POST',{message:msg,history:_gadsChatHistory.slice(-10)}); 
     const answer=d.answer||''; 
     _addGadsChatBubble(messages,answer,'assistant');_gadsChatHistory.push({role:'assistant',content:answer}); 
     saveChatHistories(); 
