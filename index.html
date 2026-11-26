@@ -114,6 +114,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 @media(max-width:600px){.regen-row{grid-template-columns:1fr!important}} 
 @media(max-width:900px){:root{--sw:0px}.hamburger{display:flex}.sidebar{left:-280px;width:280px;transition:left .25s cubic-bezier(.4,0,.2,1);z-index:101}.sidebar.open{left:0}.overlay.on{display:block}.main{margin-left:0!important}.topbar{padding:0 14px 0 60px}.page-content{padding:16px}.grid2{grid-template-columns:1fr!important}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.stat-card{min-height:145px}.plat-grid{grid-template-columns:1fr 1fr!important}.worker-bar{margin:10px 8px 4px}.img-cols{grid-template-columns:1fr!important}.pinterest-boards-list{grid-template-columns:1fr!important}.conn-actions{flex-direction:column;align-items:flex-start}} 
 @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.stat-card{min-height:132px;padding:14px}.stat-num{font-size:28px}.stat-lbl{font-size:9px}.plat-grid{grid-template-columns:1fr!important}.topbar-title{font-size:11px}.page-content{padding:10px}.card{padding:12px}.topbar-right .btn-neon{display:none}.ref-grid{grid-template-columns:1fr}.ref-select-list{grid-template-columns:1fr}.flex-between{flex-wrap:wrap;gap:6px}.card-title.flex-between{flex-direction:column;align-items:flex-start;gap:8px}.btn-sm{font-size:10px;padding:4px 8px}.finput,.fselect,.ftextarea{font-size:13px;padding:9px 12px}#forum-chat-messages{max-height:340px}#gads-chat-messages{max-height:300px}} 
+/* Audiotel : uniquement les nouvelles cartes, aucune règle globale modifiée. */
+.pgi-app-card{border-color:#FFB380!important;box-shadow:0 0 9px rgba(255,179,128,.27)}
+tr.pgi-app-card{box-shadow:inset 3px 0 #FFB380}
+.pgi-app-label{display:block;color:#FFB380;font-size:10px;letter-spacing:.5px;font-weight:700;margin-bottom:4px;text-shadow:0 0 6px rgba(255,179,128,.48)}
+.cal-event.pgi-app-card{color:#FFB380;background:rgba(255,179,128,.12);border:1px solid rgba(255,179,128,.55)}
 </style> 
 </head>
 <body> 
@@ -937,6 +942,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   <div style="background:var(--panel);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:760px;max-height:92vh;overflow-y:auto;padding:28px"> 
     <div class="flex-between mb16"><div class="card-title" style="margin:0;border:none;padding:0" id="auto-modal-title">Nouvelle automatisation</div><button class="btn btn-ghost btn-sm" onclick="closeAutoModal()">✕</button></div> 
     <input type="hidden" id="am-id"> 
+    <div class="fgrp"><label class="flabel">Entreprise</label><select class="fselect" id="am-brand" onchange="updatePgiBrand('auto')"><option value="cvm">ClairVoyanceMedium.com</option><option value="audiotel">Audiotel Premium Pro</option></select></div>
     <div class="fgrp"><label class="flabel">Nom de l'automatisation *</label><input class="finput" id="am-name"></div> 
     <div class="fgrp"><label class="flabel">Description / Consigne *</label><textarea class="ftextarea" id="am-desc" rows="3"></textarea></div> 
     <div class="fgrp"><label class="flabel">Plateformes *</label><div class="plat-grid" id="am-platforms"></div></div> 
@@ -1127,7 +1133,8 @@ function renderLibChips(ctx){
   }).join(''); 
 } 
 
-function getImgPayload(ctx){ 
+function getImgPayload(ctx){
+  if(pgiSelectedBrand(ctx)==='audiotel')return {useImage:!!document.getElementById('img-check-'+ctx)?.checked,imageDescription:(document.getElementById('img-desc-'+ctx)?.value||'').trim()||null,referenceImages:[],referenceImageIds:[]}; 
   const cbChecked=document.getElementById('img-check-'+ctx)?.checked; 
   if(!cbChecked)return{useImage:false}; 
   const refs=getReferenceLibrary(); 
@@ -1207,7 +1214,11 @@ const CONN_FIELDS={
 const PAGE_TITLES={sms:'SMS Marketing',ebay:'Annonces eBay',googleads:'Google Ads',microsoftads:'Microsoft Ads',metaads:'Meta Ads',dashboard:'Tableau de bord',create:'Créer un post',queue:'File de validation',history:'Historique',calendar:'Calendrier',platforms:'Statut des plateformes',connections:'Connexions aux plateformes',references:'Bibliothèque images',links:'Liens du site',guide:'Guide plateformes',ai:'Configuration AI',email:'Configuration email',logs:'Logs système',myposts:'Posts programmés à date fixe',automation:'Automatisation',notes:'Notes',forums:'Forum pour Publicités',forumchat:'Expert Marketing Forums IA',horaires:'Meilleurs horaires par plateforme',forumhistory:'Historique réponses forums',clicks:'Statistiques de clics'}; 
 
 /* ──── API ──── */ 
-async function api(path,method='GET',body=null,extraHeaders={}){ 
+async function api(path,method='GET',body=null,extraHeaders={}){
+  const brandMatch=path.match(/^\/api\/(posts|automations)\/(APP-[^/?]+)/);
+  if(brandMatch || (method==='POST' && body?.brand==='audiotel' && path==='/api/automations'))path='/audiotel'+path;
+  else if(method==='GET' && path==='/api/automations')path='/api/combined/automations';
+  if(body?.brand){const {brand,...rest}=body;body=rest;}
   const base=(WORKER_URL||'').replace(/\/$/,''); 
   if(!base)throw new Error('Worker URL non configuré.'); 
   const opts={method,headers:{'Content-Type':'application/json','X-Admin-Token':ADMIN_TOKEN,...extraHeaders}}; 
@@ -1517,7 +1528,8 @@ async function checkOAuth(key){
 } 
 
 async function loadConnectionStatuses(){ 
-  buildConnectionsList(); 
+  buildConnectionsList();
+  loadAudiotelConnections(); 
   for(const key of Object.keys(PLATFORMS))await checkOAuth(key).catch(()=>null); 
   try{ 
     const data=await api('/api/platforms'); 
@@ -1615,17 +1627,17 @@ function renderResult(content,imageUrl,platforms,postId){
   document.getElementById('result-footer').innerHTML=`<div class="flex gap12 flex-wrap"><button class="btn btn-green btn-full" onclick="publishNow('${postId}')">▶ Publier maintenant</button><button class="btn btn-ghost" onclick="resetCreate()">Nouveau post</button></div>`; 
 } 
 
-async function publishNow(id){try{const d=await api('/api/posts/'+id+'/publish','POST');notify('Publication terminée : '+d.status,'ok');loadStats()}catch(e){notify(e.message,'err')}} 
+async function publishNow(id){try{const d=await api('/api/posts/'+id+'/publish','POST');notify('Publication terminée : '+d.status,id.startsWith('APP-')&&d.status!=='published'?'err':'ok');loadStats()}catch(e){notify(e.message,'err')}} 
 function resetCreate(){document.querySelectorAll('#plat-checklist input').forEach(i=>i.checked=false);document.getElementById('c-desc').value='';document.getElementById('c-theme').value='';document.getElementById('result-box').classList.remove('on');resetImgBlock('create');setDefaultDate()} 
 
 /* ──── QUEUE ──── */ 
 async function loadQueue(){ 
   const el=document.getElementById('queue-list'); 
   try{ 
-    const data=await api('/api/posts?limit=200'); 
+    const data=await api('/api/combined/posts?limit=200'); 
     const items=(data.posts||[]).filter(p=>['pending_validation','modification_requested'].includes(p.status)); 
     if(!items.length){el.innerHTML='<div class="text-muted text-sm">Aucune publication en attente.</div>';return} 
-    el.innerHTML=items.map(p=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:11px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-weight:600;margin-bottom:4px">${escapeHtml((p.description||'').slice(0,70))}…</div><div class="text-sm text-muted">${(p.platforms||[]).map(k=>PLATFORMS[k]?.name||k).join(', ')} • ${new Date(p.createdAt||Date.now()).toLocaleString('fr-FR')}</div></div><span class="badge ${statusBadge(p.status)}">${statusLabel(p.status)}</span><button class="btn btn-green btn-sm" onclick="publishNow('${p.id}')">Exécuter</button><button class="btn btn-ghost btn-sm" onclick="viewPost('${p.id}')">Voir</button><button class="btn btn-red btn-sm" onclick="deletePost('${p.id}');loadQueue()">Supprimer</button></div>`).join(''); 
+    el.innerHTML=items.map(p=>`<div class="${pgiBrandClass(p)}" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:11px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-weight:600;margin-bottom:4px">${pgiBrandLabel(p)}${escapeHtml((p.description||'').slice(0,70))}…</div><div class="text-sm text-muted">${(p.platforms||[]).map(k=>PLATFORMS[k]?.name||k).join(', ')} • ${new Date(p.createdAt||Date.now()).toLocaleString('fr-FR')}</div></div><span class="badge ${statusBadge(p.status)}">${statusLabel(p.status)}</span><button class="btn btn-green btn-sm" onclick="publishNow('${p.id}')">Exécuter</button><button class="btn btn-ghost btn-sm" onclick="viewPost('${p.id}')">Voir</button><button class="btn btn-red btn-sm" onclick="deletePost('${p.id}');loadQueue()">Supprimer</button></div>`).join(''); 
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>'} 
 } 
 
@@ -1633,9 +1645,9 @@ async function loadQueue(){
 async function loadHistory(){ 
   const tbody=document.getElementById('hist-tbody'); 
   try{ 
-    const data=await api('/api/posts?limit=200'); 
+    const data=await api('/api/combined/posts?limit=200'); 
     const posts=data.posts||[]; 
-    tbody.innerHTML=posts.length?posts.map(p=>`<tr><td class="td-mono">${escapeHtml(p.id)}</td><td class="td-clamp">${escapeHtml(p.description||'')}</td><td>${(p.platforms||[]).map(k=>`<span class="badge b-blue" style="margin:1px">${PLATFORMS[k]?.icon||''} ${k}</span>`).join('')}</td><td><span class="badge ${statusBadge(p.status)}">${statusLabel(p.status)}</span></td><td class="text-muted text-sm">${new Date(p.createdAt||Date.now()).toLocaleString('fr-FR')}</td><td><button class="btn btn-ghost btn-sm" onclick="viewPost('${p.id}')">Voir</button><button class="btn btn-red btn-sm" onclick="deletePost('${p.id}');loadHistory()">Supprimer</button></td></tr>`).join(''):'<tr><td colspan="6" class="text-muted text-sm" style="padding:18px">Aucune publication</td></tr>'; 
+    tbody.innerHTML=posts.length?posts.map(p=>`<tr class="${pgiBrandClass(p)}"><td class="td-mono">${escapeHtml(p.id)}</td><td class="td-clamp">${pgiBrandLabel(p)}${escapeHtml(p.description||'')}</td><td>${(p.platforms||[]).map(k=>`<span class="badge b-blue" style="margin:1px">${PLATFORMS[k]?.icon||''} ${k}</span>`).join('')}</td><td><span class="badge ${statusBadge(p.status)}">${statusLabel(p.status)}</span></td><td class="text-muted text-sm">${new Date(p.createdAt||Date.now()).toLocaleString('fr-FR')}</td><td><button class="btn btn-ghost btn-sm" onclick="viewPost('${p.id}')">Voir</button><button class="btn btn-red btn-sm" onclick="deletePost('${p.id}');loadHistory()">Supprimer</button></td></tr>`).join(''):'<tr><td colspan="6" class="text-muted text-sm" style="padding:18px">Aucune publication</td></tr>'; 
   }catch(e){tbody.innerHTML='<tr><td colspan="6" class="text-red text-sm">'+escapeHtml(e.message)+'</td></tr>'} 
 } 
 
@@ -1659,12 +1671,12 @@ async function loadPlatStatus(){
 } 
 
 /* ──── AUTOMATISATIONS ──── */ 
-function openAutoModal(data=null){buildSmallPlatformGrid('am-platforms');document.getElementById('am-id').value=data?.id||'';document.getElementById('am-name').value=data?.name||'';document.getElementById('am-desc').value=data?.description||'';document.getElementById('am-freq').value=data?.frequency||'daily';document.getElementById('am-hour').value=data?.hour||'09:00';document.getElementById('am-theme').value=data?.themes?.[0]||'';document.getElementById('am-tone').value=data?.tone||'balanced';document.getElementById('am-validate-email').checked=data?data.validateEmail!==false:true;document.getElementById('am-infinite').checked=data?data.infinite!==false:true;document.getElementById('am-enddate').value=data?.endDate||'';document.getElementById('am-maxruns').value=data?.maxRuns||'';(data?.platforms||[]).forEach(key=>{const i=document.getElementById('am-platforms-'+key);if(i)i.checked=true});setImgBlock('auto',data);document.getElementById('auto-modal').style.display='flex'} 
+function openAutoModal(data=null){buildSmallPlatformGrid('am-platforms');document.getElementById('am-id').value=data?.id||'';document.getElementById('am-name').value=data?.name||'';document.getElementById('am-desc').value=data?.description||'';document.getElementById('am-freq').value=data?.frequency||'daily';document.getElementById('am-hour').value=data?.hour||'09:00';document.getElementById('am-theme').value=data?.themes?.[0]||'';document.getElementById('am-tone').value=data?.tone||'balanced';document.getElementById('am-validate-email').checked=data?data.validateEmail!==false:true;document.getElementById('am-infinite').checked=data?data.infinite!==false:true;document.getElementById('am-enddate').value=data?.endDate||'';document.getElementById('am-maxruns').value=data?.maxRuns||'';(data?.platforms||[]).forEach(key=>{const i=document.getElementById('am-platforms-'+key);if(i)i.checked=true});setImgBlock('auto',data);document.getElementById('am-brand').value=data?.id?.startsWith('APP-')?'audiotel':'cvm';document.getElementById('am-brand').disabled=!!data?.id;updatePgiBrand('auto');document.getElementById('auto-modal').style.display='flex'} 
 function closeAutoModal(){document.getElementById('auto-modal').style.display='none'} 
 async function saveAutomation(){ 
   const id=document.getElementById('am-id').value; 
   const imgPayload=getImgPayload('auto'); 
-  const body={name:document.getElementById('am-name').value.trim(),description:document.getElementById('am-desc').value.trim(),platforms:[...document.querySelectorAll('#am-platforms input:checked')].map(i=>i.value),frequency:document.getElementById('am-freq').value,hour:document.getElementById('am-hour').value,themes:document.getElementById('am-theme').value?[document.getElementById('am-theme').value]:[],tone:document.getElementById('am-tone').value,seoKeywords:SEO_KEYWORDS_VOYANCE,...imgPayload,validateEmail:document.getElementById('am-validate-email').checked,infinite:document.getElementById('am-infinite').checked,endDate:document.getElementById('am-enddate').value||null,maxRuns:parseInt(document.getElementById('am-maxruns').value)||null,active:true}; 
+  const body={brand:document.getElementById('am-brand').value,name:document.getElementById('am-name').value.trim(),description:document.getElementById('am-desc').value.trim(),platforms:[...document.querySelectorAll('#am-platforms input:checked')].map(i=>i.value),frequency:document.getElementById('am-freq').value,hour:document.getElementById('am-hour').value,themes:document.getElementById('am-theme').value?[document.getElementById('am-theme').value]:[],tone:document.getElementById('am-tone').value,seoKeywords:SEO_KEYWORDS_VOYANCE,...imgPayload,validateEmail:document.getElementById('am-validate-email').checked,infinite:document.getElementById('am-infinite').checked,endDate:document.getElementById('am-enddate').value||null,maxRuns:parseInt(document.getElementById('am-maxruns').value)||null,active:true}; 
   if(!body.name||!body.description||!body.platforms.length)return notify('Nom, description et plateforme obligatoires.','err'); 
   try{await api(id?'/api/automations/'+id:'/api/automations',id?'PUT':'POST',body);notify('Automatisation sauvegardée.','ok');closeAutoModal();loadAutomations()}catch(e){notify(e.message,'err')} 
 } 
@@ -1673,12 +1685,12 @@ async function loadAutomations(){
   try{ 
     const data=await api('/api/automations');const rules=data.automations||[]; 
     if(!rules.length){el.innerHTML='<div class="text-muted text-sm">Aucune automatisation créée.</div>';return} 
-    el.innerHTML=rules.map(rule=>`<div style="background:var(--bg2);border:1px solid ${rule.active?'rgba(0,191,255,.25)':'var(--border)'};border-radius:10px;padding:18px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><div style="font-weight:700;font-size:14px">${escapeHtml(rule.name)}</div><span class="badge ${rule.active?'b-green':'b-gray'}">${rule.active?'Active':'Inactive'}</span><span class="badge b-blue">${escapeHtml(rule.frequency)}</span><span class="badge ${rule.validateEmail!==false?'b-blue':'b-orange'}">${rule.validateEmail!==false?'Email validation':'Direct'}</span>${rule.useImage?'<span class="badge b-blue">🖼 Image</span>':''}</div><div class="text-sm text-muted">${escapeHtml((rule.description||'').slice(0,100))}</div><div class="text-sm text-muted mt8">Plateformes : ${(rule.platforms||[]).map(k=>PLATFORMS[k]?.icon||k).join(' ')} • Prochain : <span class="text-gold">${rule.nextRun?new Date(rule.nextRun).toLocaleString('fr-FR'):'—'}</span> • Dernier : ${rule.lastRun?new Date(rule.lastRun).toLocaleString('fr-FR'):'Jamais'}</div>${rule.lastError?`<div class="text-red text-sm mt8">Erreur : ${escapeHtml(rule.lastError)}</div>`:''}</div><div class="flex gap8 flex-wrap"><button class="btn ${rule.active?'btn-red':'btn-green'} btn-sm" onclick="toggleAuto('${rule.id}')">${rule.active?'Arrêter':'Reprendre'}</button><button class="btn btn-neon btn-sm" onclick="runAutoNow('${rule.id}')">Exécuter</button><button class="btn btn-ghost btn-sm" onclick="editAuto('${rule.id}')">Modifier</button><button class="btn btn-red btn-sm" onclick="deleteAuto('${rule.id}')">Supprimer</button></div></div></div>`).join(''); 
+    el.innerHTML=rules.map(rule=>`<div class="${pgiBrandClass(rule)}" style="background:var(--bg2);border:1px solid ${rule.active?'rgba(0,191,255,.25)':'var(--border)'};border-radius:10px;padding:18px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap"><div style="font-weight:700;font-size:14px">${pgiBrandLabel(rule)}${escapeHtml(rule.name)}</div><span class="badge ${rule.active?'b-green':'b-gray'}">${rule.active?'Active':'Inactive'}</span><span class="badge b-blue">${escapeHtml(rule.frequency)}</span><span class="badge ${rule.validateEmail!==false?'b-blue':'b-orange'}">${rule.validateEmail!==false?'Email validation':'Direct'}</span>${rule.useImage?'<span class="badge b-blue">🖼 Image</span>':''}</div><div class="text-sm text-muted">${escapeHtml((rule.description||'').slice(0,100))}</div><div class="text-sm text-muted mt8">Plateformes : ${(rule.platforms||[]).map(k=>PLATFORMS[k]?.icon||k).join(' ')} • Prochain : <span class="text-gold">${rule.nextRun?new Date(rule.nextRun).toLocaleString('fr-FR'):'—'}</span> • Dernier : ${rule.lastRun?new Date(rule.lastRun).toLocaleString('fr-FR'):'Jamais'}</div>${rule.lastError?`<div class="text-red text-sm mt8">Erreur : ${escapeHtml(rule.lastError)}</div>`:''}</div><div class="flex gap8 flex-wrap"><button class="btn ${rule.active?'btn-red':'btn-green'} btn-sm" onclick="toggleAuto('${rule.id}')">${rule.active?'Arrêter':'Reprendre'}</button><button class="btn btn-neon btn-sm" onclick="runAutoNow('${rule.id}')">Exécuter</button><button class="btn btn-ghost btn-sm" onclick="editAuto('${rule.id}')">Modifier</button><button class="btn btn-red btn-sm" onclick="deleteAuto('${rule.id}')">Supprimer</button></div></div></div>`).join(''); 
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>'} 
 } 
 async function editAuto(id){try{const data=await api('/api/automations/'+id);openAutoModal(data.automation)}catch(e){notify(e.message,'err')}} 
 async function toggleAuto(id){try{const d=await api('/api/automations/'+id+'/toggle','POST');notify(d.active?'Activée.':'Arrêtée.','ok');loadAutomations()}catch(e){notify(e.message,'err')}} 
-async function runAutoNow(id){try{const d=await api('/api/automations/'+id+'/run','POST');notify(d.validateEmail?'Post généré et email envoyé.':'Post généré et publié directement.','ok');loadAutomations();loadStats()}catch(e){notify(e.message,'err')}} 
+async function runAutoNow(id){try{const d=await api('/api/automations/'+id+'/run','POST');if(id.startsWith('APP-')&&(d.emailError||d.publicationStatus==='partial'||d.skipped))notify(d.emailError|| (d.skipped?'Automatisation non exécutée.':'Publication partielle : consultez les résultats.'),'err');else notify(d.validateEmail?'Post généré et email envoyé.':'Post généré et publié directement.','ok');loadAutomations();loadStats()}catch(e){notify(e.message,'err')}} 
 async function deleteAuto(id){if(!confirm('Supprimer cette automatisation ?'))return;try{await api('/api/automations/'+id,'DELETE');notify('Supprimée.','ok');loadAutomations()}catch(e){notify(e.message,'err')}} 
 async function runCronNow(){try{const d=await api('/api/cron/run','POST',null,{'X-Cron-Secret':ADMIN_TOKEN});notify('Vérification terminée : '+(d.processed||0)+' élément(s).','ok');loadAutomations();loadStats()}catch(e){notify(e.message,'err')}} 
 
@@ -1694,10 +1706,11 @@ async function saveScheduledPost(){
 async function loadMyPosts(){ 
   const el=document.getElementById('myposts-list'); 
   try{ 
-    const data=await api('/api/scheduled?limit=200');const items=data.scheduled||[]; 
-    const badge=document.getElementById('myposts-badge');badge.style.display=items.length?'':'none';badge.textContent=items.length; 
-    if(!items.length){el.innerHTML='<div class="text-muted text-sm">Aucun post programmé.</div>';return} 
+    const data=await api('/api/scheduled?limit=200');const items=data.scheduled||[];const rules=await api('/api/automations').catch(()=>({automations:[]}));const upcoming=(rules.automations||[]).filter(r=>pgiIsAudiotel(r)&&r.active&&r.nextRun).sort((a,b)=>a.nextRun-b.nextRun); 
+    const badge=document.getElementById('myposts-badge');badge.style.display=(items.length+upcoming.length)?'':'none';badge.textContent=items.length+upcoming.length; 
+    if(!items.length&&!upcoming.length){el.innerHTML='<div class="text-muted text-sm">Aucun post programmé.</div>';return} 
     el.innerHTML=items.map(item=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div style="font-weight:700">${escapeHtml(item.name||item.description)}</div><div class="text-sm text-muted">${escapeHtml((item.description||'').slice(0,90))}</div><div class="text-sm text-muted mt8">${(item.platforms||[]).map(k=>PLATFORMS[k]?.icon||k).join(' ')} • ${item.scheduledAt?new Date(item.scheduledAt).toLocaleString('fr-FR'):'À la demande'} • <span class="badge ${statusBadge(item.status)}">${statusLabel(item.status)}</span></div></div><div class="flex gap8 flex-wrap"><button class="btn btn-neon btn-sm" onclick="publishScheduled('${item.id}')">Exécuter</button><button class="btn btn-red btn-sm" onclick="deleteScheduled('${item.id}')">Supprimer</button></div></div></div>`).join(''); 
+    if(upcoming.length)el.insertAdjacentHTML('beforeend',upcoming.map(r=>`<div class="pgi-app-card" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">${pgiBrandLabel(r)}<div style="font-weight:700">${escapeHtml(r.name)}</div><div class="text-sm text-muted mt8">${(r.platforms||[]).map(k=>PLATFORMS[k]?.icon||k).join(' ')} • Prochaine automatisation : ${new Date(r.nextRun).toLocaleString('fr-FR')}</div></div>`).join(''));
   }catch(e){el.innerHTML='<div class="text-red text-sm">'+escapeHtml(e.message)+'</div>'} 
 } 
 async function publishScheduled(id){try{await api('/api/scheduled/'+id+'/publish','POST');notify('Post envoyé en validation email.','ok');loadMyPosts();loadStats()}catch(e){notify(e.message,'err')}} 
@@ -1710,7 +1723,7 @@ async function loadEmailConfig(){try{const data=await api('/api/config/email');c
 async function saveEmailConfig(){try{await api('/api/config/email','PUT',{resendApiKey:document.getElementById('email-resend-key').value.trim()||'***',fromEmail:document.getElementById('email-from').value.trim()});notify('Configuration email sauvegardée.','ok')}catch(e){notify(e.message,'err')}} 
 
 /* ──── CALENDRIER ──── */ 
-function initCalendar(){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();api('/api/posts?limit=200').then(d=>{calPosts=d.posts||[];renderCalendar()}).catch(()=>renderCalendar())} 
+function initCalendar(){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();Promise.all([api('/api/combined/posts?limit=200'),api('/api/automations')]).then(([d,a])=>{calPosts=[...(d.posts||[]),...(a.automations||[]).filter(r=>pgiIsAudiotel(r)&&r.active&&r.nextRun>Date.now()).map(r=>({...r,description:r.name,scheduledAt:r.nextRun}))];renderCalendar()}).catch(()=>renderCalendar())} 
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCalendar()} 
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCalendar()} 
 function renderCalendar(){ 
@@ -1725,7 +1738,7 @@ function renderCalendar(){
   for(let day=1;day<=daysCount;day++){ 
     const isToday=day===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear(); 
     const dayPosts=calPosts.filter(p=>{const d=new Date(p.scheduledAt||p.createdAt);return d.getFullYear()===calYear&&d.getMonth()===calMonth&&d.getDate()===day}); 
-    html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${day}</div>${dayPosts.slice(0,2).map(p=>`<div class="cal-event">${PLATFORMS[p.platforms?.[0]]?.icon||''} ${(p.description||'').slice(0,14)}</div>`).join('')}${dayPosts.length>2?`<div style="font-size:9px;color:var(--text3)">+${dayPosts.length-2}</div>`:''}</div>`; 
+    html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${day}</div>${dayPosts.slice(0,2).map(p=>`<div class="cal-event ${pgiBrandClass(p)}">${pgiIsAudiotel(p)?'APP · ':''}${PLATFORMS[p.platforms?.[0]]?.icon||''} ${(p.description||'').slice(0,14)}</div>`).join('')}${dayPosts.length>2?`<div style="font-size:9px;color:var(--text3)">+${dayPosts.length-2}</div>`:''}</div>`; 
   } 
   document.getElementById('cal-grid').innerHTML=html; 
 } 
@@ -3075,6 +3088,30 @@ window.addEventListener('load', async function(){
   updateNotesBadge(); 
   loadStats(); 
 }); 
+
+// Extension Audiotel : aucune modification des fonctions SMS.
+function pgiIsAudiotel(obj){return obj?.brand==='audiotel'||String(obj?.id||'').startsWith('APP-');}
+function pgiBrandClass(obj){return pgiIsAudiotel(obj)?'pgi-app-card':'';}
+function pgiBrandLabel(obj){return pgiIsAudiotel(obj)?'<span class="pgi-app-label">AUDIOTEL PREMIUM PRO</span>':'';}
+function pgiSelectedBrand(ctx){return ctx==='auto'?(document.getElementById('am-brand')?.value||'cvm'):'cvm';}
+function updatePgiBrand(ctx){
+ if(ctx!=='auto')return;const active=pgiSelectedBrand(ctx)==='audiotel';const id='am-platforms';
+ document.querySelectorAll('#'+id+' input[type=checkbox]').forEach(i=>{const incompatible=active&&!['linkedin','facebook','instagram','threads'].includes(i.value);if(incompatible)i.checked=false;i.disabled=incompatible;const box=i.closest('.plat-check');if(box)box.style.display=incompatible?'none':'';});
+ const theme=document.getElementById(({create:'c-theme',auto:'am-theme'})[ctx]);if(theme){if(active)theme.value='';theme.disabled=active;}
+ const img=document.getElementById('img-desc-'+ctx);if(img){if(!img.dataset.originalPlaceholder)img.dataset.originalPlaceholder=img.placeholder;img.placeholder=active?'Ex : infrastructure télécom, réseau professionnel, technologie B2B…':img.dataset.originalPlaceholder;}
+ const panel=document.getElementById('img-panel-'+ctx);const columns=panel?.querySelector('.img-cols');if(columns?.children.length===2){columns.children[0].style.display=active?'none':'';columns.style.gridTemplateColumns=active?'1fr':'';}
+}
+async function loadAudiotelConnections(){
+ const list=document.getElementById('conn-list');if(!list)return;document.getElementById('pgi-audiotel-connections')?.remove();
+ const el=document.createElement('div');el.id='pgi-audiotel-connections';el.className='card pgi-app-card';el.innerHTML='<div class="card-title" style="color:#FFB380">Audiotel Premium Pro • Connexions indépendantes</div><div class="text-sm text-muted">Comptes dédiés configurés par secrets Cloudflare. Aucun jeton ClairVoyanceMedium.com n\'est réutilisé.</div><div id="pgi-app-conn-status" class="mt8">Vérification...</div><div class="flex gap8 flex-wrap mt8"><button class="btn btn-neon btn-sm" onclick="connectAudiotelLinkedin()">Connecter LinkedIn Audiotel</button><button class="btn btn-ghost btn-sm" onclick="loadAudiotelConnections()">Actualiser</button><button class="btn btn-red btn-sm" onclick="disconnectAudiotelLinkedin()">Déconnecter LinkedIn Audiotel</button></div>';list.prepend(el);
+ const status=el.querySelector('#pgi-app-conn-status');try{const d=await api('/audiotel/api/connections');status.innerHTML=['linkedin','facebook','instagram','threads'].map(p=>{const s=d.platforms?.[p]||{};return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:#FFB380">'+escapeHtml(PLATFORMS[p].name)+'</strong> • <span class="'+(s.verified?'text-green':'text-muted')+'">'+escapeHtml(s.verified?'Identité vérifiée : '+(s.name||s.target):s.configured?s.message:s.error||'Non configuré')+'</span></div>';}).join('');}catch(e){status.textContent='Audiotel indisponible : '+e.message;}
+}
+
+async function connectAudiotelLinkedin(){
+ const win=window.open('','_blank');if(!win)return notify('Autorisez l’ouverture de la fenêtre LinkedIn.','err');
+ try{const d=await api('/audiotel/api/linkedin/connect','POST');if(!d.url)throw new Error('URL OAuth absente');win.location.href=d.url;const timer=setInterval(()=>{if(win.closed){clearInterval(timer);loadAudiotelConnections();}},700);}catch(e){win.close();notify(e.message,'err');}
+}
+async function disconnectAudiotelLinkedin(){if(!confirm('Déconnecter exclusivement LinkedIn Audiotel ?'))return;try{const d=await api('/audiotel/api/linkedin/disconnect','POST');notify(d.manualTokenConfigured?'Jeton OAuth supprimé. Le secret manuel Cloudflare reste actif.':'LinkedIn Audiotel déconnecté.','ok');loadAudiotelConnections();}catch(e){notify(e.message,'err');}}
 </script> 
 </body> 
 </html>
